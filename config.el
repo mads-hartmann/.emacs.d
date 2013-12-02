@@ -18,8 +18,10 @@
 (setq backup-inhibited t)    ; disable backup files (foo~)
 (global-auto-revert-mode 1)  ; pick up changes to files on disk automatically
 (setq line-move-visual t)    ; Pressing down arrow key moves the cursor by a screen line
-(setq whitespace-style '(trailing tabs tab-mark))
+(setq whitespace-style '(trailing tabs tab-mark face))
 (setq-default indent-tabs-mode nil)
+
+(autoload 'whitespace-mode "whitespace" "Toggle whitespace visualization." t)
 
 ;; OS X Specific stuff
 (setq ns-pop-up-frames nil) ; http://stackoverflow.com/questions/945709/emacs-23-os-x-multi-tty-and-emacsclient/1800724#1800724

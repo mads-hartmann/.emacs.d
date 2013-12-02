@@ -1,3 +1,5 @@
+(server-start)
+
 (require 'package)
 
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
@@ -17,7 +19,9 @@
    git-rebase-mode
    git-commit-mode
    auto-complete
-   clojure-mode))
+   clojure-mode
+   scss-mode
+   markdown-mode))
 
 ;; Now that all packages are installed, we can start to
 ;; configure all the things.

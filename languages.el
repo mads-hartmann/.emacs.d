@@ -40,3 +40,7 @@
 	  (lambda () 
 	    (set (make-local-variable 'compile-command)
 		 (concat "make -w -C " (or (upward-find-file "Makefile") ".")))))
+
+;; Sass
+;;
+(setq scss-compile-at-save nil)
