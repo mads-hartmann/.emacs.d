@@ -3,8 +3,8 @@
 (require 'package)
 
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-			 ("marmalade" . "http://marmalade-repo.org/packages/")
-			 ("melpa" . "http://melpa.milkbox.net/packages/")))
+                         ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")))
 
 (package-initialize)
 
@@ -12,7 +12,7 @@
  (lambda (package)
    (or (package-installed-p package)
        (if (y-or-n-p (format "Package %s is missing. Install it? " package))
-	   (package-install package))))
+           (package-install package))))
  '(scala-mode2
    tuareg
    magit
@@ -21,7 +21,8 @@
    auto-complete
    clojure-mode
    scss-mode
-   markdown-mode))
+   markdown-mode
+   textmate))
 
 ;; Now that all packages are installed, we can start to
 ;; configure all the things.
