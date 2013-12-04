@@ -22,11 +22,11 @@
    clojure-mode
    scss-mode
    markdown-mode
-   textmate))
+   textmate
+   sr-speedbar))
 
 ;; Now that all packages are installed, we can start to
 ;; configure all the things.
-
 (require 'auto-complete-config)
 
 (load "~/.emacs.d/functions.el")

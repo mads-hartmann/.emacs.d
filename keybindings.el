@@ -12,6 +12,7 @@
 (global-set-key (kbd "S-<f3>") 'pop-tag-mark)
 (global-set-key [(super w)] 'kill-buffer)
 (global-set-key (kbd "C-w") 'my-mark-current-word)
+(global-set-key [f11] 'sr-speedbar-toggle)
 
 ;; movement
 (global-set-key (kbd "C-s-<left>")  'windmove-left)

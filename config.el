@@ -2,6 +2,10 @@
 ;; Configuration
 ;;
 
+(require 'sr-speedbar)
+
+(setq debug-on-error t)
+
 ;; Compilation output
 (setq compilation-scroll-output t)
 (put 'downcase-region 'disabled nil)
