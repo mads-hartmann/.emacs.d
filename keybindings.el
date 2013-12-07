@@ -28,6 +28,7 @@
 (define-key ac-complete-mode-map "\C-p" 'ac-previous)
 
 ;; compilation
+(global-set-key [f1] 'ffap)
 (global-set-key [f8] 'compile)
 (global-set-key [f12] 'refresh-safari)
 
