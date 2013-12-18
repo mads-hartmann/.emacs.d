@@ -19,6 +19,7 @@
 (global-set-key (kbd "C-s-<right>") 'windmove-right)
 (global-set-key (kbd "C-s-<up>")    'windmove-up)
 (global-set-key (kbd "C-s-<down>")  'windmove-down)
+(global-set-key (kbd "s-<return>") 'toggle-fullscreen)
 
 ;; git
 (global-set-key (kbd "s-F") 'magit-grep)

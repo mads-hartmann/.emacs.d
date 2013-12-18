@@ -5,11 +5,10 @@
 (require 'sr-speedbar)
 (require 'tramp)
 
-(load-theme 'deeper-blue)
 (textmate-mode)
 (whitespace-mode)
 
-(setq debug-on-error t)
+(setq debug-on-error nil)
 (scroll-bar-mode -1)
 (show-paren-mode t)
 (tool-bar-mode -1)
@@ -20,6 +19,8 @@
 (setq whitespace-style '(trailing tabs tab-mark face))
 (setq-default indent-tabs-mode nil)
 (setq ns-use-native-fullscreen nil)
+(setq mac-allow-anti-aliasing t)
+(setq ring-bell-function 'ignore)
 
 ;; IDO Mode
 (ido-mode 1)
