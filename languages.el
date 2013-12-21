@@ -34,10 +34,27 @@
             (set (make-local-variable 'compile-command)
                  (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))))
 
+;; OCP-Indent. Pretty indentation for OCaml code.
 (add-to-list 'load-path (concat
   (replace-regexp-in-string "\n$" "" (shell-command-to-string "opam config var share"))
   "/emacs/site-lisp"))
 (require 'ocp-indent)
+
+;;
+;; Setup environment variables using opam
+(dolist (var (car (read-from-string (shell-command-to-string "opam config env --sexp"))))
+  (setenv (car var) (cadr var)))
+
+;; Update the emacs path
+(setq exec-path (split-string (getenv "PATH") path-separator))
+
+;; Update the emacs load path
+(push (concat (getenv "OCAML_TOPLEVEL_PATH") "/../../share/emacs/site-lisp") load-path)
+
+;; Automatically load utop.el
+(autoload 'utop "utop" "Toplevel for OCaml" t)
+(add-hook 'tuareg-mode-hook 'utop-setup-ocaml-buffer)
+(add-hook 'typerex-mode-hook 'utop-setup-ocaml-buffer)
 
 ;; Erlang
 ;;

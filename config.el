@@ -4,6 +4,7 @@
 
 (require 'sr-speedbar)
 (require 'tramp)
+(require 'auto-complete-config)
 
 (textmate-mode)
 (whitespace-mode)
@@ -30,7 +31,6 @@
 (setq ido-create-new-buffer 'always)
 (setq ido-max-prospects 5)
 
-
 ;; Compilation output
 (setq compilation-scroll-output t)
 (put 'downcase-region 'disabled nil)
@@ -46,3 +46,15 @@
 ;; OS X Specific stuff
 ; http://stackoverflow.com/questions/945709/emacs-23-os-x-multi-tty-and-emacsclient/1800724#1800724
 (setq ns-pop-up-frames nil)
+
+;; Make sure Emacs copies my terminal $PATH.
+(exec-path-from-shell-initialize)
+(exec-path-from-shell-copy-env "CAML_LD_LIBRARY_PATH") ; Used by OCaml.
+
+(load "~/.emacs.d/functions.el")
+(load "~/.emacs.d/languages.el")
+(load "~/.emacs.d/keybindings.el")
+
+(if (display-graphic-p)
+    (load "~/.emacs.d/ui.el")
+  (load "~/.emacs.d/no-ui.el"))
