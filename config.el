@@ -58,3 +58,5 @@
 (if (display-graphic-p)
     (load "~/.emacs.d/ui.el")
   (load "~/.emacs.d/no-ui.el"))
+
+(load "~/.emacs.d/issuu/custom-utop.el")
