@@ -48,7 +48,7 @@
 ;; OCP-Indent. Pretty indentation for OCaml code (installed through opam)
 (require 'ocp-indent)
 
-;; Automatically load utop.el and make it the default buffer.
+;; Automatically load utop.el and make it the default toplevel.
 (autoload 'utop "utop" "Toplevel for OCaml" t)
 (autoload 'utop-setup-ocaml-buffer "utop" "Toplevel for OCaml" t)
 (add-hook 'tuareg-mode-hook 'utop-setup-ocaml-buffer)
