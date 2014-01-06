@@ -3,7 +3,7 @@
   (interactive)
   (load-file "~/.emacs.d/init.el"))
 
-(defun toggle-maximize-buffer () 
+(defun toggle-maximize-buffer ()
   "Maximize buffer - in a nice iTerm style way"
   (interactive)
   (if (= 1 (length (window-list)))
@@ -51,9 +51,9 @@
 (defun create-tags ()
   (interactive)
   (let* ((ctags-path "/usr/local/Cellar/ctags/5.8/bin/ctags")
-	 (default-directory (or (upward-find-file ".gitignore") "."))
+         (default-directory (or (upward-find-file ".gitignore") "."))
          (compile-command (concat "cd " default-directory
-				  " && " ctags-path " -e -R " default-directory " TAGS")))
+                                  " && " ctags-path " -e -R " default-directory " TAGS")))
     (shell-command compile-command)))
 
 (defun refresh-safari ()
@@ -62,31 +62,6 @@
    in the background."
   (interactive)
   (shell-command "source ~/.emacs.d/shell-functions/refresh-safari.sh"))
-
-(defun my-mark-current-word (&optional arg allow-extend)
-    "put point at beginning of current word, set mark at end."
-    (interactive "p\np")
-    (setq arg (if arg arg 1))
-    (if (and allow-extend
-             (or (and (eq last-command this-command) (mark t))
-                 (region-active-p)))
-        (set-mark
-         (save-excursion
-           (when (< (mark) (point))
-             (setq arg (- arg)))
-           (goto-char (mark))
-           (forward-word arg)
-           (point)))
-      (let ((wbounds (bounds-of-thing-at-point 'word)))
-        (unless (consp wbounds)
-          (error "no word at point"))
-        (if (>= arg 0)
-            (goto-char (car wbounds))
-          (goto-char (cdr wbounds)))
-        (push-mark (save-excursion
-                     (forward-word arg)
-                     (point)))
-        (activate-mark))))
 
 (defun toggle-fullscreen ()
   "Toggle full screen"

@@ -9,6 +9,8 @@
 (textmate-mode)
 (whitespace-mode)
 
+(yas-global-mode 1)
+(pending-delete-mode t)
 (setq debug-on-error nil)
 (scroll-bar-mode -1)
 (show-paren-mode t)
@@ -50,13 +52,3 @@
 ;; Make sure Emacs copies my terminal $PATH.
 (exec-path-from-shell-initialize)
 (exec-path-from-shell-copy-env "CAML_LD_LIBRARY_PATH") ; Used by OCaml.
-
-(load "~/.emacs.d/functions.el")
-(load "~/.emacs.d/languages.el")
-(load "~/.emacs.d/keybindings.el")
-
-(if (display-graphic-p)
-    (load "~/.emacs.d/ui.el")
-  (load "~/.emacs.d/no-ui.el"))
-
-(load "~/.emacs.d/issuu/custom-utop.el")
