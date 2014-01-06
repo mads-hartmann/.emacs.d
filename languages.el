@@ -17,10 +17,20 @@
 
 ;; OCaml
 ;;
+
+;; Update the Emacs load path.
 (push
  (concat (substring (shell-command-to-string "opam config var share") 0 -1)
          "/emacs/site-lisp") load-path)
 
+;; Setup environment variables using opam
+(dolist (var (car (read-from-string (shell-command-to-string "opam config env --sexp"))))
+  (setenv (car var) (cadr var)))
+
+;; Update the emacs path
+(setq exec-path (split-string (getenv "PATH") path-separator))
+
+;; Merlin
 (setq merlin-command
       (concat (substring (shell-command-to-string "opam config var bin") 0 -1)
               "/ocamlmerlin"))
@@ -29,30 +39,18 @@
 (add-hook 'tuareg-mode-hook 'merlin-mode)
 (add-hook 'caml-mode-hook 'merlin-mode)
 
+;; Better default compile-command for my Ocaml projects.
 (add-hook 'tuareg-mode-hook
           (lambda ()
             (set (make-local-variable 'compile-command)
                  (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))))
 
-;; OCP-Indent. Pretty indentation for OCaml code.
-(add-to-list 'load-path (concat
-  (replace-regexp-in-string "\n$" "" (shell-command-to-string "opam config var share"))
-  "/emacs/site-lisp"))
+;; OCP-Indent. Pretty indentation for OCaml code (installed through opam)
 (require 'ocp-indent)
 
-;;
-;; Setup environment variables using opam
-(dolist (var (car (read-from-string (shell-command-to-string "opam config env --sexp"))))
-  (setenv (car var) (cadr var)))
-
-;; Update the emacs path
-(setq exec-path (split-string (getenv "PATH") path-separator))
-
-;; Update the emacs load path
-(push (concat (getenv "OCAML_TOPLEVEL_PATH") "/../../share/emacs/site-lisp") load-path)
-
-;; Automatically load utop.el
+;; Automatically load utop.el and make it the default buffer.
 (autoload 'utop "utop" "Toplevel for OCaml" t)
+(autoload 'utop-setup-ocaml-buffer "utop" "Toplevel for OCaml" t)
 (add-hook 'tuareg-mode-hook 'utop-setup-ocaml-buffer)
 (add-hook 'typerex-mode-hook 'utop-setup-ocaml-buffer)
 
