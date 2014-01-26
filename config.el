@@ -5,7 +5,6 @@
 (require 'tramp)
 (require 'auto-complete-config)
 
-;; (textmate-mode)
 (whitespace-mode)
 
 (yas-global-mode 1)

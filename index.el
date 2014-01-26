@@ -1,20 +1,41 @@
 ;;
-;; I like to maintain an ctags index of all of my projects
+;; I find (c/e)tags to be really useful when navigating projects of
+;; almost any size. This file contains a few functions that improve
+;; the way I prefer use TAGS.
 ;;
-;; I use the TAGS file to provide the following functionality
+;;   * Jump to any definition in the project (using ido)
+;;   * Jump to any definition in the currently opened buffer (using ido)
+;;   * Open any file in the current project (using ido)
+;;   * (TODO) Complete word at point (code-completion) (using ido)
 ;;
-;;   * Jump to definition under the cursor
-;;   * Jump to any definition (using ido)
-;;   * Open any file matching string (using ido)
+;; Most of the above listed functions are supported by etags out of
+;; the box, but the functions below uses some conventions that makes
+;; using tags so much more enjoyable (IMO).
 ;;
+;;   * A project is defined by having a .gitignore file
+;;   * When indexing your project it will skip any folders that are
+;;     excluded in your .gitignore file.
+;;   * The entire index is re-built whenever you save a file. This
+;;     might not be optimal if you work on large projects but
+;;     from my experience it's very convenient.
+;;   * (TODO) If the current buffer isn't part of the currently
+;;     active tags-table it will clear all tags-related caches
+;;     and load the tags-table that is associated wih the given
+;;     file (this only happens if such a TAGS file exist)
 ;;
+;; This configuration works well for me.
+;;
+;; /Mads Hartmann
 ;;
 
 (defconst ctags-path "/usr/local/Cellar/ctags/5.8/bin/ctags")
 
-;;
-;; Maintaining the index
-;;
+(defun create-index-cmd-str (dir ignore)
+  "Shell command used to generate the TAGS file"
+  (format "cd %s && %s -e -R %s . TAGS 2>/dev/null"
+          dir
+          ctags-path
+          ignore))
 
 (defun forget-current-tags-table ()
   "Forget everything we know about the current tags-table."
@@ -24,26 +45,29 @@
   (setq tags-completion-table nil))
 
 (defun focus-project-containing-file (&optional path)
-  "Resets the tags-table, clear the 'tags-completion-table' cache
-   and visits the TAGS file closest (upwards) to 'path'. If no
-   value for 'path' is supplied it will use the current file."
+  "Resets the currently active tags-table and visits the TAGS
+   file closest (upwards) to 'path'. If no value for 'path' is
+   supplied it will start the search at the directory containing
+   the currently opened file."
   (interactive)
   (let ((dir (if path path (upward-find-file "TAGS"))))
     (forget-current-tags-table)
-    (visit-tags-table (concat dir))))
+    (visit-tags-table dir)))
 
 (defun index-current-project ()
-  "TODO: Write documentation for this sucker"
+  "Creates a TAGS file for the project that contains the
+   currently opened file.
+
+   It will clear the current tags-table and load the newly
+   generated TAGS file."
   (interactive)
-  (let ((d (upward-find-file ".gitignore")))
-    (message "dir is %s" d)
-    (if d
-        (let* ((dir (or (upward-find-file ".gitignore") "."))
-               (ignored (read-lines (concat dir "/.gitignore")))
+  (let ((dir (upward-find-file ".gitignore")))
+    (if dir
+        (let* ((ignored (read-lines (concat dir "/.gitignore")))
                (ignored-args-str (mapconcat (lambda (i) (concat "--exclude=" i)) ignored " "))
-               (compile-command (format "cd %s && %s -e -R %s . TAGS 2>/dev/null" dir ctags-path ignored-args-str)))
+               (index-cmd (create-index-cmd-str dir ignored-args-str)))
           (forget-current-tags-table)
-          (shell-command compile-command)
+          (shell-command index-cmd)
           (focus-project-containing-file dir)
           (message "Done indexing project"))
       (message "No .gitignore file found."))))
@@ -58,27 +82,19 @@
 ;; Navigation
 ;;
 
-;;
-;; TODO: When any of these functions are called we want to check that
-;; the current file is in the active tags-table, otherwise we should
-;; load that instead.
-;;
-;; This might not be disreable when looking at attached sources
-;; and the likes?
-;;
-
 (defun ido-find-file-in-tag-files ()
   "Find a file listed in the current tag file. From Stuart
    Halloway's 'What You Can Learn From ido.el' screencast."
   (interactive)
   (save-excursion
-    (let ((enable-recursive-minibuffers t)) (visit-tags-table-buffer))
+    (let ((enable-recursive-minibuffers t))
+      (visit-tags-table-buffer))
     (find-file (expand-file-name
                 (ido-completing-read "Project file: "
                                      (tags-table-files) nil t)))))
 
 (defun ido-find-tag ()
-  "Find a tag using ido"
+  "Jump to any tag in the project using ido."
   (interactive)
   (tags-completion-table)
   (let (tag-names)
@@ -88,31 +104,40 @@
     (find-tag (ido-completing-read "Tag: " tag-names))))
 
 (defun ido-find-tag-in-file ()
-  "Jump to a tags entry in the currently active file."
+  "Jump to any tag in the currently active file."
   ;; Possible optimization: Use something other than find-tag
   ;; as it performs a completely new tags search from scratch.
   ;; There's really no need for that as we have already 'found'
   ;; the tag when producing the completion-list.
   (interactive)
-  (let* ((symbols (symbol-in-file-completion-list "index.el"))
-         (selected (ido-completing-read "Tag: " symbols)))
-    (message selected)
-    (find-tag selected)))
+  (let* ((file-name (buffer-name))
+         (symbols (symbol-in-file-completion-list file-name)))
+    (if symbols
+        (find-tag (ido-completing-read "Tag: " symbols))
+      (message "No symbols in current file, sorry."))))
 
-(defun symbol-in-file-completion-list (file)
-  "Generate a completion list of available symbols in the
+(defun symbol-in-file-completion-list (file-name)
+  "Generates a completion list of available symbols in the
    currently active file based on the associated tags-table"
   (save-excursion
     (let* ((enable-recursive-minibuffers t)
-           (files nil))
+           (symbol-names nil))
       (visit-tags-table-buffer)
       (goto-char (point-min))
-      (let* ((beginning (search-forward "index.el" nil t))
+      (let* ((beginning (search-forward file-name nil t))
              (end (re-search-forward "" nil t)))
         (goto-char beginning)
         (while (and (re-search-forward "\\(.*\\)" nil t)
                     (<= (point) end))
           (push (buffer-substring (match-beginning 1)
                                   (match-end 1))
-                files))
-        files))))
+                symbol-names))
+        symbol-names))))
+
+;; Random notes
+;;
+;; TODO: It might be nice to allow all the navigation functions to
+;; automatically focus the TAGS file associated with the file. This
+;; might be annoying when browsing attatched code (maybe it should only
+;; do it if there is already a TAGS file?)
+;;
