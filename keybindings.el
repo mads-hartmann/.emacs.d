@@ -13,9 +13,12 @@
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (global-set-key (kbd "<f3>") 'find-tag)
 (global-set-key (kbd "S-<f3>") 'pop-tag-mark)
+(global-set-key (kbd "C-<f12>") 'pop-global-mark)
 (global-set-key [(super w)] 'kill-buffer)
-(global-set-key [f11] 'sr-speedbar-toggle)
 (global-set-key (kbd "C-w") 'er/expand-region)
+(global-set-key (kbd "s-t") 'ido-find-file-in-tag-files)
+(global-set-key (kbd "s-\\") 'ido-find-tag-in-file)
+(global-set-key (kbd "s-|") 'ido-find-tag)
 
 ;; movement
 (global-set-key (kbd "C-s-<left>")  'windmove-left)
@@ -23,7 +26,7 @@
 (global-set-key (kbd "C-s-<up>")    'windmove-up)
 (global-set-key (kbd "C-s-<down>")  'windmove-down)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
-(global-set-key (kbd "C-c C-SPC") 'ace-jump-mode)
+(global-set-key (kbd "C-c C-c") 'ace-jump-mode)
 
 ;; git
 (global-set-key (kbd "s-F") 'magit-grep)

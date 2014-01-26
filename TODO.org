@@ -1,0 +1,12 @@
+* I want to cleanup the buffer on save (https://github.com/danjacka/.emacs.d/blob/master/defuns/buffer-defuns.el)
+* TAGS
+** On save I want to update the TAGS index if it exists (just for that file if possible)
+** TODO If the current file isn't in the tags-table it should try to find that file.
+** TODO How do I loop over results when there are more than one? (C-u <f3>)
+** TODO I want to perform 'complete-tag' using IDO in the mini buffer from all definitions in the project
+** TODO Also read .ctags-ignore for more patterns if it exists
+** TODO Re-index and re-load on save?
+* I want IDO on M-x
+
+* Python
+** PEP8 if I can set it up to use our config always.

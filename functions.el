@@ -38,7 +38,8 @@
       (if (string= (expand-file-name dirname) "/")
           (setq top t))
 
-      ; Check for the file
+                                        ; Check for the file
+      (message "Looking at %s" (expand-file-name filename dirname))
       (if (file-exists-p (expand-file-name filename dirname))
           (setq found t)
         ; If not, move up a directory
@@ -46,15 +47,11 @@
     ; return statement
     (if found dirname nil)))
 
-;; TODO: Can we make this run in the background?
-;; Have a look at 'async shell command'
-(defun create-tags ()
-  (interactive)
-  (let* ((ctags-path "/usr/local/Cellar/ctags/5.8/bin/ctags")
-         (default-directory (or (upward-find-file ".gitignore") "."))
-         (compile-command (concat "cd " default-directory
-                                  " && " ctags-path " -e -R " default-directory " TAGS")))
-    (shell-command compile-command)))
+(defun read-lines (filePath)
+  "Return a list of lines of a file at filePath."
+  (with-temp-buffer
+    (insert-file-contents filePath)
+    (split-string (buffer-string) "\n" t)))
 
 (defun refresh-safari ()
   "Executes a shell-script, that executes an applescript, that

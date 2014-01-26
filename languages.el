@@ -52,7 +52,6 @@
 (autoload 'utop "utop" "Toplevel for OCaml" t)
 (autoload 'utop-setup-ocaml-buffer "utop" "Toplevel for OCaml" t)
 (add-hook 'tuareg-mode-hook 'utop-setup-ocaml-buffer)
-(add-hook 'typerex-mode-hook 'utop-setup-ocaml-buffer)
 
 ;; Erlang
 ;;
@@ -67,4 +66,16 @@
 
 ;; Javascript
 ;;
-(setq js-indent-level 2)
+(setq js-indent-level 4)
+(require 'flymake-jshint)
+(add-hook 'javascript-mode-hook
+     (lambda () (flymake-mode t)))
+
+;; Python
+;;
+
+;; Better default compile-command for my Python projects.
+(add-hook 'python-mode-hook
+          (lambda ()
+            (set (make-local-variable 'compile-command)
+                 (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint-errors"))))

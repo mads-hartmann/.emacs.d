@@ -22,8 +22,6 @@
    clojure-mode
    scss-mode
    markdown-mode
-   textmate
-   sr-speedbar
    exec-path-from-shell
    solarized-theme
    multiple-cursors
@@ -31,7 +29,32 @@
    haskell-mode
    yasnippet
    hamlet-mode
-   ace-jump-mode))
+   ace-jump-mode
+   erlang))
+
+;; Stuff not in ELPA :(
+(load "~/.emacs.d/not-in-elpa/my-desktop.el")
+(add-to-list 'load-path "~/.emacs.d/not-in-elpa/jshint-mode")
+
+(load "~/.emacs.d/functions.el")
+(load "~/.emacs.d/index.el")
+
+(load "~/.emacs.d/config.el")
+(load "~/.emacs.d/languages.el")
+(load "~/.emacs.d/keybindings.el")
+(load "~/.emacs.d/issuu/custom-utop.el")
+
+(if (display-graphic-p)
+    (load "~/.emacs.d/ui.el")
+  (load "~/.emacs.d/no-ui.el"))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(put 'upcase-region 'disabled nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -44,19 +67,3 @@
  '(haskell-mode-hook
    (quote
     (turn-on-haskell-indent turn-on-haskell-indentation))))
-
-(load "~/.emacs.d/config.el")
-(load "~/.emacs.d/functions.el")
-(load "~/.emacs.d/languages.el")
-(load "~/.emacs.d/keybindings.el")
-(load "~/.emacs.d/issuu/custom-utop.el")
-
-(if (display-graphic-p)
-    (load "~/.emacs.d/ui.el")
-  (load "~/.emacs.d/no-ui.el"))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

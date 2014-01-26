@@ -2,15 +2,15 @@
 ;; Configuration
 ;;
 
-(require 'sr-speedbar)
 (require 'tramp)
 (require 'auto-complete-config)
 
-(textmate-mode)
+;; (textmate-mode)
 (whitespace-mode)
 
 (yas-global-mode 1)
 (pending-delete-mode t)
+(delete-selection-mode t)
 (setq debug-on-error nil)
 (scroll-bar-mode -1)
 (show-paren-mode t)
