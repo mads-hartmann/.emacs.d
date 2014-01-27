@@ -9,6 +9,7 @@
 
 ;; misc
 (global-set-key "\M-x" 'ido-mx)
+(global-set-key (kbd "C-.") 'ido-mx)
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
 (global-set-key (kbd "C-x C-b") 'ibuffer)

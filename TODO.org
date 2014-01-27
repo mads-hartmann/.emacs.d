@@ -1,7 +1,7 @@
 * I want to cleanup the buffer on save (https://github.com/danjacka/.emacs.d/blob/master/defuns/buffer-defuns.el)
 
 * TAGS
-** How do I loop over results when there are more than one? (C-u <f3>)
+
 ** TODO If the current file isn't in the tags-table it should try to find that file.
 ** TODO I want to perform 'complete-tag' using IDO in the mini buffer from all definitions in the project
 ** TODO Also read .ctags-ignore for more patterns if it exists
@@ -15,3 +15,9 @@
 
 * Modes to have a look at
 ** https://github.com/nonsequitur/smex
+
+
+
+* TODO git gutter?
+
+* Ace-jump-mode like mode that allows you to jump to any window.

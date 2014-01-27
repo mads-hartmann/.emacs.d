@@ -27,7 +27,6 @@
 ;;
 ;; /Mads Hartmann
 ;;
-;; TODO: It seems to be confused when trying to commit something.
 ;;
 
 (require 'etags)
@@ -76,6 +75,11 @@
           (message "Done indexing project"))
       (message "No .gitignore file found."))))
 
+(defun files-in-tags-table ()
+  (save-excursion
+    (visit-tags-table-buffer)
+    (mapcar (lambda (x) (expand-file-name (prin1-to-string x t))) (tags-table-files))))
+
 ;;
 ;; Hooks
 ;;
@@ -90,11 +94,10 @@
   "Find a file listed in the current tag file. From Stuart
    Halloway's 'What You Can Learn From ido.el' screencast."
   (interactive)
-  (save-excursion
-    (let ((enable-recursive-minibuffers t))
-      (visit-tags-table-buffer))
-    (find-file (expand-file-name
-                (ido-completing-read "File: " (tags-table-files) nil t)))))
+  (let ((file-names (files-in-tags-table)))
+    (find-file
+
+      (ido-completing-read "File: " file-names nil t))))
 
 (defun ido-find-tag ()
   "Jump to any tag in the project using ido."
@@ -108,35 +111,43 @@
 
 (defun ido-find-tag-in-file ()
   "Jump to any tag in the currently active file."
-  ;; TODO: The note below is not just an optimization but it's a bug
-  ;; if you have multiple symbols with the same name in your project
-  ;; you can be sure to jump to the one in the current file.
-  ;;
-  ;;  Use something other than find-tag as it performs a
-  ;; completely new tags search from scratch.  There's really no need
-  ;; for that as we have already 'found' the tag when producing the
-  ;; completion-list.
   (interactive)
-  (let* ((file-name (buffer-name))
-         (symbols (symbol-in-file-completion-list file-name)))
-    (if symbols
-        (find-tag (ido-completing-read "Tag: " symbols))
-      (message "No symbols in current file, sorry."))))
+  (let ((full-file-path (buffer-file-name))
+        (file-name (buffer-name)))
+    (if (member full-file-path (files-in-tags-table))
+        (let* ((symbols-hash (symbol-in-file-completion-list file-name))
+              (symbol-names (keys symbols-hash)))
+          (if symbol-names
+              (let ((selected (ido-completing-read "Tag: " symbol-names nil t)))
+                (goto-char (+ 1 (string-to-number (gethash selected symbols-hash)))))
+            (message "No symbols in current file, sorry.")))
+      (message "File '%s' is not part of the index. Use M-x focus-project-containing-file." file-name))))
 
 (defun symbol-in-file-completion-list (file-name)
-  "Generates a completion list of available symbols in the
-   currently active file based on the associated tags-table"
+  "Generates a hash-map mapping  available symbols in the
+   currently active file based on the associated tags-table
+   to the offset of those definitions."
   (save-excursion
     (let* ((enable-recursive-minibuffers t)
-           (symbol-names nil))
+           (symbol-names (make-hash-table :test 'equal)))
       (visit-tags-table-buffer)
       (goto-char (point-min))
       (let* ((beginning (search-forward file-name nil t))
              (end (re-search-forward "" nil t)))
-        (goto-char beginning)
-        (while (and (re-search-forward "\\(.*\\)" nil t)
-                    (<= (point) end))
-          (push (buffer-substring (match-beginning 1)
-                                  (match-end 1))
-                symbol-names))
-        symbol-names))))
+        (if beginning
+            (progn
+              (goto-char beginning)
+              (while (and (re-search-forward "\\(.*\\).+,\\(.+\\)" nil t)
+                          (<= (point) end))
+                (let ((symbol-name (buffer-substring (match-beginning 1) (match-end 1)))
+                      (symbol-char-offset (buffer-substring (match-beginning 2) (match-end 2))))
+                  (puthash symbol-name symbol-char-offset symbol-names)))
+              symbol-names)
+          symbol-names)))))
+
+
+(defun keys (hashtable)
+  "Return all keys in hashtable."
+  (let (allkeys)
+    (maphash (lambda (kk vv) (setq allkeys (cons kk allkeys))) hashtable)
+    allkeys))
