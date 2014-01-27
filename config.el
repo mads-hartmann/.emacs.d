@@ -5,7 +5,8 @@
 (require 'tramp)
 (require 'auto-complete-config)
 
-(whitespace-mode)
+(global-whitespace-mode)
+(setq whitespace-style '(trailing tabs tab-mark face))
 
 (yas-global-mode 1)
 (pending-delete-mode t)
@@ -18,7 +19,6 @@
 (setq backup-inhibited t)    ; disable backup files (foo~)
 (global-auto-revert-mode 1)  ; pick up changes to files on disk automatically
 (setq line-move-visual t)    ; Pressing down arrow key moves the cursor by a screen line
-(setq whitespace-style '(trailing tabs tab-mark face))
 (setq-default indent-tabs-mode nil)
 (setq ns-use-native-fullscreen nil)
 (setq mac-allow-anti-aliasing t)
@@ -26,6 +26,7 @@
 
 ;; IDO Mode
 (ido-mode 1)
+(ido-vertical-mode 1)
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
 (setq ido-use-filename-at-point 'guess)
@@ -44,10 +45,12 @@
 ;; Tramp
 (setq tramp-default-method "ssh")
 
-;; OS X Specific stuff
-; http://stackoverflow.com/questions/945709/emacs-23-os-x-multi-tty-and-emacsclient/1800724#1800724
+;; OS X
 (setq ns-pop-up-frames nil)
 
 ;; Make sure Emacs copies my terminal $PATH.
 (exec-path-from-shell-initialize)
 (exec-path-from-shell-copy-env "CAML_LD_LIBRARY_PATH") ; Used by OCaml.
+
+;; Hooks
+(add-hook 'after-save-hook 'whitespace-cleanup)

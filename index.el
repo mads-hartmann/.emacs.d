@@ -6,7 +6,7 @@
 ;;   * Jump to any definition in the project (using ido)
 ;;   * Jump to any definition in the currently opened buffer (using ido)
 ;;   * Open any file in the current project (using ido)
-;;   * (TODO) Complete word at point (code-completion) (using ido)
+;;   * (TODO) Complete word at point (code-completion) (using ido) (see complete-tag impl)
 ;;
 ;; Most of the above listed functions are supported by etags out of
 ;; the box, but the functions below uses some conventions that makes
@@ -20,13 +20,17 @@
 ;;     from my experience it's very convenient.
 ;;   * (TODO) If the current buffer isn't part of the currently
 ;;     active tags-table it will clear all tags-related caches
-;;     and load the tags-table that is associated wih the given
+;;     and load the tags-table that is associated with the given
 ;;     file (this only happens if such a TAGS file exist)
 ;;
 ;; This configuration works well for me.
 ;;
 ;; /Mads Hartmann
 ;;
+;; TODO: It seems to be confused when trying to commit something.
+;;
+
+(require 'etags)
 
 (defconst ctags-path "/usr/local/Cellar/ctags/5.8/bin/ctags")
 
@@ -90,8 +94,7 @@
     (let ((enable-recursive-minibuffers t))
       (visit-tags-table-buffer))
     (find-file (expand-file-name
-                (ido-completing-read "Project file: "
-                                     (tags-table-files) nil t)))))
+                (ido-completing-read "File: " (tags-table-files) nil t)))))
 
 (defun ido-find-tag ()
   "Jump to any tag in the project using ido."
@@ -105,10 +108,14 @@
 
 (defun ido-find-tag-in-file ()
   "Jump to any tag in the currently active file."
-  ;; Possible optimization: Use something other than find-tag
-  ;; as it performs a completely new tags search from scratch.
-  ;; There's really no need for that as we have already 'found'
-  ;; the tag when producing the completion-list.
+  ;; TODO: The note below is not just an optimization but it's a bug
+  ;; if you have multiple symbols with the same name in your project
+  ;; you can be sure to jump to the one in the current file.
+  ;;
+  ;;  Use something other than find-tag as it performs a
+  ;; completely new tags search from scratch.  There's really no need
+  ;; for that as we have already 'found' the tag when producing the
+  ;; completion-list.
   (interactive)
   (let* ((file-name (buffer-name))
          (symbols (symbol-in-file-completion-list file-name)))
@@ -133,11 +140,3 @@
                                   (match-end 1))
                 symbol-names))
         symbol-names))))
-
-;; Random notes
-;;
-;; TODO: It might be nice to allow all the navigation functions to
-;; automatically focus the TAGS file associated with the file. This
-;; might be annoying when browsing attatched code (maybe it should only
-;; do it if there is already a TAGS file?)
-;;

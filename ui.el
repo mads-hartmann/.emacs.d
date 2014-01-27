@@ -2,4 +2,4 @@
 
 (load-theme 'solarized-dark)
 (set-face-attribute 'default nil :font "Bitstream Vera Sans Mono Roman-12")
-;; (set-face-attribute 'default nil :font "Inconsolata-13") 
+

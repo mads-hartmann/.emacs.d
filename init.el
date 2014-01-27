@@ -30,15 +30,13 @@
    yasnippet
    hamlet-mode
    ace-jump-mode
-   erlang))
+   erlang
+   ido-vertical-mode
+   ido-ubiquitous))
 
-;; Stuff not in ELPA :(
-(load "~/.emacs.d/not-in-elpa/my-desktop.el")
-(add-to-list 'load-path "~/.emacs.d/not-in-elpa/jshint-mode")
-
+(load "~/.emacs.d/not-in-elpa/my-desktop.el") ;; Stuff not in ELPA :(
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/index.el")
-
 (load "~/.emacs.d/config.el")
 (load "~/.emacs.d/languages.el")
 (load "~/.emacs.d/keybindings.el")
@@ -53,7 +51,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(org-level-1 ((t (:height 1))))
+ '(org-level-2 ((t (:height 1))))
+ '(org-level-3 ((t (:height 1))))
+ '(org-level-4 ((t (:height 1)))))
 (put 'upcase-region 'disabled nil)
 
 (custom-set-variables

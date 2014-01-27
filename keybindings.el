@@ -8,6 +8,7 @@
 (global-set-key "\C-x\C-r" 're-read-init-file)
 
 ;; misc
+(global-set-key "\M-x" 'ido-mx)
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
