@@ -58,5 +58,6 @@
 
 ;; Hooks
 (add-hook 'after-save-hook 'whitespace-cleanup)
+
 ;; Org-mode
 (setq org-startup-folded nil)

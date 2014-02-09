@@ -1,7 +1,7 @@
 (setq linum-format "%3d\u2502")
 
 (load-theme 'solarized-dark)
-(set-face-attribute 'default nil :font "Bitstream Vera Sans Mono Roman-11:antialias=none")
+(set-face-attribute 'default nil :font "Monaco-11")
 
 ;; Using Powerline to get a fancy mode-line.
 ;;
