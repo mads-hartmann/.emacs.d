@@ -8,6 +8,8 @@
 (global-whitespace-mode)
 (setq whitespace-style '(trailing tabs tab-mark face))
 
+
+(window-numbering-mode)
 (setq variable-pitch-mode nil)
 (yas-global-mode 1)
 (pending-delete-mode t)
@@ -24,6 +26,7 @@
 (setq ns-use-native-fullscreen nil)
 (setq mac-allow-anti-aliasing t)
 (setq ring-bell-function 'ignore)
+(put 'upcase-region 'disabled nil)
 
 ;; IDO Mode
 (ido-mode 1)
@@ -55,3 +58,5 @@
 
 ;; Hooks
 (add-hook 'after-save-hook 'whitespace-cleanup)
+;; Org-mode
+(setq org-startup-folded nil)

@@ -74,3 +74,9 @@
     (ido-completing-read
      "M-x "
      (all-completions "" obarray 'commandp)))))
+
+(defun string/starts-with (s begins)
+      "returns non-nil if string S starts with BEGINS.  Else nil."
+      (cond ((>= (length s) (length begins))
+             (string-equal (substring s 0 (length begins)) begins))
+            (t nil)))

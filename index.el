@@ -6,7 +6,7 @@
 ;;   * Jump to any definition in the project (using ido)
 ;;   * Jump to any definition in the currently opened buffer (using ido)
 ;;   * Open any file in the current project (using ido)
-;;   * (TODO) Complete word at point (code-completion) (using ido) (see complete-tag impl)
+;;   * Complete symbol at point (code-completion) (using ido)
 ;;
 ;; Most of the above listed functions are supported by etags out of
 ;; the box, but the functions below uses some conventions that makes
@@ -26,7 +26,6 @@
 ;; This configuration works well for me.
 ;;
 ;; /Mads Hartmann
-;;
 ;;
 
 (require 'etags)
@@ -107,7 +106,7 @@
     (mapatoms (lambda (x)
                 (push (prin1-to-string x t) tag-names))
               tags-completion-table)
-    (find-tag (ido-completing-read "Tag: " tag-names))))
+    (find-tag (ido-completing-read "Tag in project: " tag-names))))
 
 (defun ido-find-tag-in-file ()
   "Jump to any tag in the currently active file."
@@ -118,13 +117,13 @@
         (let* ((symbols-hash (symbol-in-file-completion-list file-name))
               (symbol-names (keys symbols-hash)))
           (if symbol-names
-              (let ((selected (ido-completing-read "Tag: " symbol-names nil t)))
+              (let ((selected (ido-completing-read "Tag in file: " symbol-names nil t)))
                 (goto-char (+ 1 (string-to-number (gethash selected symbols-hash)))))
             (message "No symbols in current file, sorry.")))
       (message "File '%s' is not part of the index. Use M-x focus-project-containing-file." file-name))))
 
 (defun symbol-in-file-completion-list (file-name)
-  "Generates a hash-map mapping  available symbols in the
+  "Generates a hash-map mapping available symbols in the
    currently active file based on the associated tags-table
    to the offset of those definitions."
   (save-excursion
@@ -145,6 +144,24 @@
               symbol-names)
           symbol-names)))))
 
+(defun ido-complete-symbol-at-point ()
+  "Complete symbol at point based on entries in the tags table."
+  (interactive)
+  (tags-completion-table)
+  (let* ((word (thing-at-point 'symbol t))
+         (boundaries (bounds-of-thing-at-point 'symbol))
+         (start (car boundaries) )
+         (end (cdr boundaries) )
+         (tag-names))
+    (mapatoms (lambda (x)
+                (if (string/starts-with (prin1-to-string x t) word)
+                    (push (prin1-to-string x t) tag-names)))
+              tags-completion-table)
+    (let ((selection (ido-completing-read "Completion: " tag-names)))
+      (if selection
+          (progn
+            (delete-region start end)
+            (insert selection))))))
 
 (defun keys (hashtable)
   "Return all keys in hashtable."

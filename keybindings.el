@@ -21,6 +21,7 @@
 (global-set-key (kbd "s-t") 'ido-find-file-in-tag-files)
 (global-set-key (kbd "s-\\") 'ido-find-tag-in-file)
 (global-set-key (kbd "s-|") 'ido-find-tag)
+(global-set-key (kbd "M-?") 'ido-complete-symbol-at-point)
 
 ;; movement
 (global-set-key (kbd "C-s-<left>")  'windmove-left)
@@ -38,9 +39,15 @@
 (define-key ac-complete-mode-map "\C-p" 'ac-previous)
 
 ;; compilation
-(global-set-key [f1] 'ffap)
+(global-set-key [f4] 'ffap)
 (global-set-key [f8] 'compile)
 (global-set-key [f12] 'refresh-safari)
+
+;; highlighting symbols
+(global-set-key [f1] 'highlight-symbol-at-point)
+(global-set-key (kbd "s-<f1>") 'highlight-symbol-query-replace)
+(global-set-key [f2] 'highlight-symbol-next)
+(global-set-key [(shift f2)] 'highlight-symbol-prev)
 
 ;; ocaml
 (global-set-key "\M-." 'merlin-locate)
@@ -51,3 +58,5 @@
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+(global-set-key (kbd "M-s-≥") 'sgml-close-tag)

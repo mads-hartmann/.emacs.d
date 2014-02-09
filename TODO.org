@@ -1,10 +1,9 @@
 
 
 * Index.el improvements
-** TODO If the current file isn't in the tags-table it should try to find that file.
-** TODO I want to perform 'complete-tag' using IDO in the mini buffer from all definitions in the project
-** TODO Also read .ctags-ignore for more patterns if it exists
-** TODO It would be great the make path's relative to the project root.
+** If the current file isn't in the tags-table it should try to find that file.
+** Also read .ctags-ignore for more patterns if it exists
+** It would be great the make path's relative to the project root.
 
 * Various Ideas
 ** Code completion based on English dictionary
@@ -17,7 +16,6 @@
 ** Make pylint-errors return stuff that I can jump to
 
 * New packages to consider
-** Hightlight-symbol https://github.com/nschum/highlight-symbol.el
 ** GIt gutter?
 ** smex https://github.com/nonsequitur/smex
 ** Full-ack https://github.com/nschum/full-ack (consider if I want to use ack)
