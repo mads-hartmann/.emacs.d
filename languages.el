@@ -75,4 +75,4 @@
 (add-hook 'python-mode-hook
           (lambda ()
             (set (make-local-variable 'compile-command)
-                 (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint-errors"))))
+                 (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint"))))

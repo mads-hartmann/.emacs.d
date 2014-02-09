@@ -8,6 +8,7 @@
 (global-whitespace-mode)
 (setq whitespace-style '(trailing tabs tab-mark face))
 
+(setq variable-pitch-mode nil)
 (yas-global-mode 1)
 (pending-delete-mode t)
 (delete-selection-mode t)
