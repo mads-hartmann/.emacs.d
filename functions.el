@@ -80,3 +80,11 @@
       (cond ((>= (length s) (length begins))
              (string-equal (substring s 0 (length begins)) begins))
             (t nil)))
+
+
+(defun rgrep-in-project ()
+  ;; TODO: Figure out a way to have a reasonable 'accepted-source-files' list.
+  (interactive)
+  (let ((path (upward-find-file "TAGS"))
+        (symbol (thing-at-point 'symbol t)))
+    (rgrep symbol "*.py" path)))

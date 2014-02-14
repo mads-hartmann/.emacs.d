@@ -3,20 +3,26 @@
 * Index.el improvements
 ** If the current file isn't in the tags-table it should try to find that file.
 ** Also read .ctags-ignore for more patterns if it exists
-** It would be great the make path's relative to the project root.
+   (maybe just define an in-memeory set of files that I care about,
+   that way I could use it for my custom rgrep as well)
+
 
 * Various Ideas
 ** Code completion based on English dictionary
 ** Implement bookmarks the way textmate has them
 ** Flyspell for comments, org-files, markdown?
+** Github color theme and font
 
 * Python
-** PEP8 if I can set it up to use our config always.
+** Can I completely remove the usage of the custom python script and only use pylint cmd-args?
+** Validate that it uses our pylint config.
 ** Run tests in python (selected method, all in file, etc.)
-** Make pylint-errors return stuff that I can jump to
+** Make pylint-errors return stuff that I can jump to (see epylint.py for the cmd-line-args)
+** http://docs.pylint.org/ide-integration
+** https://gist.github.com/ieure/302848
+** Figure out a way to not index imports.
 
 * New packages to consider
-** GIt gutter?
 ** smex https://github.com/nonsequitur/smex
 ** Full-ack https://github.com/nschum/full-ack (consider if I want to use ack)
 

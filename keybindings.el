@@ -32,7 +32,7 @@
 (global-set-key (kbd "C-c C-c") 'ace-jump-mode)
 
 ;; git
-(global-set-key (kbd "s-F") 'magit-grep)
+(global-set-key (kbd "s-F") 'rgrep-in-project)
 
 ;; Auto-complete mode
 (define-key ac-complete-mode-map "\C-n" 'ac-next)
