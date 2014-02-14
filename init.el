@@ -7,6 +7,7 @@
                          ("melpa" . "http://melpa.milkbox.net/packages/")))
 
 (package-initialize)
+(package-refresh-contents)
 
 (mapc
  (lambda (package)

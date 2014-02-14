@@ -81,10 +81,16 @@
              (string-equal (substring s 0 (length begins)) begins))
             (t nil)))
 
-
 (defun rgrep-in-project ()
   ;; TODO: Figure out a way to have a reasonable 'accepted-source-files' list.
   (interactive)
   (let ((path (upward-find-file "TAGS"))
         (symbol (thing-at-point 'symbol t)))
     (rgrep symbol "*.py" path)))
+
+(defun clear-shell ()
+   (interactive)
+  (let ((old-max comint-buffer-maximum-size))
+    (setq comint-buffer-maximum-size 0)
+    (comint-truncate-buffer)
+    (setq comint-buffer-maximum-size old-max)))

@@ -60,3 +60,6 @@
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
 (global-set-key (kbd "M-s-≥") 'sgml-close-tag)
+
+;; Shell buffer
+(define-key shell-mode-map (kbd "C-c") 'clear-shell)

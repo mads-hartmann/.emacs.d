@@ -11,7 +11,6 @@
 
 (window-numbering-mode)
 (setq variable-pitch-mode nil)
-(yas-global-mode 1)
 (pending-delete-mode t)
 (delete-selection-mode t)
 (setq debug-on-error nil)
