@@ -31,6 +31,19 @@
 (require 'etags)
 
 (defconst ctags-path "/usr/local/Cellar/ctags/5.8/bin/ctags")
+(defconst project-root-file-indicator ".index")
+
+(defconst no-project-root-err-msg
+  (concat "Couldn't find a "
+          project-root-file-indicator
+          " file"))
+
+(defun find-project-root ()
+  (interactive)
+  (let ((dir (upward-find-file project-root-file-indicator)))
+    (if dir
+        dir
+      nil)))
 
 (defun create-index-cmd-str (dir ignore)
   "Shell command used to generate the TAGS file"
@@ -52,9 +65,12 @@
    supplied it will start the search at the directory containing
    the currently opened file."
   (interactive)
-  (let ((dir (if path path (upward-find-file "TAGS"))))
-    (forget-current-tags-table)
-    (visit-tags-table dir)))
+  (let ((dir (find-project-root)))
+    (if dir
+        (progn
+          (forget-current-tags-table)
+          (visit-tags-table dir))
+      (message no-project-root-err-msg))))
 
 (defun index-current-project ()
   "Creates a TAGS file for the project that contains the
@@ -63,7 +79,7 @@
    It will clear the current tags-table and load the newly
    generated TAGS file."
   (interactive)
-  (let ((dir (upward-find-file ".gitignore")))
+  (let ((dir (find-project-root)))
     (if dir
         (let* ((ignored (read-lines (concat dir "/.gitignore")))
                (ignored-args-str (mapconcat (lambda (i) (concat "--exclude=" i)) ignored " "))
@@ -72,7 +88,7 @@
           (shell-command index-cmd)
           (focus-project-containing-file dir)
           (message "Done indexing project"))
-      (message "No .gitignore file found."))))
+      (message no-project-root-err-msg))))
 
 (defun files-in-tags-table ()
   (save-excursion
@@ -95,7 +111,6 @@
   (interactive)
   (let ((file-names (files-in-tags-table)))
     (find-file
-
       (ido-completing-read "File: " file-names nil t))))
 
 (defun ido-find-tag ()
