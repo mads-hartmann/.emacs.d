@@ -63,3 +63,9 @@
 
 ;; Shell buffer
 (define-key shell-mode-map (kbd "C-c") 'clear-shell)
+
+;; Bookmarks+
+;; Textmate like bookmark behaviour
+(global-set-key (kbd "s-<f2>") 'bmkp-set-autonamed-bookmark)
+(global-set-key (kbd "<f2>") 'bmkp-next-autonamed-bookmark-repeat)
+(global-set-key (kbd "S-<f2>") 'bmkp-previous-autonamed-bookmark-repeat)
