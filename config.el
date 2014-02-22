@@ -60,3 +60,6 @@
 
 ;; Org-mode
 (setq org-startup-folded nil)
+
+;; bookmarks+
+(setq bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")

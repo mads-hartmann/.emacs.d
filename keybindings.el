@@ -13,11 +13,13 @@
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+
 (global-set-key (kbd "<f3>") 'find-tag)
 (global-set-key (kbd "S-<f3>") 'pop-tag-mark)
-(global-set-key (kbd "C-<f12>") 'pop-global-mark)
-(global-set-key [(super w)] 'kill-buffer)
+
+(global-set-key [(super w)] 'delete-frame)
 (global-set-key (kbd "C-w") 'er/expand-region)
+
 (global-set-key (kbd "s-t") 'ido-find-file-in-tag-files)
 (global-set-key (kbd "s-\\") 'ido-find-tag-in-file)
 (global-set-key (kbd "s-|") 'ido-find-tag)
@@ -41,7 +43,7 @@
 ;; compilation
 (global-set-key [f4] 'ffap)
 (global-set-key [f8] 'compile)
-(global-set-key [f12] 'refresh-safari)
+(global-set-key [f12] 'magit-status)
 
 ;; highlighting symbols
 (global-set-key [f1] 'highlight-symbol-at-point)

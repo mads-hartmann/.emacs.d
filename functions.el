@@ -89,7 +89,7 @@
     (rgrep symbol "*.py" path)))
 
 (defun clear-shell ()
-   (interactive)
+  (interactive)
   (let ((old-max comint-buffer-maximum-size))
     (setq comint-buffer-maximum-size 0)
     (comint-truncate-buffer)

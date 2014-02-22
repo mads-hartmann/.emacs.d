@@ -45,8 +45,12 @@
             (set (make-local-variable 'compile-command)
                  (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))))
 
-;; OCP-Indent. Pretty indentation for OCaml code (installed through opam)
+;; TODO: for Merlin (right?) and these two we need to check if opam has them installed first :)
 (require 'ocp-indent)
+(require 'ocp-index)
+
+(setenv "AGGREGATOR_CONF_SHADOW" "")
+(setenv "AGGREGATOR_HOME" "/Users/hartmann/dev/backend-insight/aggregator")
 
 ;; Automatically load utop.el and make it the default toplevel.
 (autoload 'utop "utop" "Toplevel for OCaml" t)
