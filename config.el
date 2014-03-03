@@ -4,6 +4,10 @@
 
 (require 'tramp)
 (require 'auto-complete-config)
+(require 'bookmark+)
+(require 'magit)
+(require 'highlight-symbol)
+(require 'dirtree)
 
 (global-whitespace-mode)
 (setq whitespace-style '(trailing tabs tab-mark face))
@@ -26,6 +30,9 @@
 (setq mac-allow-anti-aliasing t)
 (setq ring-bell-function 'ignore)
 (put 'upcase-region 'disabled nil)
+(electric-pair-mode -1)
+(global-linum-mode -1)
+(global-hl-line-mode -1)
 
 ;; IDO Mode
 (ido-mode 1)

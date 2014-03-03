@@ -45,10 +45,6 @@
             (set (make-local-variable 'compile-command)
                  (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))))
 
-;; TODO: for Merlin (right?) and these two we need to check if opam has them installed first :)
-(require 'ocp-indent)
-(require 'ocp-index)
-
 (setenv "AGGREGATOR_CONF_SHADOW" "")
 (setenv "AGGREGATOR_HOME" "/Users/hartmann/dev/backend-insight/aggregator")
 
@@ -92,3 +88,7 @@
           (lambda ()
             (set (make-local-variable 'compile-command)
                  (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint"))))
+
+;; spellchecking in comments - can I enable it for doc strings as well?
+(add-hook 'lisp-mode 'flyspell-prog-mode)
+(add-hook 'python-mode-hook 'flyspell-prog-mode)

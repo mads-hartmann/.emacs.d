@@ -34,7 +34,7 @@
 (global-set-key (kbd "C-c C-c") 'ace-jump-mode)
 
 ;; git
-(global-set-key (kbd "s-F") 'rgrep-in-project)
+(global-set-key (kbd "s-F") 'magit-grep)
 
 ;; Auto-complete mode
 (define-key ac-complete-mode-map "\C-n" 'ac-next)
@@ -46,10 +46,10 @@
 (global-set-key [f12] 'magit-status)
 
 ;; highlighting symbols
-(global-set-key [f1] 'highlight-symbol-at-point)
-(global-set-key (kbd "s-<f1>") 'highlight-symbol-query-replace)
-(global-set-key [f2] 'highlight-symbol-next)
-(global-set-key [(shift f2)] 'highlight-symbol-prev)
+(global-set-key [f5] 'highlight-symbol-at-point)
+(global-set-key (kbd "s-<f5>") 'highlight-symbol-query-replace)
+(global-set-key [f6] 'highlight-symbol-next)
+(global-set-key [(shift f6)] 'highlight-symbol-prev)
 
 ;; ocaml
 (global-set-key "\M-." 'merlin-locate)
@@ -68,6 +68,22 @@
 
 ;; Bookmarks+
 ;; Textmate like bookmark behaviour
-(global-set-key (kbd "s-<f2>") 'bmkp-set-autonamed-bookmark)
+(global-set-key (kbd "s-<f2>") 'bmkp-toggle-autonamed-bookmark-set/delete)
 (global-set-key (kbd "<f2>") 'bmkp-next-autonamed-bookmark-repeat)
 (global-set-key (kbd "S-<f2>") 'bmkp-previous-autonamed-bookmark-repeat)
+
+(global-set-key (kbd "s-+") 'text-scale-increase)
+(global-set-key (kbd "s--") 'text-scale-decrease)
+
+;; window-numbering
+;;
+(global-set-key (kbd "s-0") 'select-window-0)
+(global-set-key (kbd "s-1") 'select-window-1)
+(global-set-key (kbd "s-2") 'select-window-2)
+(global-set-key (kbd "s-3") 'select-window-3)
+(global-set-key (kbd "s-4") 'select-window-4)
+(global-set-key (kbd "s-5") 'select-window-5)
+(global-set-key (kbd "s-6") 'select-window-6)
+(global-set-key (kbd "s-7") 'select-window-7)
+(global-set-key (kbd "s-8") 'select-window-8)
+(global-set-key (kbd "s-9") 'select-window-9)
