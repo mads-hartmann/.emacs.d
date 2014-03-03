@@ -87,3 +87,9 @@
 (global-set-key (kbd "s-7") 'select-window-7)
 (global-set-key (kbd "s-8") 'select-window-8)
 (global-set-key (kbd "s-9") 'select-window-9)
+
+;; Flyspell
+;;
+;; Remove bindings that I don't like
+(eval-after-load "flyspell"
+  '(define-key flyspell-mode-map (kbd "C-.") nil))
