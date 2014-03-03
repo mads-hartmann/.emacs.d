@@ -94,3 +94,18 @@
     (setq comint-buffer-maximum-size 0)
     (comint-truncate-buffer)
     (setq comint-buffer-maximum-size old-max)))
+
+(defun ido-complete-word-ispell ()
+  "Completes the symbol at point based on entries in the
+dictionary"
+  (interactive)
+  (let* ((word (thing-at-point 'symbol t))
+         (boundaries (bounds-of-thing-at-point 'symbol))
+         (start (car boundaries))
+         (end (cdr boundaries))
+         (words (ispell-lookup-words word)))
+    (let ((selection (ido-completing-read "Words: " words)))
+      (if selection
+          (progn
+            (delete-region start end)
+            (insert selection))))))
