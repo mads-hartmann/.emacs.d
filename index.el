@@ -18,10 +18,6 @@
 ;;   * The entire index is re-built whenever you save a file. This
 ;;     might not be optimal if you work on large projects but
 ;;     from my experience it's very convenient.
-;;   * (TODO) If the current buffer isn't part of the currently
-;;     active tags-table it will clear all tags-related caches
-;;     and load the tags-table that is associated with the given
-;;     file (this only happens if such a TAGS file exist)
 ;;
 ;; This configuration works well for me.
 ;;

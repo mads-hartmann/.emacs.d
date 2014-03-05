@@ -39,7 +39,6 @@
           (setq top t))
 
                                         ; Check for the file
-      (message "Looking at %s" (expand-file-name filename dirname))
       (if (file-exists-p (expand-file-name filename dirname))
           (setq found t)
         ; If not, move up a directory

@@ -49,6 +49,7 @@
 (load "~/.emacs.d/index.el")
 (load "~/.emacs.d/config.el")
 (load "~/.emacs.d/languages.el")
+(load "~/.emacs.d/languages/python.el")
 (load "~/.emacs.d/keybindings.el")
 (load "~/.emacs.d/issuu/custom-utop.el")
 

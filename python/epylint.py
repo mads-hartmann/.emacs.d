@@ -9,8 +9,8 @@ ignore = ",".join ( [
 
 ] )
 
-cmd = "pylint --msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}' --reports=n %s" % \
-    ( sys.argv[1] )
+cmd = "pylint --msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}' --rcfile='%s' --reports=n %s" % \
+    ( sys.argv[1], sys.argv[2] )
 
 p = Popen ( cmd, shell = True, bufsize = -1,
             stdin = PIPE, stdout = PIPE, stderr = PIPE, close_fds = True )

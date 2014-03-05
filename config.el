@@ -33,6 +33,10 @@
 (electric-pair-mode -1)
 (global-linum-mode -1)
 (global-hl-line-mode -1)
+(customize-set-variable 'indicate-empty-lines t) ; get those cute dashes in the fringe.
+(customize-set-variable 'fringe-mode nil)        ; default fringe-mode
+(setq inhibit-startup-echo-area-message t)
+(setq inhibit-startup-message t)
 
 ;; IDO Mode
 (ido-mode 1)
@@ -64,9 +68,14 @@
 
 ;; Hooks
 (add-hook 'after-save-hook 'whitespace-cleanup)
+;; (remove-hook 'after-save-hook 'whitespace-cleanup)
 
 ;; Org-mode
 (setq org-startup-folded nil)
 
 ;; bookmarks+
 (setq bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
+
+;; spell-checking
+(add-hook 'lisp-mode 'flyspell-prog-mode)
+(add-hook 'markdown-mode-hook 'flyspell-mode)

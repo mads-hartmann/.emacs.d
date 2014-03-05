@@ -93,3 +93,7 @@
 ;; Remove bindings that I don't like
 (eval-after-load "flyspell"
   '(define-key flyspell-mode-map (kbd "C-.") nil))
+
+;; dictionary completion
+(add-hook 'markdown-mode-hook (lambda ()
+                                (define-key markdown-mode-map "\M-?" 'ido-complete-word-ispell)))

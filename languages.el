@@ -66,29 +66,4 @@
 
 ;; Javascript
 ;;
-(setq js-indent-level 4)
-
-;; Python
-;;
-
-(when (load "flymake" t)
-  (defun flymake-pylint-init ()
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-inplace))
-           (local-file (file-relative-name
-                        temp-file
-                        (file-name-directory buffer-file-name))))
-      (list "/Users/hartmann/.emacs.d/python/epylint.py" (list local-file))))
-
-  (add-to-list 'flymake-allowed-file-name-masks
-               '("\\.py\\'" flymake-pylint-init)))
-
-;; Better default compile-command for my Python projects.
-(add-hook 'python-mode-hook
-          (lambda ()
-            (set (make-local-variable 'compile-command)
-                 (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint"))))
-
-;; spellchecking in comments - can I enable it for doc strings as well?
-(add-hook 'lisp-mode 'flyspell-prog-mode)
-(add-hook 'python-mode-hook 'flyspell-prog-mode)
+(setq js-indent-level 2)
