@@ -32,18 +32,15 @@
    ace-jump-mode
    erlang
    ido-vertical-mode
-   ido-ubiquitous
-   powerline
    window-numbering
    highlight-symbol
    bookmark+
-   dirtree))
+   smex
+   dylan-mode))
 
 (setq custom-safe-themes
       '("d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879"
         "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default))
-
-(load "~/.emacs.d/not-in-elpa/my-desktop.el") ;; Stuff not in ELPA :(
 
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/index.el")
@@ -53,7 +50,7 @@
 (load "~/.emacs.d/keybindings.el")
 (load "~/.emacs.d/issuu/custom-utop.el")
 
-(if (display-graphic-p)
-    (load "~/.emacs.d/ui.el")
-  (load "~/.emacs.d/no-ui.el"))
+;; (if (display-graphic-p)
+;;     (load "~/.emacs.d/ui.el")
+;;   (load "~/.emacs.d/no-ui.el"))
 

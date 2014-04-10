@@ -7,11 +7,9 @@
 (require 'bookmark+)
 (require 'magit)
 (require 'highlight-symbol)
-(require 'dirtree)
 
 (global-whitespace-mode)
 (setq whitespace-style '(trailing tabs tab-mark face))
-
 
 (window-numbering-mode)
 (setq variable-pitch-mode nil)
@@ -37,15 +35,16 @@
 (customize-set-variable 'fringe-mode nil)        ; default fringe-mode
 (setq inhibit-startup-echo-area-message t)
 (setq inhibit-startup-message t)
+(normal-erase-is-backspace-mode 1)
 
 ;; IDO Mode
 (ido-mode 1)
 (ido-vertical-mode 1)
 (setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-(setq ido-use-filename-at-point 'guess)
+(setq ido-use-filename-at-point nil) ; 'guess will make it use the filename under the cursor when you do C-x C-f
 (setq ido-create-new-buffer 'always)
 (setq ido-max-prospects 5)
+(setq ido-auto-merge-work-directories-length -1) ; disable annoying directory search
 
 ;; Compilation output
 (setq compilation-scroll-output t)
@@ -79,3 +78,6 @@
 ;; spell-checking
 (add-hook 'lisp-mode 'flyspell-prog-mode)
 (add-hook 'markdown-mode-hook 'flyspell-mode)
+
+;; magit
+(setq magit-emacsclient-executable "/usr/local/Cellar/emacs/HEAD/bin/emacsclient")

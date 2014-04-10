@@ -4,12 +4,13 @@
 
 (require 'multiple-cursors)
 (require 'expand-region)
+(require 'merlin)
 
 (global-set-key "\C-x\C-r" 're-read-init-file)
 
 ;; misc
-(global-set-key "\M-x" 'ido-mx)
-(global-set-key (kbd "C-.") 'ido-mx)
+(global-set-key "\M-x" 'execute-extended-command)
+(global-set-key (kbd "C-.") 'smex)
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
@@ -31,7 +32,8 @@
 (global-set-key (kbd "C-s-<up>")    'windmove-up)
 (global-set-key (kbd "C-s-<down>")  'windmove-down)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
-(global-set-key (kbd "C-c C-c") 'ace-jump-mode)
+(global-set-key (kbd "C-<tab>") 'ace-jump-mode)
+(global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
 
 ;; git
 (global-set-key (kbd "s-F") 'magit-grep)
@@ -41,7 +43,9 @@
 (define-key ac-complete-mode-map "\C-p" 'ac-previous)
 
 ;; compilation
-(global-set-key [f4] 'ffap)
+;; (global-set-key [f4] 'ffap)
+(global-set-key [f4] 'call-last-kbd-macro)
+
 (global-set-key [f8] 'compile)
 (global-set-key [f12] 'magit-status)
 
@@ -61,16 +65,34 @@
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
+;; shell
+(define-key shell-mode-map (kbd "s-k") 'clear-shell)
+(define-key shell-mode-map (kbd "C-c") 'comint-kill-subjob)
+(define-key shell-mode-map (kbd "<up>") 'comint-previous-input)
+(define-key shell-mode-map (kbd "<down>") 'comint-next-input)
+
+;; Ocaml
+
+(defun prev-match ()
+  (interactive)
+  (setq current-prefix-arg '(-1)) ; C-u
+  (call-interactively 'next-match))
+
+(add-hook 'tuareg-mode-hook
+          (lambda ()
+            (define-key merlin-mode-map (kbd "C-c C-p") 'prev-match)
+            (define-key merlin-mode-map (kbd "C-c C-n") 'next-match)
+            (define-key tuareg-mode-map (kbd "C-x C-r") 'tuareg-eval-region)))
+
+;; textmate like close tag
 (global-set-key (kbd "M-s-≥") 'sgml-close-tag)
 
-;; Shell buffer
-(define-key shell-mode-map (kbd "C-c") 'clear-shell)
 
 ;; Bookmarks+
 ;; Textmate like bookmark behaviour
 (global-set-key (kbd "s-<f2>") 'bmkp-toggle-autonamed-bookmark-set/delete)
-(global-set-key (kbd "<f2>") 'bmkp-next-autonamed-bookmark-repeat)
-(global-set-key (kbd "S-<f2>") 'bmkp-previous-autonamed-bookmark-repeat)
+(global-set-key (kbd "<f2>") 'bmkp-next-bookmark-this-buffer)
+(global-set-key (kbd "S-<f2>") 'bmkp-previous-bookmark-this-buffer)
 
 (global-set-key (kbd "s-+") 'text-scale-increase)
 (global-set-key (kbd "s--") 'text-scale-decrease)
@@ -97,3 +119,7 @@
 ;; dictionary completion
 (add-hook 'markdown-mode-hook (lambda ()
                                 (define-key markdown-mode-map "\M-?" 'ido-complete-word-ispell)))
+
+;; grep
+(global-set-key (kbd "C-c C-p") 'prev-match)
+(global-set-key (kbd "C-c C-n") 'next-match)
