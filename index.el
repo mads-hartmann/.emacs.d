@@ -41,6 +41,13 @@
         dir
       nil)))
 
+(defun index-process-file-cmd-str (dir ignore)
+  "Shell command used to index a single file"
+  (format "cd %s && %s -a -e -R %s . TAGS 2>/dev/null"
+          dir
+          ctags-path
+          ignore))
+
 (defun create-index-cmd-str (dir ignore)
   "Shell command used to generate the TAGS file"
   (format "cd %s && %s -e -R %s . TAGS 2>/dev/null"
@@ -66,6 +73,19 @@
         (progn
           (forget-current-tags-table)
           (visit-tags-table dir))
+      (message no-project-root-err-msg))))
+
+(defun index-current-file ()
+  (interactive)
+  (let ((dir (find-project-root)))
+    (if dir
+        (let* ((ignored (read-lines (concat dir "/.gitignore")))
+               (ignored-args-str (mapconcat (lambda (i) (concat "--exclude=" i)) ignored " "))
+               (index-cmd (index-process-file-cmd-str dir ignored-args-str)))
+          (forget-current-tags-table)
+          (shell-command index-cmd)
+          (focus-project-containing-file dir)
+          (message "Done indexing file"))
       (message no-project-root-err-msg))))
 
 (defun index-current-project ()
@@ -95,7 +115,18 @@
 ;; Hooks
 ;;
 
-(add-hook 'after-save-hook 'index-current-project)
+(defun index-project-if-applicable ()
+  (if (find-project-root)
+      (index-current-project)))
+
+(defun index-file-if-applicable ()
+  (if (find-project-root)
+      (index-current-file)))
+
+;; (add-hook 'after-save-hook 'index-file-if-applicable)
+;; (remove-hook 'after-save-hook 'index-file-if-applicable)
+(add-hook 'after-save-hook 'index-project-if-applicable)
+
 
 ;;
 ;; Navigation
