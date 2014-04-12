@@ -108,3 +108,14 @@ dictionary"
           (progn
             (delete-region start end)
             (insert selection))))))
+
+(defun compile-ocaml-project ()
+  "Compile the current OCaml project without prompting for
+input. Can be used in after-save hooks."
+  (interactive)
+  (compile (concat "make -w -j4 -C " (or (upward-find-file "Makefile") "."))))
+
+(defun prev-match ()
+  (interactive)
+  (setq current-prefix-arg '(-1)) ; C-u
+  (call-interactively 'next-match))

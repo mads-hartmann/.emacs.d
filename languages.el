@@ -1,117 +1,126 @@
-;;
-;; Languages
-;;
+;;; languages.el --- Programming Language specific configuration.
 
-;; Octave support
-;;
-(autoload 'octave-mode "octave-mod" nil t)
-(setq auto-mode-alist
+(after `scss-mode
+  (message "Sass has been loaded")
+  (setq scss-compile-at-save nil))
+
+(after `javascript-mode
+  (message "Javascript has been loaded")
+  (setq js-indent-level 4))
+
+(after `markdown-mode
+  (message "Markdown has been loaded")
+  (add-hook 'markdown-mode-hook
+            (lambda ()
+              (flyspell-mode)
+              (define-key markdown-mode-map "\M-?" 'ido-complete-word-ispell))))
+
+(after `lisp-mode
+  (message "Lisp-mode has been loaded")
+  (add-hook 'lisp-mode 'flyspell-prog-mode))
+
+(after `org
+  (message "Org has been loaded")
+  (setq org-startup-folded nil))
+
+(after `octave
+  (message "Octave has been loaded")
+  (autoload 'octave-mode "octave-mod" nil t)
+  (setq auto-mode-alist
       (cons '("\\.m$" . octave-mode) auto-mode-alist))
-
-(add-hook 'octave-mode-hook
+  (add-hook 'octave-mode-hook
           (lambda ()
             (abbrev-mode 1)
             (auto-fill-mode 1)
             (if (eq window-system 'x)
-                (font-lock-mode 1))))
+                (font-lock-mode 1)))))
 
-;; OCaml
-;;
+(after `erlang
+  (message "Erlang has been loaded")
 
-;; Update the Emacs load path.
-(push
- (concat (substring (shell-command-to-string "opam config var share") 0 -1)
-         "/emacs/site-lisp") load-path)
+  (defconst erlang-make-cmd
+    (concat "make -w -C " (or (upward-find-file "Makefile") ".")))
 
-;; Setup environment variables using opam
-(dolist (var (car (read-from-string (shell-command-to-string "opam config env --sexp"))))
-  (setenv (car var) (cadr var)))
+  (add-hook 'erlang-mode-hook
+            (lambda ()
+              (set (make-local-variable 'compile-command) erlang-make-cmd))))
 
-;; Update the emacs path
-(setq exec-path (split-string (getenv "PATH") path-separator))
+(after `tuareg
+  (message "OCaml has been loaded")
 
-;; Merlin
-(setq merlin-command
-      (concat (substring (shell-command-to-string "opam config var bin") 0 -1)
-              "/ocamlmerlin"))
+  (defconst make-cmd
+    (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))
 
-(autoload 'merlin-mode "merlin" "Merlin mode" t)
-;; (add-hook 'tuareg-mode-hook 'merlin-mode)
-;; (add-hook 'caml-mode-hook 'merlin-mbode)
-(remove-hook 'tuareg-mode-hook 'merlin-mode)
-(remove-hook 'caml-mode-hook 'merlin-mbode)
+  ;; Add OPAM installed elisp files to the load-path.
+  (push
+   (concat (substring (shell-command-to-string "opam config var share") 0 -1)
+           "/emacs/site-lisp") load-path)
 
-;;;;;;; ocamlspot
+  ;; Setup environment variables using OPAM
+  (dolist (var (car (read-from-string (shell-command-to-string "opam config env --sexp"))))
+    (setenv (car var) (cadr var)))
 
-;; ; load-path ;; use same as ocamlspot-command but with lib.
-;; (setq load-path (cons "/Users/hartmann/.opam/issuu/lib/ocamlspot/" load-path))
+  ;; One of the `opam config env` variables is PATH. Update `exec-path` to that.
+  (setq exec-path (split-string (getenv "PATH") path-separator))
 
-;; (require 'ocamlspot)
+  ;; Tell merlin where to find the executable.
+  (setq merlin-command
+        (concat (substring (shell-command-to-string "opam config var bin") 0 -1)
+                "/ocamlmerlin"))
 
-;; ; tuareg mode hook (use caml-mode-hook instead if you use caml-mode)
-;; (add-hook 'tuareg-mode-hook
-;;   '(lambda ()
-;;     (local-set-key "\C-c;" 'ocamlspot-query)
-;;     (local-set-key "\C-c:" 'ocamlspot-query-interface)
-;;     (local-set-key "\C-c'" 'ocamlspot-query-uses)
-;;     (local-set-key "\C-c\C-t" 'ocamlspot-type)
-;;     (local-set-key "\C-c\C-i" 'ocamlspot-xtype)
-;;     (local-set-key "\C-c\C-y" 'ocamlspot-type-and-copy)
-;;     (local-set-key "\C-ct" 'caml-types-show-type)
-;;     (local-set-key "\C-cp" 'ocamlspot-pop-jump-stack)))
+  ;; merlin-mode is provided in merlin.el on the load-path.
+  (autoload 'merlin-mode "merlin" "Merlin mode" t)
 
-;; ; set the path of the ocamlspot binary. If you did make opt, ocamlspot.opt is recommended.
-;; (setq ocamlspot-command
-;;       (concat (substring (shell-command-to-string "opam config var bin") 0 -1)
-;;               "/ocamlspot.opt"))
+  ;; Automatically load utop.el and make it the default toplevel.
+  (autoload 'utop "utop" "Toplevel for OCaml" t)
+  (autoload 'utop-setup-ocaml-buffer "utop" "Toplevel for OCaml" t)
 
-;;;;;;; ocamlspot end
+  ;; Used if I want to run some of ISSUU's OCaml projects in UTOP .
+  (setenv "AGGREGATOR_CONF_SHADOW" "")
+  (setenv "AGGREGATOR_HOME" "/Users/hartmann/dev/backend-insight/aggregator")
+  (setenv "PROMOTED_HOME" "/Users/hartmann/dev/backend-promoted")
+  (setenv "PROMOTED_CONF_SHADOW" "")
 
-;; Better default compile-command for my Ocaml projects.
+  (add-hook 'tuareg-mode-hook
+            (lambda ()
 
-(defun compile-ocaml-project ()
-  (interactive)
-  (compile (concat "make -w -j4 -C " (or (upward-find-file "Makefile") "."))))
+              (merlin-mode)
+              (utop-setup-ocaml-buffer)
 
+              ;; Better default make command for OCaml projects.
+              (set (make-local-variable 'compile-command) make-cmd)
 
-(add-hook 'tuareg-mode-hook
-          (lambda ()
-            (set (make-local-variable 'compile-command)
-                 (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))
-            ;; (add-hook 'after-save-hook 'compile-ocaml-project)
-            ))
+              (define-key merlin-mode-map "\M-." 'merlin-locate)
+              (define-key merlin-mode-map "\M->" 'merlin-pop-stack)
+              (define-key merlin-mode-map (kbd "C-c C-p") 'prev-match)
+              (define-key merlin-mode-map (kbd "C-c C-n") 'next-match)
+              (define-key tuareg-mode-map (kbd "C-x C-r") 'tuareg-eval-region))))
 
-;; (remove-hook 'after-save-hook 'compile-ocaml-project)
+(after `python
+  (message "Python has been loaded")
 
-(setenv "AGGREGATOR_CONF_SHADOW" "")
-(setenv "AGGREGATOR_HOME" "/Users/hartmann/dev/backend-insight/aggregator")
-(setenv "PROMOTED_HOME" "/Users/hartmann/dev/backend-promoted")
-(setenv "PROMOTED_CONF_SHADOW" "")
+  (defconst pylint-conf-filename "pylint.cfg")
+  (defconst epylint-path "/Users/hartmann/.emacs.d/python/epylint.py")
+  (defconst python-make-cmd (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint"))
 
-;; Colored buffers
-(require 'ansi-color)
-(defun colorize-compilation-buffer ()
-  (toggle-read-only)
-  (ansi-color-apply-on-region (point-min) (point-max))
-  (toggle-read-only))
-(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+  ;; Enable flymake for python files. Make sure it respect the pylint.cfg
+  ;; config files if one exists.
+  (when (load "flymake" t)
+    (defun flymake-pylint-init ()
+      (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                         'flymake-create-temp-inplace))
+             (local-file (file-relative-name
+                          temp-file
+                          (file-name-directory buffer-file-name)))
+             (conf-file (or (upward-find-file pylint-conf-filename) "")))
+        (list epylint-path (list (concat conf-file "/" pylint-conf-filename) local-file))))
 
-;; Automatically load utop.el and make it the default toplevel.
-(autoload 'utop "utop" "Toplevel for OCaml" t)
-(autoload 'utop-setup-ocaml-buffer "utop" "Toplevel for OCaml" t)
-(add-hook 'tuareg-mode-hook 'utop-setup-ocaml-buffer)
+    (add-to-list 'flymake-allowed-file-name-masks
+                 '("\\.py\\'" flymake-pylint-init)))
 
-;; Erlang
-;;
-(add-hook 'erlang-mode-hook
-          (lambda ()
-            (set (make-local-variable 'compile-command)
-                 (concat "make -w -C " (or (upward-find-file "Makefile") ".")))))
+  (add-hook 'python-mode-hook 'flymake-mode)
 
-;; Sass
-;;
-(setq scss-compile-at-save nil)
-
-;; Javascript
-;;
-(setq js-indent-level 4)
+  ;; Better default compile-command for my Python projects.
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (set (make-local-variable 'compile-command) python-make-cmd))))
