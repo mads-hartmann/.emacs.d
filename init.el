@@ -42,7 +42,10 @@
      highlight-symbol
      bookmark+
      smex
-     ag)))
+     ag
+     undo-tree
+     rainbow-delimiters
+     diminish)))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/
 (defmacro after (mode &rest body)
@@ -56,33 +59,3 @@
 (load "~/.emacs.d/config.el")
 (load "~/.emacs.d/languages.el")
 (load "~/.emacs.d/issuu/custom-utop.el")
-
-(require 'auto-complete)
-(require 'bookmark+)
-(require 'exec-path-from-shell)
-(require 'expand-region)
-(require 'flyspell)
-(require 'highlight-symbol)
-(require 'ido)
-(require 'magit)
-(require 'mc-edit-lines)
-(require 'multiple-cursors)
-(require 'shell)
-(require 'smex)
-(require 'tramp)
-(require 'whitespace)
-(require 'windmove)
-(require 'window-numbering)
-(require 'ag)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks"))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

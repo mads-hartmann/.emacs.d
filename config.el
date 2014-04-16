@@ -1,5 +1,6 @@
 ;;; config.el -- Configuration for various packages.
 
+(set-face-attribute 'default nil :font "Bitstream Vera Sans Mono-12")
 (setq variable-pitch-mode nil)
 (setq auto-save-default nil) ; disable auto-save files (#foo#)
 (setq backup-inhibited t)    ; disable backup files (foo~)
@@ -13,6 +14,8 @@
 (setq inhibit-startup-message t)
 (setq compilation-scroll-output t)
 (setq ns-pop-up-frames nil)
+(setq compilation-ask-about-save nil) ; Automatically save buffers before compiling
+(defalias 'yes-or-no-p 'y-or-n-p) ; Always ask for y/n keypress instead of typing out 'yes' or 'no'
 
 (setq custom-safe-themes
       '("d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879"
@@ -57,20 +60,18 @@
 (global-set-key (kbd "C-c C-n") 'next-match)
 (global-set-key [f8] 'compile)
 (global-set-key [f12] 'magit-status)
+(global-set-key (kbd "C-s-<left>")  'windmove-left)
+(global-set-key (kbd "C-s-<right>") 'windmove-right)
+(global-set-key (kbd "C-s-<up>")    'windmove-up)
+(global-set-key (kbd "C-s-<down>")  'windmove-down)
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
-
-(after `whitespace
-  (message "Whitespace has been loaded")
-  (global-whitespace-mode)
-  (setq whitespace-style '(trailing tabs tab-mark face))
-  (add-hook 'after-save-hook 'whitespace-cleanup))
 
 (after `tramp
   (message "Tramp has been loaded")
   (setq tramp-default-method "ssh"))
 
-(after `exec-path-from-shell
-  (message "exec-path-from-shell has been loaded")
+(after "exec-path-from-shell-autoloads"
+  (message "exec-path-from-shell has been autoloaded")
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "CAML_LD_LIBRARY_PATH")) ; Used by OCaml.
 
@@ -83,37 +84,43 @@
               (define-key shell-mode-map (kbd "<up>") 'comint-previous-input)
               (define-key shell-mode-map (kbd "<down>") 'comint-next-input))))
 
+(after `flyspell
+  (message "Flyspell has been loaded")
+  (define-key flyspell-mode-map (kbd "C-.") nil))
+
 (after `ido
   (message "Ido has been loaded")
   (ido-mode 1)
-  (ido-vertical-mode 1)
   (setq ido-enable-flex-matching t)
   (setq ido-use-filename-at-point nil)
   (setq ido-create-new-buffer 'always)
   (setq ido-max-prospects 5)
   (setq ido-auto-merge-work-directories-length -1)) ; disable annoying directory search
 
-(after `magit
+(after "whitespace-autoloads"
+  (message "Whitespace has been autoloaded")
+  (global-whitespace-mode)
+  (setq whitespace-style '(trailing tabs tab-mark face))
+  (add-hook 'after-save-hook 'whitespace-cleanup))
+
+(after "ido-vertical-mode-autoloads"
+  (message "ido-vertical-mode-autoloads")
+  (ido-vertical-mode 1))
+
+(after "magit-autoloads"
   (message "Magit has been loaded")
   (setq magit-emacsclient-executable "/usr/local/Cellar/emacs/HEAD/bin/emacsclient"))
 
-(after `smex
-  (message "Smex has been loaded")
+(after "smex-autoloads"
+  (message "Smex has been autoloaded")
   (global-set-key (kbd "C-.") 'smex))
 
-(after `expand-region
+(after "expand-region-autoloads"
   (message "Expand-region has been loaded")
   (global-set-key (kbd "C-w") 'er/expand-region))
 
-(after `windmove
-  (message "Windmove has been loaded")
-  (global-set-key (kbd "C-s-<left>")  'windmove-left)
-  (global-set-key (kbd "C-s-<right>") 'windmove-right)
-  (global-set-key (kbd "C-s-<up>")    'windmove-up)
-  (global-set-key (kbd "C-s-<down>")  'windmove-down))
-
-(after `auto-complete
-  (message "Auto-complete has been loaded")
+(after "auto-complete-autoloads"
+  (message "Auto-complete has been autoloaded")
   (require 'auto-complete)
   (require 'auto-complete-config)
   (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
@@ -122,29 +129,31 @@
   (define-key ac-complete-mode-map "\C-n" 'ac-next)
   (define-key ac-complete-mode-map "\C-p" 'ac-previous))
 
-(after `highlight-symbol
-  (message "Highlight symbol has been loaded")
+(after "highlight-symbol-autoloads"
+  (message "Highlight symbol has been autoloaded")
+  (require 'highlight-symbol)
   (global-set-key [f5] 'highlight-symbol-at-point)
   (global-set-key (kbd "s-<f5>") 'highlight-symbol-query-replace)
   (global-set-key [f6] 'highlight-symbol-next)
   (global-set-key [(shift f6)] 'highlight-symbol-prev))
 
-(after `mc-edit-lines
-  (message "Multi cursor has been loaded")
+(after "multiple-cursors-autoloads"
+  (message "multiple-cursors autoloads")
   (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
   (global-set-key (kbd "C->") 'mc/mark-next-like-this)
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
 
-(after `bookmark+-1
-  (message "Bookmark+ has been loaded")
+(after "bookmark+-autoloads"
+  (message "Bookmark+ autoloads")
   (setq bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
+  (setq bmkp-auto-light-when-set 'autonamed-bookmark)
   (global-set-key (kbd "s-<f2>") 'bmkp-toggle-autonamed-bookmark-set/delete)
   (global-set-key (kbd "<f2>") 'bmkp-next-bookmark-this-buffer)
   (global-set-key (kbd "S-<f2>") 'bmkp-previous-bookmark-this-buffer))
 
-(after `window-numbering
-  (message "Window-numbering has been loaded")
+(after "window-numbering-autoloads"
+  (message "Window-numbering autoloads")
   (window-numbering-mode)
   (define-key window-numbering-keymap (kbd "s-0") 'select-window-0)
   (define-key window-numbering-keymap (kbd "s-1") 'select-window-1)
@@ -157,12 +166,22 @@
   (define-key window-numbering-keymap (kbd "s-8") 'select-window-8)
   (define-key window-numbering-keymap (kbd "s-9") 'select-window-9))
 
-(after `flyspell
-  (message "Flyspell has been loaded")
-  (define-key flyspell-mode-map (kbd "C-.") nil))
-
-(after 'ag
-  (message "Ag has been loaded")
+(after "ag-autoloads"
+  (message "Ag has been autoloaded")
   (setq ag-highlight-search t)
   (setq ag-reuse-buffers 't)
   (global-set-key (kbd "s-F") 'ag-project-regexp))
+
+(after "rainbow-delimiters-autoloads"
+  (message "rainbow-delimiters has been autoloaded")
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode-enable))
+
+(after "undo-tree-autoloads"
+  (message "undo-tree has been autoloaded")
+  (global-undo-tree-mode t)
+  (setq undo-tree-visualizer-relative-timestamps t)
+  (setq undo-tree-visualizer-timestamps t))
+
+(after "diminish-autoloads"
+  (message "diminish-autoloads")
+  (after 'undo-tree (diminish 'undo-tree-mode " ut")))

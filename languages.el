@@ -10,10 +10,10 @@
 
 (after `markdown-mode
   (message "Markdown has been loaded")
+  (define-key markdown-mode-map (kbd "M-<tab>") 'ido-complete-word-ispell)
   (add-hook 'markdown-mode-hook
             (lambda ()
-              (flyspell-mode)
-              (define-key markdown-mode-map "\M-?" 'ido-complete-word-ispell))))
+              (flyspell-mode))))
 
 (after `lisp-mode
   (message "Lisp-mode has been loaded")
