@@ -15,6 +15,7 @@
 (setq compilation-scroll-output t)
 (setq ns-pop-up-frames nil)
 (setq compilation-ask-about-save nil) ; Automatically save buffers before compiling
+(setq frame-title-format '((:eval buffer-file-name)))
 (defalias 'yes-or-no-p 'y-or-n-p) ; Always ask for y/n keypress instead of typing out 'yes' or 'no'
 
 (setq custom-safe-themes
