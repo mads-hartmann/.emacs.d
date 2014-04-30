@@ -16,6 +16,7 @@
 (setq ns-pop-up-frames nil)
 (setq compilation-ask-about-save nil) ; Automatically save buffers before compiling
 (setq frame-title-format '((:eval buffer-file-name)))
+(setq whitespace-style '(trailing tabs tab-mark face))
 (defalias 'yes-or-no-p 'y-or-n-p) ; Always ask for y/n keypress instead of typing out 'yes' or 'no'
 
 (setq custom-safe-themes
@@ -32,6 +33,7 @@
 (electric-pair-mode -1)
 (global-linum-mode -1)
 (global-hl-line-mode -1)
+(global-whitespace-mode)
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
@@ -65,6 +67,9 @@
 (global-set-key (kbd "C-s-<right>") 'windmove-right)
 (global-set-key (kbd "C-s-<up>")    'windmove-up)
 (global-set-key (kbd "C-s-<down>")  'windmove-down)
+(global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
+(global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
+(global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
 (after `tramp
@@ -98,11 +103,12 @@
   (setq ido-max-prospects 5)
   (setq ido-auto-merge-work-directories-length -1)) ; disable annoying directory search
 
-(after "whitespace-autoloads"
-  (message "Whitespace has been autoloaded")
-  (global-whitespace-mode)
-  (setq whitespace-style '(trailing tabs tab-mark face))
-  (add-hook 'after-save-hook 'whitespace-cleanup))
+(after "virtualenvwrapper-autoloads"
+  (message "virtualenvwrapper has been autoloaded")
+  (require 'virtualenvwrapper)
+  (venv-initialize-interactive-shells)
+  ;; TODO: set venv-location based on current project?
+  (setq venv-location '("/Users/hartmann/dev/backend-user-notification/python/_venv/")))
 
 (after "ido-vertical-mode-autoloads"
   (message "ido-vertical-mode-autoloads")

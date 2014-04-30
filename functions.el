@@ -12,13 +12,6 @@
       (set-register '_ (list (current-window-configuration)))
       (delete-other-windows))))
 
-(defun compile-next-makefile ()
-  (interactive)
-  (let* ((default-directory (or (upward-find-file "Makefile") "."))
-         (compile-command (concat "cd " default-directory " && "
-                                  compile-command)))
-    (compile compile-command)))
-
 (defun upward-find-file (filename &optional startdir)
   "Move up directories until we find a certain filename. If we
   manage to find it, return the containing directory. Else if we
@@ -66,26 +59,11 @@
      nil 'fullscreen
      (when (not (frame-parameter nil 'fullscreen)) 'fullboth)))
 
-(defun ido-mx ()
-  (interactive)
-  (call-interactively
-   (intern
-    (ido-completing-read
-     "M-x "
-     (all-completions "" obarray 'commandp)))))
-
 (defun string/starts-with (s begins)
       "returns non-nil if string S starts with BEGINS.  Else nil."
       (cond ((>= (length s) (length begins))
              (string-equal (substring s 0 (length begins)) begins))
             (t nil)))
-
-(defun rgrep-in-project ()
-  ;; TODO: Figure out a way to have a reasonable 'accepted-source-files' list.
-  (interactive)
-  (let ((path (upward-find-file "TAGS"))
-        (symbol (thing-at-point 'symbol t)))
-    (rgrep symbol "*.py" path)))
 
 (defun clear-shell ()
   (interactive)
@@ -109,13 +87,18 @@ dictionary"
             (delete-region start end)
             (insert selection))))))
 
-(defun compile-ocaml-project ()
-  "Compile the current OCaml project without prompting for
-input. Can be used in after-save hooks."
-  (interactive)
-  (compile (concat "make -w -j4 -C " (or (upward-find-file "Makefile") "."))))
-
 (defun prev-match ()
   (interactive)
-  (setq current-prefix-arg '(-1)) ; C-u
-  (call-interactively 'next-match))
+  (next-match -1))
+
+(defun insert-aa ()
+  (interactive)
+  (insert "å"))
+
+(defun insert-ae ()
+  (interactive)
+  (insert "æ"))
+
+(defun insert-oe ()
+  (interactive)
+  (insert "ø"))
