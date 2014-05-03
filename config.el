@@ -193,27 +193,8 @@
   (message "diminish-autoloads")
   (after 'undo-tree (diminish 'undo-tree-mode " ut")))
 
-(defun setup-log-buffer ()
-  "This will apply a set of configurations that I find ideal when
-browsing .logs in Emacs."
-
-  (text-mode)               ; No syntax coloring of any kind.
-  (read-only-mode)          ; You usually don't want to edit the logs.
-  (setq auto-revert-interval 1) ; Being 5 seconds behind is annoying (5s is the default)
-  (auto-revert-tail-mode)       ; tail -f like behavior
-  (highlight-lines-matching-regexp "ERROR" 'hi-red-b) ; Highlight errors.
-
-  ;; Less key-bindings (or at least some of them).
-  ;;
-  ;; TODO: If I create a major-mode for this then I can add
-  ;; key-bindings without disturbing other mode that derrive from
-  ;; text-mode
-  ;;
-  ;; (local-set-key (kbd "g") 'beginning-of-buffer)
-  ;; (local-set-key (kbd "G") 'end-of-buffer)
-  ;; (local-set-key (kbd "j") 'scroll-up-line)
-  ;; (local-set-key (kbd "k") 'scroll-down-line)
-  ;; (local-set-key (kbd "f") 'scroll-up-command)
-  )
-
-(add-to-list 'auto-mode-alist '("\\.log$" . setup-log-buffer))
+;; TODO: Make it load-able using autoloads just like all my other
+;; packages.
+(load-file "~/.emacs.d/log-mode.el")
+(require 'log-mode)
+(add-to-list 'auto-mode-alist '("\\.log$" . log-mode))
