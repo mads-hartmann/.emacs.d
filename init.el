@@ -45,7 +45,8 @@
      ag
      undo-tree
      rainbow-delimiters
-     diminish)))
+     diminish
+     flymake-jshint)))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/
 (defmacro after (mode &rest body)

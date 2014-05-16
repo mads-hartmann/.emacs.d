@@ -6,7 +6,15 @@
 
 (after `javascript-mode
   (message "Javascript has been loaded")
-  (setq js-indent-level 4))
+  (setq js-indent-level 4)
+
+  (after "flymake-jshint-autoloads"
+    (message "flymake-jshint has been loaded")
+    (require 'flymake-jshint)
+    (defun on-js-mode ()
+      (flymake-mode)
+      (flymake-jshint-load))
+    (add-hook 'js-mode-hook 'on-js-mode)))
 
 (after `markdown-mode
   (message "Markdown has been loaded")
