@@ -72,6 +72,9 @@
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
+(after "projectile-autoloads"
+  (projectile-global-mode))
+
 (after `tramp
   (message "Tramp has been loaded")
   (setq tramp-default-method "ssh"))

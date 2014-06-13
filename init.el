@@ -46,7 +46,8 @@
      undo-tree
      rainbow-delimiters
      diminish
-     flymake-jshint)))
+     flymake-jshint
+     projectile)))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/
 (defmacro after (mode &rest body)
@@ -56,7 +57,6 @@
      '(progn ,@body)))
 
 (load "~/.emacs.d/functions.el")
-(load "~/.emacs.d/index.el")
 (load "~/.emacs.d/config.el")
 (load "~/.emacs.d/languages.el")
 (load "~/.emacs.d/issuu/custom-utop.el")
