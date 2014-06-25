@@ -46,12 +46,12 @@
 (after `erlang
   (message "Erlang has been loaded")
 
-  (defconst erlang-make-cmd
+  (defun erlang-make-cmd ()
     (concat "make -w -C " (or (upward-find-file "Makefile") ".")))
 
   (add-hook 'erlang-mode-hook
             (lambda ()
-              (set (make-local-variable 'compile-command) erlang-make-cmd))))
+              (set (make-local-variable 'compile-command) (erlang-make-cmd)))))
 
 (after `tuareg
   (message "OCaml has been loaded")
@@ -110,7 +110,8 @@
 
   (defconst pylint-conf-filename "pylint.cfg")
   (defconst epylint-path "/Users/hartmann/.emacs.d/python/epylint.py")
-  (defconst python-make-cmd (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint"))
+  (defun python-make-cmd ()
+    (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint"))
 
   ;; Enable flymake for python files. Make sure it respect the pylint.cfg
   ;; config files if one exists.
@@ -132,4 +133,4 @@
   ;; Better default compile-command for my Python projects.
   (add-hook 'python-mode-hook
             (lambda ()
-              (set (make-local-variable 'compile-command) python-make-cmd))))
+              (set (make-local-variable 'compile-command) (python-make-cmd)))))
