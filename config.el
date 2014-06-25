@@ -61,7 +61,6 @@
 (global-set-key (kbd "M-s-≥") 'sgml-close-tag) ; textmate like close tag
 (global-set-key (kbd "C-c C-p") 'prev-match)
 (global-set-key (kbd "C-c C-n") 'next-match)
-(global-set-key [f8] 'compile)
 (global-set-key [f12] 'magit-status)
 (global-set-key (kbd "C-s-<left>")  'windmove-left)
 (global-set-key (kbd "C-s-<right>") 'windmove-right)
@@ -73,6 +72,8 @@
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
 (after "projectile-autoloads"
+  (setq projectile-switch-project-action 'projectile-dired)
+  (setq projectile-tags-command "/usr/local/bin/ctags -Re %s")
   (projectile-global-mode))
 
 (after `tramp
