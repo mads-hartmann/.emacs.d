@@ -56,7 +56,7 @@
 (after `tuareg
   (message "OCaml has been loaded")
 
-  (defconst make-cmd
+  (defun make-cmd ()
     (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))
 
   ;; Add OPAM installed elisp files to the load-path.
@@ -96,8 +96,9 @@
               (utop-setup-ocaml-buffer)
 
               ;; Better default make command for OCaml projects.
-              (set (make-local-variable 'compile-command) make-cmd)
+              (set (make-local-variable 'compile-command) (make-cmd))
 
+              (define-key merlin-mode-map (kbd "M-<tab>") 'merlin-try-completion)
               (define-key merlin-mode-map "\M-." 'merlin-locate)
               (define-key merlin-mode-map "\M->" 'merlin-pop-stack)
               (define-key merlin-mode-map (kbd "C-c C-p") 'prev-match)
