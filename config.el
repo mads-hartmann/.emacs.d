@@ -64,6 +64,8 @@
 (global-set-key [f12] 'magit-status)
 (global-set-key (kbd "C-s-<left>")  'windmove-left)
 (global-set-key (kbd "C-s-<right>") 'windmove-right)
+(global-set-key (kbd "s-{")  'prev-window)
+(global-set-key (kbd "s-}") 'other-window)
 (global-set-key (kbd "C-s-<up>")    'windmove-up)
 (global-set-key (kbd "C-s-<down>")  'windmove-down)
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to

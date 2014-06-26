@@ -102,3 +102,7 @@ dictionary"
 (defun insert-oe ()
   (interactive)
   (insert "ø"))
+
+(defun prev-window ()
+  (interactive)
+  (other-window -1))
