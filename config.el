@@ -185,10 +185,6 @@
   (setq ag-reuse-buffers 't)
   (global-set-key (kbd "s-F") 'ag-project-regexp))
 
-(after "rainbow-delimiters-autoloads"
-  (message "rainbow-delimiters has been autoloaded")
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode-enable))
-
 (after "undo-tree-autoloads"
   (message "undo-tree has been autoloaded")
   (global-undo-tree-mode t)

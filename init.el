@@ -44,7 +44,6 @@
      smex
      ag
      undo-tree
-     rainbow-delimiters
      diminish
      flymake-jshint
      projectile)))
