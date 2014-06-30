@@ -9,6 +9,10 @@
 ;; A very simple mode that just provide a nice wrapper for some custom
 ;; key-bindings and a set of configurations that are nice when reading
 ;; .log files.
+;;
+;; (load-file "~/.emacs.d/log-mode.el")
+;; (require 'log-mode)
+;; (add-to-list 'auto-mode-alist '("\\.log$" . log-mode))
 
 ;;; Code:
 

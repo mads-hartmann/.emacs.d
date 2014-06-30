@@ -194,9 +194,3 @@
 (after "diminish-autoloads"
   (message "diminish-autoloads")
   (after 'undo-tree (diminish 'undo-tree-mode " ut")))
-
-;; TODO: Make it load-able using autoloads just like all my other
-;; packages.
-(load-file "~/.emacs.d/log-mode.el")
-(require 'log-mode)
-(add-to-list 'auto-mode-alist '("\\.log$" . log-mode))
