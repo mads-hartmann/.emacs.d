@@ -193,4 +193,5 @@
 
 (after "diminish-autoloads"
   (message "diminish-autoloads")
-  (after 'undo-tree (diminish 'undo-tree-mode " ut")))
+  (after 'undo-tree (diminish 'undo-tree-mode " undo"))
+  (after 'projectile (diminish 'projectile-mode " P")))
