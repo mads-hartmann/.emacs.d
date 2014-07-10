@@ -122,7 +122,7 @@
 
 (after "magit-autoloads"
   (message "Magit has been loaded")
-  (setq magit-emacsclient-executable "/usr/local/Cellar/emacs/HEAD/bin/emacsclient"))
+  (setq magit-emacsclient-executable "/usr/local/Cellar/emacs/24.3/bin/emacsclient"))
 
 (after "smex-autoloads"
   (message "Smex has been autoloaded")

@@ -46,7 +46,8 @@
      undo-tree
      diminish
      flymake-jshint
-     projectile)))
+     projectile
+     dockerfile-mode)))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/
 (defmacro after (mode &rest body)
