@@ -41,6 +41,7 @@
      window-numbering
      highlight-symbol
      bookmark+
+     dired+
      smex
      ag
      undo-tree
