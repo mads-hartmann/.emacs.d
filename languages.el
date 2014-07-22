@@ -110,6 +110,8 @@
 
   (defconst pylint-conf-filename "pylint.cfg")
   (defconst epylint-path "/Users/hartmann/.emacs.d/python/epylint.py")
+  (defconst global-conf-dir "/Users/hartmann/.emacs.d/python")
+
   (defun python-make-cmd ()
     (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint"))
 
@@ -122,8 +124,10 @@
              (local-file (file-relative-name
                           temp-file
                           (file-name-directory buffer-file-name)))
-             (conf-file (or (upward-find-file pylint-conf-filename) "")))
-        (list epylint-path (list (concat conf-file "/" pylint-conf-filename) local-file))))
+             (conf-file-dir (or (upward-find-file pylint-conf-filename) global-conf-dir))
+             (full-conf-path (concat conf-file-dir "/" pylint-conf-filename)))
+        (message (concat "using config file " full-conf-path))
+        (list epylint-path (list full-conf-path local-file))))
 
     (add-to-list 'flymake-allowed-file-name-masks
                  '("\\.py\\'" flymake-pylint-init)))
