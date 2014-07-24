@@ -75,7 +75,7 @@
 
 (after "projectile-autoloads"
   (setq projectile-switch-project-action 'projectile-dired)
-  (setq projectile-tags-command "/usr/local/bin/ctags -Re %s")
+  (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s")
   (projectile-global-mode))
 
 (after `tramp
