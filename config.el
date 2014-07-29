@@ -17,6 +17,7 @@
 (setq compilation-ask-about-save nil) ; Automatically save buffers before compiling
 (setq frame-title-format '((:eval buffer-file-name)))
 (setq whitespace-style '(trailing tabs tab-mark face))
+(setq compilation-read-command nil)
 (defalias 'yes-or-no-p 'y-or-n-p) ; Always ask for y/n keypress instead of typing out 'yes' or 'no'
 
 (setq custom-safe-themes
@@ -62,20 +63,20 @@
 (global-set-key (kbd "C-c C-p") 'prev-match)
 (global-set-key (kbd "C-c C-n") 'next-match)
 (global-set-key [f12] 'magit-status)
-(global-set-key (kbd "C-s-<left>")  'windmove-left)
-(global-set-key (kbd "C-s-<right>") 'windmove-right)
 (global-set-key (kbd "s-{")  'prev-window)
 (global-set-key (kbd "s-}") 'other-window)
-(global-set-key (kbd "C-s-<up>")    'windmove-up)
-(global-set-key (kbd "C-s-<down>")  'windmove-down)
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
 (global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
+(after "dired+-autoloads"
+  (message "dired+ autoloads"))
+
 (after "projectile-autoloads"
   (setq projectile-switch-project-action 'projectile-dired)
   (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s")
+  (global-set-key (kbd "C-`") 'projectile-project-buffers-other-buffer)
   (projectile-global-mode))
 
 (after `tramp
@@ -164,20 +165,6 @@
   (global-set-key (kbd "s-<f2>") 'bmkp-toggle-autonamed-bookmark-set/delete)
   (global-set-key (kbd "<f2>") 'bmkp-next-bookmark-this-buffer)
   (global-set-key (kbd "S-<f2>") 'bmkp-previous-bookmark-this-buffer))
-
-(after "window-numbering-autoloads"
-  (message "Window-numbering autoloads")
-  (window-numbering-mode)
-  (define-key window-numbering-keymap (kbd "s-0") 'select-window-0)
-  (define-key window-numbering-keymap (kbd "s-1") 'select-window-1)
-  (define-key window-numbering-keymap (kbd "s-2") 'select-window-2)
-  (define-key window-numbering-keymap (kbd "s-3") 'select-window-3)
-  (define-key window-numbering-keymap (kbd "s-4") 'select-window-4)
-  (define-key window-numbering-keymap (kbd "s-5") 'select-window-5)
-  (define-key window-numbering-keymap (kbd "s-6") 'select-window-6)
-  (define-key window-numbering-keymap (kbd "s-7") 'select-window-7)
-  (define-key window-numbering-keymap (kbd "s-8") 'select-window-8)
-  (define-key window-numbering-keymap (kbd "s-9") 'select-window-9))
 
 (after "ag-autoloads"
   (message "Ag has been autoloaded")

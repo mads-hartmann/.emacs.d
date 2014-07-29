@@ -38,7 +38,6 @@
      expand-region
      ace-jump-mode
      ido-vertical-mode
-     window-numbering
      highlight-symbol
      bookmark+
      dired+
