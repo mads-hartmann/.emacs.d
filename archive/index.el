@@ -1,3 +1,21 @@
+;; TODO notes taking from when I was working on this
+;; (I now use projectile instead.)
+;;
+;; - It would be nice to make it into a proper elpa plugin with it's
+;;   own minor-mode and key-bindings that are only relevent when the
+;;   mode is enabled.
+;; - If the current file isn't in the tags-table, and a the file is
+;;   inside a project, and a TAGS file exist, then ask to focus that
+;;   project instead.
+;; - List buffers for files in the project
+;; - Put more meta-data in the .index file
+;; - Stuff that we want to ignore but isn't in the .gitignore file
+;; - ctags indexing definitions, i.e. if I want to avoid indexing imports.
+;; - Create a proper project for it, with readme etc. detailing how to
+;;   put stuff in your ctags file and everything. A really helpfull
+;;   one.
+;;
+
 ;;
 ;; I find (c/e)tags to be really useful when navigating projects of
 ;; almost any size. This file contains a few functions that improve
