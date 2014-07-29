@@ -47,7 +47,8 @@
      diminish
      flymake-jshint
      projectile
-     dockerfile-mode)))
+     dockerfile-mode
+     diff-hl)))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/
 (defmacro after (mode &rest body)

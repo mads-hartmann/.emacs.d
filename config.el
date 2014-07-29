@@ -188,3 +188,7 @@
    (yas-global-mode 1)
    (setq yas-snippet-dirs
          '("~/.emacs.d/yasnippet")))
+
+(after "diff-hl-autoloads"
+  (message "diff-hl-autoloads")
+  (diff-hl-mode))
