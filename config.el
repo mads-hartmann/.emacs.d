@@ -182,3 +182,9 @@
   (message "diminish-autoloads")
   (after 'undo-tree (diminish 'undo-tree-mode " undo"))
   (after 'projectile (diminish 'projectile-mode " P")))
+
+(after "yasnippet-autoloads"
+   (message "yasnippet-autoloads")
+   (yas-global-mode 1)
+   (setq yas-snippet-dirs
+         '("~/.emacs.d/yasnippet")))
