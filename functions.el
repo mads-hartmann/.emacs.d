@@ -76,12 +76,12 @@
   "Completes the symbol at point based on entries in the
 dictionary"
   (interactive)
-  (let* ((word (thing-at-point 'symbol t))
+  (let* ((word (thing-at-point 'symbol))
          (boundaries (bounds-of-thing-at-point 'symbol))
          (start (car boundaries))
          (end (cdr boundaries))
-         (words (ispell-lookup-words word)))
-    (let ((selection (ido-completing-read "Words: " words)))
+         (words (lookup-words word)))
+    (let ((selection (ido-completing-read "Completions: " words)))
       (if selection
           (progn
             (delete-region start end)
