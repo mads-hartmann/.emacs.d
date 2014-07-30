@@ -1,9 +1,15 @@
 ;;; switch-buffer-visual.el --- Pretty buffer switching
+;;
+;; TODO:
+;;   - Make the numbers pretter, larger, and centered.
+;;   - Figure out how to support when frames show the same buffer
+;;     without giving them the same number.
 
 (defun read-number ()
   (string-to-number (char-to-string (read-char "Window: "))))
 
 (defun indexed-windows ()
+  "Associate each window in the current frame with a number"
   (let ((counter 0))
     (mapcar (lambda (win)
               (incf counter)
@@ -22,9 +28,10 @@
 
 (defun switch-buffer-visual ()
   (interactive)
-  (let* ((overlays (mapcar 'full-size-overlay (indexed-windows)))
+  (let* ((iws (indexed-windows))
+         (overlays (mapcar 'full-size-overlay iws))
          (selected (- (read-number) 1))
-         (buf (window-buffer (nth selected (window-list)))))
+         (buf (window-buffer (nth 1 (nth selected iws)))))
     (mapc 'delete-overlay overlays)
     (pop-to-buffer buf)))
 
