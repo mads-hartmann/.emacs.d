@@ -68,6 +68,7 @@
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
 (global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
+(global-set-key (kbd "C-`") 'switch-buffer-visual)
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
 (after "dired+-autoloads"
@@ -76,7 +77,6 @@
 (after "projectile-autoloads"
   (setq projectile-switch-project-action 'projectile-dired)
   (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s")
-  (global-set-key (kbd "C-`") 'projectile-project-buffers-other-buffer)
   (projectile-global-mode))
 
 (after `tramp
