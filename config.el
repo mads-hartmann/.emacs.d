@@ -191,4 +191,4 @@
 
 (after "diff-hl-autoloads"
   (message "diff-hl-autoloads")
-  (diff-hl-mode))
+  (global-diff-hl-mode))
