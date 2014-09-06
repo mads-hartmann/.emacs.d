@@ -1,6 +1,6 @@
 ;;; config.el -- Configuration for various packages.
 
-(set-face-attribute 'default nil :font "Bitstream Vera Sans Mono-12")
+(set-face-attribute 'default nil :font "Bitstream Vera Sans Mono-11")
 (setq variable-pitch-mode nil)
 (setq auto-save-default nil) ; disable auto-save files (#foo#)
 (setq backup-inhibited t)    ; disable backup files (foo~)
@@ -72,12 +72,16 @@
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
 (after "dired+-autoloads"
-  (message "dired+ autoloads"))
+  (message "dired+ autoloads")
+  (add-hook 'dired-mode-hook
+            (lambda ()
+              (define-key dired-mode-map (kbd "<tab>") 'dired-insert-subdir))))
 
 (after "projectile-autoloads"
   (setq projectile-switch-project-action 'projectile-dired)
   (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s")
-  (projectile-global-mode))
+  (projectile-global-mode)
+  (global-set-key (kbd "s-F") 'projectile-grep))
 
 (after `tramp
   (message "Tramp has been loaded")
@@ -169,8 +173,7 @@
 (after "ag-autoloads"
   (message "Ag has been autoloaded")
   (setq ag-highlight-search t)
-  (setq ag-reuse-buffers 't)
-  (global-set-key (kbd "s-F") 'ag-project-regexp))
+  (setq ag-reuse-buffers 't))
 
 (after "undo-tree-autoloads"
   (message "undo-tree has been autoloaded")
