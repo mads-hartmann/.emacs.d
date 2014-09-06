@@ -59,10 +59,15 @@
   (defun make-cmd ()
     (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))
 
-  ;; Add OPAM installed elisp files to the load-path.
-  (push
-   (concat (substring (shell-command-to-string "opam config var share") 0 -1)
-           "/emacs/site-lisp") load-path)
+  (defun utop-extra ()
+    (let ((root (upward-find-file ".ocamlinit")))
+      (if root
+          (concat "-init " root "/.ocamlinit")
+        "")))
+
+  ;; Add opam emacs directory to the load-path
+  (setq opam-share (substring (shell-command-to-string "opam config var share 2> /dev/null") 0 -1))
+  (add-to-list 'load-path (concat opam-share "/emacs/site-lisp"))
 
   ;; Setup environment variables using OPAM
   (dolist (var (car (read-from-string (shell-command-to-string "opam config env --sexp"))))
@@ -71,13 +76,12 @@
   ;; One of the `opam config env` variables is PATH. Update `exec-path` to that.
   (setq exec-path (split-string (getenv "PATH") path-separator))
 
-  ;; Tell merlin where to find the executable.
-  (setq merlin-command
-        (concat (substring (shell-command-to-string "opam config var bin") 0 -1)
-                "/ocamlmerlin"))
+  ;; Load merlin-mode
+  (require 'merlin)
 
-  ;; merlin-mode is provided in merlin.el on the load-path.
-  (autoload 'merlin-mode "merlin" "Merlin mode" t)
+  ;; Use opam switch to lookup ocamlmerlin binary
+  (setq merlin-command 'opam)
+  (setq merlin-use-auto-complete-mode 'easy)
 
   ;; Automatically load utop.el and make it the default toplevel.
   (autoload 'utop "utop" "Toplevel for OCaml" t)
@@ -97,6 +101,8 @@
 
               ;; Better default make command for OCaml projects.
               (set (make-local-variable 'compile-command) (make-cmd))
+              ;; Better default utop command
+              (setq utop-command (concat "utop -emacs " (utop-extra)))
 
               (define-key merlin-mode-map (kbd "M-<tab>") 'merlin-try-completion)
               (define-key merlin-mode-map "\M-." 'merlin-locate)

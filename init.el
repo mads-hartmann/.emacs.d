@@ -60,4 +60,3 @@
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/config.el")
 (load "~/.emacs.d/languages.el")
-(load "~/.emacs.d/issuu/custom-utop.el")
