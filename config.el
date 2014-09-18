@@ -1,6 +1,11 @@
 ;;; config.el -- Configuration for various packages.
 
-(set-face-attribute 'default nil :font "Bitstream Vera Sans Mono-11")
+(if window-system
+    (set-face-attribute 'default nil :font "DejaVu Sans Mono-11:antialias=subpixel"))
+
+(unless window-system
+  (menu-bar-mode -1))
+
 (setq variable-pitch-mode nil)
 (setq auto-save-default nil) ; disable auto-save files (#foo#)
 (setq backup-inhibited t)    ; disable backup files (foo~)
@@ -19,6 +24,9 @@
 (setq whitespace-style '(trailing tabs tab-mark face))
 (setq compilation-read-command nil)
 (defalias 'yes-or-no-p 'y-or-n-p) ; Always ask for y/n keypress instead of typing out 'yes' or 'no'
+
+(custom-set-variables
+ '(speedbar-show-unknown-files t))
 
 (setq custom-safe-themes
       '("d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879"
@@ -50,9 +58,6 @@
 (global-set-key (kbd "<f3>") 'find-tag)
 (global-set-key (kbd "S-<f3>") 'pop-tag-mark)
 (global-set-key [(super w)] 'delete-frame)
-(global-set-key (kbd "s-t") 'ido-find-file-in-tag-files)
-(global-set-key (kbd "s-\\") 'ido-find-tag-in-file)
-(global-set-key (kbd "s-|") 'ido-find-tag)
 (global-set-key (kbd "M-?") 'ido-complete-symbol-at-point)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-<tab>") 'ace-jump-mode)
@@ -69,6 +74,9 @@
 (global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
 (global-set-key (kbd "C-`") 'switch-buffer-visual)
+(global-set-key (kbd "s-`") 'ns-next-frame)
+(global-set-key (kbd "s-¬") 'ns-prev-frame)
+
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
 (after "dired+-autoloads"
@@ -76,12 +84,6 @@
   (add-hook 'dired-mode-hook
             (lambda ()
               (define-key dired-mode-map (kbd "<tab>") 'dired-insert-subdir))))
-
-(after "projectile-autoloads"
-  (setq projectile-switch-project-action 'projectile-dired)
-  (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s")
-  (projectile-global-mode)
-  (global-set-key (kbd "s-F") 'projectile-grep))
 
 (after `tramp
   (message "Tramp has been loaded")
@@ -129,9 +131,35 @@
   (message "Magit has been loaded")
   (setq magit-emacsclient-executable "/usr/local/Cellar/emacs/24.3/bin/emacsclient"))
 
-(after "smex-autoloads"
-  (message "Smex has been autoloaded")
-  (global-set-key (kbd "C-.") 'smex))
+(after "projectile-autoloads"
+  (projectile-global-mode)
+  (setq projectile-switch-project-action 'projectile-dired)
+  (setq projectile-completion-system 'helm)
+  (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s")
+  (global-set-key (kbd "s-F") 'projectile-grep))
+
+(after "helm-autoloads"
+  (message "Helm has been autoloaded")
+  (helm-mode 1)
+  (setq helm-follow-mode t)
+  (global-set-key (kbd "C-.") 'helm-M-x)
+  (global-set-key (kbd "C-c h") 'helm-mini)
+  (global-set-key (kbd "C-x b") 'helm-buffers-list)
+  (global-set-key (kbd " M-/") 'helm-dabbrev))
+  ;; helm-occur
+  ;; helm-occur-from-isearch ;; This will use occur from whatever isearch has
+  ;; Create a locate db so i can use helm-locate?
+  ;; helm-find-files ;; C-j to tab-complete, C-j when only one suggestion to preview the file!
+
+(after "helm-projectile-autoloads"
+  ;; Remove helm-source-projectile-projects from C-c p h
+  ;; as it is possible to switch project using C-p p H
+  (setq helm-projectile-sources-list
+        '(helm-source-projectile-files-list
+          helm-source-projectile-buffers-list
+          helm-source-projectile-recentf-list))
+
+  (global-set-key (kbd "C-c p p") 'helm-projectile-switch-project))
 
 (after "expand-region-autoloads"
   (message "Expand-region has been loaded")
