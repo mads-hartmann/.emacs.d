@@ -9,3 +9,8 @@ elpa
 .mc-lists.el
 TAGS
 desktop-sessions
+projectile-bookmarks.eld
+projectile.cache
+recentf
+ido.last
+eshell
