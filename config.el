@@ -117,6 +117,7 @@
   (ido-vertical-mode 1))
 
 (after "magit-autoloads"
+  ;; TODO: This shouldn't be required.
   (setq magit-emacsclient-executable "/usr/local/Cellar/emacs/24.3/bin/emacsclient"))
 
 (after "projectile-autoloads"
@@ -127,36 +128,32 @@
   (global-set-key (kbd "s-F") 'projectile-grep))
 
 (after "helm-autoloads"
+  ;; TODO: Bind helm occur to something less crazy?
+  ;; TODO: Use helm-occur-from-isearch?
   (helm-mode 1)
   (setq helm-follow-mode t)
   (global-set-key (kbd "C-.") 'helm-M-x)
   (global-set-key (kbd "C-c h") 'helm-mini)
   (global-set-key (kbd "C-x b") 'helm-buffers-list)
   (global-set-key (kbd " M-/") 'helm-dabbrev))
-;; helm-occur
-;; helm-occur-from-isearch ;; This will use occur from whatever isearch has
-;; Create a locate db so i can use helm-locate?
-;; helm-find-files ;; C-j to tab-complete, C-j when only one suggestion to preview the file!
 
 (after "helm-projectile-autoloads"
-  ;; Remove helm-source-projectile-projects from C-c p h
-  ;; as it is possible to switch project using C-p p H
+  ;; Remove 'helm-source-projectile-projects' from C-c p h as it is
+  ;; possible to switch project using 'helm-projectile-switch-project'
   (setq helm-projectile-sources-list
         '(helm-source-projectile-files-list
           helm-source-projectile-buffers-list
           helm-source-projectile-recentf-list))
-
   (global-set-key (kbd "C-c p p") 'helm-projectile-switch-project))
 
 (after "expand-region-autoloads"
   (global-set-key (kbd "C-w") 'er/expand-region))
 
 (after "auto-complete-autoloads"
-  (require 'auto-complete)
-  (require 'auto-complete-config)
-  (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
+  (global-auto-complete-mode t)
   (ac-config-default)
   (setq ac-auto-start nil)
+  (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
   (define-key ac-complete-mode-map "\C-n" 'ac-next)
   (define-key ac-complete-mode-map "\C-p" 'ac-previous))
 
@@ -167,7 +164,6 @@
   (global-set-key [(shift f6)] 'highlight-symbol-prev))
 
 (after "multiple-cursors-autoloads"
-  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
   (global-set-key (kbd "C->") 'mc/mark-next-like-this)
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
