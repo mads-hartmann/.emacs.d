@@ -106,3 +106,31 @@ dictionary"
 (defun prev-window ()
   (interactive)
   (other-window -1))
+
+(defun window-setup-1/3 ()
+  "Split window: 2 coulms, first with 1 row, second with 3 rows."
+  (interactive)
+  (delete-other-windows)
+
+  ;; Compilation buffer
+  (split-window-right)
+  (other-window 1)
+  (switch-to-buffer "*compilation*" nil t)
+
+  ;; Magit-status buffer
+  (split-window-below)
+  (other-window 1)
+  (switch-to-buffer "what-i-did" nil t)
+
+  ;; Notes buffer
+  (split-window-below)
+  (other-window 1)
+
+  ;; Call magit-status here.
+  ;; (magit-status (upward-find-file (buffer-file-name)) 'switch-to-buffer)
+
+  ;; Focus the original buffer.
+  (other-window -1)
+  (other-window -1)
+  (other-window -1)
+  (balance-windows))

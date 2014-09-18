@@ -52,7 +52,8 @@
      fill-column-indicator
      paredit
      helm
-     helm-projectile)))
+     helm-projectile
+     visible-mark)))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/
 (defmacro after (mode &rest body)
@@ -60,6 +61,9 @@
   (declare (indent defun))
   `(eval-after-load ,mode
      '(progn ,@body)))
+
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+(load-theme 'jazz t)
 
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/config.el")
