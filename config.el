@@ -1,7 +1,7 @@
 ;;; config.el -- Configuration for various packages.
 
 (if window-system
-    (set-face-attribute 'default nil :font "DejaVu Sans Mono-11:antialias=subpixel"))
+    (set-face-attribute 'default nil :font "DejaVu Sans Mono-13:antialias=subpixel"))
 
 (unless window-system
   (menu-bar-mode -1))
@@ -135,7 +135,9 @@
   (global-set-key (kbd "C-.") 'helm-M-x)
   (global-set-key (kbd "C-c h") 'helm-mini)
   (global-set-key (kbd "C-x b") 'helm-buffers-list)
-  (global-set-key (kbd " M-/") 'helm-dabbrev))
+  ;; (global-set-key (kbd " M-/") 'helm-dabbrev)
+  (global-set-key (kbd " M-/") 'dabbrev-expand)
+)
 
 (after "helm-projectile-autoloads"
   ;; Remove 'helm-source-projectile-projects' from C-c p h as it is
@@ -200,3 +202,29 @@
   (set-fill-column 80)
   (setq fci-rule-width 1)
   (setq fci-rule-color "yellow"))
+
+(after `org
+  (require 'ob-ocaml)
+  (require 'ob-sh)
+  (require 'ob-sql)
+
+  ;; I'm not always interested in this.
+  ;; (defun configure-org-buffer ()
+  ;;   (text-scale-adjust 1))
+
+  (setq org-startup-indented t)
+
+  (setq org-agenda-files
+        '("~/Dropbox/org"
+          "~/Dropbox/org/issuu"
+          "~/Dropbox/org/notes"))
+
+  (setq org-babel-load-languages
+        '((ocaml . t)
+          (emacs-lisp . t)
+          (sh . t)
+          (sql . t)))
+
+  (define-key org-mode-map (kbd "C-c C-a") 'org-agenda)
+
+  (add-hook 'org-mode-hook 'configure-org-buffer))

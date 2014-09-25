@@ -134,3 +134,20 @@ dictionary"
   (other-window -1)
   (other-window -1)
   (balance-windows))
+
+;; CSS color values colored by themselves
+;; http://news.ycombinator.com/item?id=873541
+
+(defvar hexcolor-keywords
+  '(("#[abcdef[:digit:]]+"
+     (0 (put-text-property
+         (match-beginning 0)
+         (match-end 0)
+         'face (list :background
+                     (match-string-no-properties 0)))))))
+
+(defun hexcolor-add-to-font-lock ()
+  (interactive)
+  (font-lock-add-keywords nil hexcolor-keywords))
+
+;; (add-hook 'css-mode-hook 'hexcolor-add-to-font-lock)
