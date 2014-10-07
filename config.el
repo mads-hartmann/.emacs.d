@@ -207,11 +207,13 @@
   (require 'ob-ocaml)
   (require 'ob-sh)
   (require 'ob-sql)
+  (require 'ob-python)
 
   ;; I'm not always interested in this.
   ;; (defun configure-org-buffer ()
   ;;   (text-scale-adjust 1))
 
+  (setq org-confirm-babel-evaluate nil) ;; Living on the edge
   (setq org-startup-indented t)
 
   (setq org-agenda-files
@@ -223,7 +225,8 @@
         '((ocaml . t)
           (emacs-lisp . t)
           (sh . t)
-          (sql . t)))
+          (sql . t)
+          (python . t)))
 
   (define-key org-mode-map (kbd "C-c C-a") 'org-agenda)
 
