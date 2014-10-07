@@ -361,8 +361,8 @@
                            :background ,jazz-bg-1
                            :weight bold
                            :box (:line-width -1 :style released-button)))))
-   `(helm-selection ((,class (:background ,jazz-bg+2))))
-   `(helm-selection-line ((,class (:background ,jazz-bg+2))))
+   `(helm-selection ((,class (:foreground, "black" :background, jazz-yellow-2))))
+   `(helm-selection-line ((,class (:foreground, "black" :background, jazz-yellow-2))))
    `(helm-visible-mark ((,class (:foreground ,jazz-bg :background ,jazz-yellow-2))))
    `(helm-candidate-number ((,class (:foreground ,jazz-green+4 :background ,jazz-bg-1))))
 
@@ -582,8 +582,8 @@
    `(whitespace-space ((,class (:background ,jazz-bg :foreground ,jazz-bg+1))))
    `(whitespace-hspace ((,class (:background ,jazz-bg :foreground ,jazz-bg+1))))
    `(whitespace-tab ((,class (:background ,jazz-bg :foreground ,jazz-red))))
-   `(whitespace-newline ((,class (:foreground ,jazz-bg+1))))
-   `(whitespace-trailing ((,class (:foreground ,jazz-red :background ,jazz-bg))))
+   `(whitespace-newline ((,class (:background ,jazz-bg+1))))
+   `(whitespace-trailing ((,class (:foreground ,jazz-red :background ,jazz-red))))
    `(whitespace-line ((,class (:background ,jazz-bg-05 :foreground ,jazz-magenta))))
    `(whitespace-space-before-tab ((,class (:background ,jazz-orange :foreground ,jazz-orange))))
    `(whitespace-indentation ((,class (:background ,jazz-yellow :foreground ,jazz-red))))
