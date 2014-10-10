@@ -125,6 +125,7 @@
   (setq projectile-switch-project-action 'projectile-dired)
   (setq projectile-completion-system 'helm)
   (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s")
+  (setq projectile-use-git-grep t)
   (global-set-key (kbd "s-F") 'projectile-grep))
 
 (after "helm-autoloads"
@@ -208,10 +209,6 @@
   (require 'ob-sh)
   (require 'ob-sql)
   (require 'ob-python)
-
-  ;; I'm not always interested in this.
-  ;; (defun configure-org-buffer ()
-  ;;   (text-scale-adjust 1))
 
   (setq org-confirm-babel-evaluate nil) ;; Living on the edge
   (setq org-startup-indented t)
