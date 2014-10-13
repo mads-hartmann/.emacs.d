@@ -121,6 +121,10 @@
   (setq magit-emacsclient-executable "/usr/local/Cellar/emacs/24.3/bin/emacsclient"))
 
 (after "projectile-autoloads"
+  ;; For my memory here are my favourite use cases
+  ;; `C-c p j` :: projectile-find-tag
+  ;; `C-c p f` :: projectile-find-file
+  ;; `C-c p p` :: projectile-switch-project
   (projectile-global-mode)
   (setq projectile-switch-project-action 'projectile-dired)
   (setq projectile-completion-system 'helm)
@@ -133,12 +137,12 @@
   ;; TODO: Use helm-occur-from-isearch?
   (helm-mode 1)
   (setq helm-follow-mode t)
+  (global-set-key (kbd "C-c C-s") 'helm-occur)
   (global-set-key (kbd "C-.") 'helm-M-x)
   (global-set-key (kbd "C-c h") 'helm-mini)
   (global-set-key (kbd "C-x b") 'helm-buffers-list)
   ;; (global-set-key (kbd " M-/") 'helm-dabbrev)
-  (global-set-key (kbd " M-/") 'dabbrev-expand)
-)
+  (global-set-key (kbd " M-/") 'dabbrev-expand))
 
 (after "helm-projectile-autoloads"
   ;; Remove 'helm-source-projectile-projects' from C-c p h as it is
@@ -161,10 +165,13 @@
   (define-key ac-complete-mode-map "\C-p" 'ac-previous))
 
 (after "highlight-symbol-autoloads"
-  (global-set-key [f5] 'highlight-symbol-at-point)
+  (highlight-symbol-mode)
+  (global-set-key [f5]           'highlight-symbol-at-point)
   (global-set-key (kbd "s-<f5>") 'highlight-symbol-query-replace)
-  (global-set-key [f6] 'highlight-symbol-next)
-  (global-set-key [(shift f6)] 'highlight-symbol-prev))
+  (global-set-key [f6]           'highlight-symbol-next)
+  (global-set-key [(shift f6)]   'highlight-symbol-prev)
+  (global-set-key [f7]           'highlight-symbol-occur)
+  (global-set-key [f8]           'highlight-symbol-remove-all))
 
 (after "multiple-cursors-autoloads"
   (global-set-key (kbd "C->") 'mc/mark-next-like-this)
@@ -192,8 +199,7 @@
   (after 'projectile (diminish 'projectile-mode " P")))
 
 (after "yasnippet-autoloads"
-  (yas-global-mode 1)
-  (setq yas-snippet-dirs '("~/.emacs.d/yasnippet")))
+  (yas-global-mode 1))
 
 (after "diff-hl-autoloads"
   (global-diff-hl-mode))
