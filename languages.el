@@ -125,21 +125,28 @@
   ;; config files if one exists.
   (when (load "flymake" t)
     (defun flymake-pylint-init ()
-      (let* ((temp-file (flymake-init-create-temp-buffer-copy
+      (let* ((project-root (upward-find-file ".git"))
+             (temp-file (flymake-init-create-temp-buffer-copy
                          'flymake-create-temp-inplace))
              (local-file (file-relative-name
                           temp-file
                           (file-name-directory buffer-file-name)))
              (conf-file-dir (or (upward-find-file pylint-conf-filename) global-conf-dir))
+             (pylint-path (if (file-exists-p (concat project-root "/_venv/bin/pylint"))
+                                      (concat project-root "/_venv/bin/pylint")
+                                    "pylint"))
              (full-conf-path (concat conf-file-dir "/" pylint-conf-filename)))
-        (message (concat "using config file " full-conf-path))
-        (list epylint-path (list full-conf-path local-file))))
+        (list epylint-path (list pylint-path full-conf-path temp-file))))
 
     (add-to-list 'flymake-allowed-file-name-masks
                  '("\\.py\\'" flymake-pylint-init)))
 
-  (add-hook 'python-mode-hook 'flymake-mode)
+  (define-key python-mode-map (kbd "C-c C-s") 'helm-occur)
+  (define-key python-mode-map (kbd "C-c C-c") 'compile)
+  (define-key python-mode-map (kbd "M-<tab>") 'jedi:complete)
 
+  (add-hook 'python-mode-hook 'flymake-mode)
+  (add-hook 'python-mode-hook 'jedi:setup)
   ;; Better default compile-command for my Python projects.
   (add-hook 'python-mode-hook
             (lambda ()

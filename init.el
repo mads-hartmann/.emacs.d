@@ -53,7 +53,8 @@
      paredit
      helm
      helm-projectile
-     visible-mark)))
+     jedi
+)))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/
 (defmacro after (mode &rest body)

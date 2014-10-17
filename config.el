@@ -219,6 +219,28 @@
   (setq org-confirm-babel-evaluate nil) ;; Living on the edge
   (setq org-startup-indented t)
 
+  ;; Blogging
+  (setq org-publish-project-alist
+        '(("org-mads379.github.com"
+           ;; Path to your org files.
+           :base-directory "~/dev/mads379.github.com/org/"
+           :base-extension "org"
+           ;; Path to your Jekyll project.
+           :publishing-directory "~/dev/mads379.github.com/"
+           :recursive t
+           :publishing-function org-html-publish-to-html
+           :headline-levels 4
+           :html-extension "html"
+           :body-only t) ;; Only export section between <body> </body>
+          ("org-static-mads379.github.com"
+           :base-directory "~/dev/mads379.github.com/org/"
+           :base-extension "css\\|js\\|png\\|jpg\\|gif"
+           :publishing-directory "~/dev/mads379.github.com/"
+           :recursive t
+           :publishing-function org-publish-attachment)
+          ("mads379.github.com"
+           :components ("org-ianbarton" "org-static-ian"))))
+
   (setq org-agenda-files
         '("~/Dropbox/org"
           "~/Dropbox/org/issuu"
