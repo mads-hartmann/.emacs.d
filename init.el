@@ -54,6 +54,7 @@
      helm
      helm-projectile
      jedi
+     elisp-slime-nav
 )))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/

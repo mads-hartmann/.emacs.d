@@ -1,15 +1,12 @@
 ;;; languages.el --- Programming Language specific configuration.
 
 (after `scss-mode
-  (message "Sass has been loaded")
   (setq scss-compile-at-save nil))
 
 (after `javascript-mode
-  (message "Javascript has been loaded")
   (setq js-indent-level 4)
 
   (after "flymake-jshint-autoloads"
-    (message "flymake-jshint has been loaded")
     (require 'flymake-jshint)
     (defun on-js-mode ()
       (flymake-mode)
@@ -17,45 +14,52 @@
     (add-hook 'js-mode-hook 'on-js-mode)))
 
 (after `markdown-mode
-  (message "Markdown has been loaded")
   (define-key markdown-mode-map (kbd "M-<tab>") 'ido-complete-word-ispell)
-  (add-hook 'markdown-mode-hook
-            (lambda ()
-              (flyspell-mode))))
+  (add-hook 'markdown-mode-hook 'flyspell-mode))
 
 (after `lisp-mode
-  (message "Lisp-mode has been loaded")
+  (elisp-slime-nav-mode)
+  (define-key lisp-mode-map (kbd "M-.") 'elisp-slime-nav-find-elisp-thing-at-point)
+  (define-key lisp-mode-map (kbd "M-,") 'pop-tag-mark)
   (add-hook 'lisp-mode 'flyspell-prog-mode))
 
 (after `org
-  (message "Org has been loaded")
   (setq org-startup-folded nil))
 
 (after `octave
-  (message "Octave has been loaded")
   (autoload 'octave-mode "octave-mod" nil t)
-  (setq auto-mode-alist
-      (cons '("\\.m$" . octave-mode) auto-mode-alist))
-  (add-hook 'octave-mode-hook
-          (lambda ()
-            (abbrev-mode 1)
-            (auto-fill-mode 1)
-            (if (eq window-system 'x)
-                (font-lock-mode 1)))))
+  (setq auto-mode-alist (cons '("\\.m$" . octave-mode) auto-mode-alist))
+  (add-hook 'octave-mode-hook (lambda ()
+    (abbrev-mode 1)
+    (auto-fill-mode 1)
+    (if (eq window-system 'x)
+        (font-lock-mode 1)))))
 
 (after `erlang
-  (message "Erlang has been loaded")
+  (add-to-list 'load-path "/usr/local/share/distel/elisp") ; Not in melpa yet
+
+  (require 'distel)
+  (require 'erlang-flymake)
 
   (defun erlang-make-cmd ()
     (concat "make -w -C " (or (upward-find-file "Makefile") ".")))
 
-  (add-hook 'erlang-mode-hook
-            (lambda ()
-              (set (make-local-variable 'compile-command) (erlang-make-cmd)))))
+  (distel-setup)
+  ;; http://parijatmishra.wordpress.com/2008/08/15/up-and-running-with-emacs-erlang-and-distel/
+  ;; http://alexott.net/en/writings/emacs-devenv/EmacsErlang.html#sec8
+  (setq inferior-erlang-machine-options '("-sname" "emacs"))
+
+  (define-key erlang-mode-map (kbd "M-.") 'erl-find-source-under-point)
+  (define-key erlang-mode-map (kbd "M-,") 'erl-find-source-unwind)
+  (define-key erlang-mode-map (kbd "M-<tab>") 'erl-complete)
+  (define-key erlang-mode-map (kbd "C-c C-c") 'compile)
+  (define-key erlang-mode-map (kbd "<return>")'newline-and-indent)
+
+  (add-hook 'erlang-mode-hook 'flymake-mode)
+  (add-hook 'erlang-mode-hook (lambda ()
+    (set (make-local-variable 'compile-command) (erlang-make-cmd)))))
 
 (after `tuareg
-  (message "OCaml has been loaded")
-
   (defun make-cmd ()
     (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))
 
@@ -93,27 +97,20 @@
   (setenv "PROMOTED_HOME" "/Users/hartmann/dev/backend-promoted")
   (setenv "PROMOTED_CONF_SHADOW" "")
 
-  (add-hook 'tuareg-mode-hook
-            (lambda ()
+  (define-key merlin-mode-map (kbd "M-<tab>") 'merlin-try-completion)
+  (define-key merlin-mode-map "\M-." 'merlin-locate)
+  (define-key merlin-mode-map "\M-," 'merlin-pop-stack)
+  (define-key merlin-mode-map (kbd "C-c C-p") 'prev-match)
+  (define-key merlin-mode-map (kbd "C-c C-n") 'next-match)
+  (define-key tuareg-mode-map (kbd "C-x C-r") 'tuareg-eval-region)
 
-              (merlin-mode)
-              (utop-setup-ocaml-buffer)
-
-              ;; Better default make command for OCaml projects.
-              (set (make-local-variable 'compile-command) (make-cmd))
-              ;; Better default utop command
-              (setq utop-command (concat "utop -emacs " (utop-extra)))
-
-              (define-key merlin-mode-map (kbd "M-<tab>") 'merlin-try-completion)
-              (define-key merlin-mode-map "\M-." 'merlin-locate)
-              (define-key merlin-mode-map "\M->" 'merlin-pop-stack)
-              (define-key merlin-mode-map (kbd "C-c C-p") 'prev-match)
-              (define-key merlin-mode-map (kbd "C-c C-n") 'next-match)
-              (define-key tuareg-mode-map (kbd "C-x C-r") 'tuareg-eval-region))))
+  (add-hook 'tuareg-mode-hook (lambda ()
+    (merlin-mode)
+    (utop-setup-ocaml-buffer)
+    (set (make-local-variable 'compile-command) (make-cmd))
+    (setq utop-command (concat "utop -emacs " (utop-extra))))))
 
 (after `python
-  (message "Python has been loaded")
-
   (defconst pylint-conf-filename "pylint.cfg")
   (defconst epylint-path "/Users/hartmann/.emacs.d/python/epylint.py")
   (defconst global-conf-dir "/Users/hartmann/.emacs.d/python")
@@ -141,13 +138,15 @@
     (add-to-list 'flymake-allowed-file-name-masks
                  '("\\.py\\'" flymake-pylint-init)))
 
+  (define-key python-mode-map (kbd "M-<tab>") 'jedi:complete)
+  (define-key python-mode-map "\M-." 'jedi:goto-definition)
+  (define-key python-mode-map "\M-," 'jedi:goto-definition-pop-marker)
   (define-key python-mode-map (kbd "C-c C-s") 'helm-occur)
   (define-key python-mode-map (kbd "C-c C-c") 'compile)
-  (define-key python-mode-map (kbd "M-<tab>") 'jedi:complete)
 
   (add-hook 'python-mode-hook 'flymake-mode)
   (add-hook 'python-mode-hook 'jedi:setup)
-  ;; Better default compile-command for my Python projects.
+
   (add-hook 'python-mode-hook
             (lambda ()
               (set (make-local-variable 'compile-command) (python-make-cmd)))))
