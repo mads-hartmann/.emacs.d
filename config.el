@@ -133,15 +133,15 @@
   (global-set-key (kbd "s-F") 'projectile-grep))
 
 (after "helm-autoloads"
-  ;; TODO: Bind helm occur to something less crazy?
   ;; TODO: Use helm-occur-from-isearch?
   (helm-mode 1)
   (setq helm-follow-mode t)
+  (setq helm-split-window-in-side-p t)
+  (setq helm-buffers-fuzzy-matching t)
   (global-set-key (kbd "C-c C-s") 'helm-occur)
   (global-set-key (kbd "C-.") 'helm-M-x)
   (global-set-key (kbd "C-c h") 'helm-mini)
   (global-set-key (kbd "C-x b") 'helm-buffers-list)
-  ;; (global-set-key (kbd " M-/") 'helm-dabbrev)
   (global-set-key (kbd " M-/") 'dabbrev-expand))
 
 (after "helm-projectile-autoloads"
