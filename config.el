@@ -1,5 +1,7 @@
 ;;; config.el -- Configuration for various packages.
 
+(require 'dired-x)
+
 (if window-system
     (set-face-attribute 'default nil :font "DejaVu Sans Mono-13:antialias=subpixel"))
 
@@ -32,6 +34,10 @@
 (setq dabbrev-case-replace nil)
 (setq dabbrev-case-distinction nil)
 (setq dabbrev-case-fold-search nil)
+
+(setq-default dired-omit-files-p t)
+(setq dired-omit-files
+    (concat dired-omit-files "\\|\\.pyc$"))
 
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode 1)
