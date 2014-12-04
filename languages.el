@@ -74,6 +74,7 @@
 
   ;; Load merlin-mode
   (require 'merlin)
+  (require 'ocp-indent)
 
   ;; Use opam switch to lookup ocamlmerlin binary
   (setq merlin-command 'opam)
@@ -98,6 +99,7 @@
 
   (add-hook 'tuareg-mode-hook (lambda ()
     (merlin-mode)
+    (setq indent-line-function 'ocp-indent-line)
     (utop-setup-ocaml-buffer))))
 
 (after `python
