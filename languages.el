@@ -18,13 +18,10 @@
   (add-hook 'markdown-mode-hook 'flyspell-mode))
 
 (after `lisp-mode
-  (elisp-slime-nav-mode)
   (define-key lisp-mode-map (kbd "M-.") 'elisp-slime-nav-find-elisp-thing-at-point)
   (define-key lisp-mode-map (kbd "M-,") 'pop-tag-mark)
+  (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
   (add-hook 'lisp-mode 'flyspell-prog-mode))
-
-(after `org
-  (setq org-startup-folded nil))
 
 (after `octave
   (autoload 'octave-mode "octave-mod" nil t)
@@ -107,9 +104,6 @@
   (defconst epylint-path "/Users/hartmann/.emacs.d/python/epylint.py")
   (defconst global-conf-dir "/Users/hartmann/.emacs.d/python")
 
-  (defun python-make-cmd ()
-    (concat "make -w -C " (or (upward-find-file "Makefile") ".") " pylint"))
-
   ;; Enable flymake for python files. Make sure it respect the pylint.cfg
   ;; config files if one exists.
   (when (load "flymake" t)
@@ -131,14 +125,15 @@
                  '("\\.py\\'" flymake-pylint-init)))
 
   (define-key python-mode-map (kbd "M-<tab>") 'jedi:complete)
-  (define-key python-mode-map "\M-." 'jedi:goto-definition)
-  (define-key python-mode-map "\M-," 'jedi:goto-definition-pop-marker)
   (define-key python-mode-map (kbd "C-c C-s") 'helm-occur)
   (define-key python-mode-map (kbd "C-c C-c") 'compile)
+  (define-key python-mode-map (kbd "C-c C-p") nil)
 
   (add-hook 'python-mode-hook 'flymake-mode)
   (add-hook 'python-mode-hook 'jedi:setup)
 
-  (add-hook 'python-mode-hook
-            (lambda ()
-              (set (make-local-variable 'compile-command) (python-make-cmd)))))
+  (add-hook 'jedi-mode-hook (lambda ()
+    (define-key jedi-mode-map (kbd "C-<tab>") nil)
+    (define-key jedi-mode-map "\M-." 'jedi:goto-definition)
+    (define-key jedi-mode-map "\M-," 'jedi:goto-definition-pop-marker)
+  )))

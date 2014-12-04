@@ -27,6 +27,11 @@
 (setq whitespace-style '(trailing tabs tab-mark face))
 (setq compilation-read-command nil)
 (setq speedbar-show-unknown-files t)
+(setq enable-local-variables :all) ; Sort of scary.
+
+(setq dabbrev-case-replace nil)
+(setq dabbrev-case-distinction nil)
+(setq dabbrev-case-fold-search nil)
 
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode 1)
@@ -51,7 +56,6 @@
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (global-set-key (kbd "s-w") 'delete-frame)
-(global-set-key (kbd "M-?") 'ido-complete-symbol-at-point)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-<tab>") 'ace-jump-mode)
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
@@ -68,6 +72,9 @@
 (global-set-key (kbd "C-`") 'switch-buffer-visual)
 (global-set-key (kbd "s-`") 'ns-next-frame)
 (global-set-key (kbd "s-¬") 'ns-prev-frame)
+
+(global-set-key (kbd "C-c C-1") 'previous-buffer)
+(global-set-key (kbd "C-c C-2") 'next-buffer)
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
@@ -216,14 +223,15 @@
   (require 'ob-sql)
   (require 'ob-python)
 
+  (setq org-startup-folded nil)
   (setq org-confirm-babel-evaluate nil) ;; Living on the edge
-  (setq org-startup-indented t)
+  (setq org-startup-indented nil)
 
   ;; Blogging
   (setq org-publish-project-alist
         '(("org-mads379.github.com"
            ;; Path to your org files.
-           :base-directory "~/dev/mads379.github.com/org/"
+           :base-directory "~/dev/mads379.github.com/_org/"
            :base-extension "org"
            ;; Path to your Jekyll project.
            :publishing-directory "~/dev/mads379.github.com/"
