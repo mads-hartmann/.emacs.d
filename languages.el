@@ -60,14 +60,6 @@
     (set (make-local-variable 'compile-command) (erlang-make-cmd)))))
 
 (after `tuareg
-  (defun make-cmd ()
-    (concat "make -w -j4 -C " (or (upward-find-file "Makefile") ".")))
-
-  (defun utop-extra ()
-    (let ((root (upward-find-file ".ocamlinit")))
-      (if root
-          (concat "-init " root "/.ocamlinit")
-        "")))
 
   ;; Add opam emacs directory to the load-path
   (setq opam-share (substring (shell-command-to-string "opam config var share 2> /dev/null") 0 -1))
@@ -106,9 +98,7 @@
 
   (add-hook 'tuareg-mode-hook (lambda ()
     (merlin-mode)
-    (utop-setup-ocaml-buffer)
-    (set (make-local-variable 'compile-command) (make-cmd))
-    (setq utop-command (concat "utop -emacs " (utop-extra))))))
+    (utop-setup-ocaml-buffer))))
 
 (after `python
   (defconst pylint-conf-filename "pylint.cfg")
