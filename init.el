@@ -55,6 +55,7 @@
      helm-projectile
      jedi
      elisp-slime-nav
+     golden-ratio
 )))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/

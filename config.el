@@ -84,10 +84,13 @@
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
+(after "golden-ratio-autoloads"
+  (require 'golden-ratio)
+  (golden-ratio-mode 1))
+
 (after "dired+-autoloads"
-  (add-hook 'dired-mode-hook
-            (lambda ()
-              (define-key dired-mode-map (kbd "<tab>") 'dired-insert-subdir))))
+  (add-hook 'dired-mode-hook (lambda ()
+    (define-key dired-mode-map (kbd "<tab>") 'dired-insert-subdir))))
 
 (after `tramp
   (setq tramp-default-method "ssh"))
@@ -140,7 +143,6 @@
   (global-set-key (kbd "s-F") 'projectile-grep))
 
 (after "helm-autoloads"
-  ;; TODO: Use helm-occur-from-isearch?
   (helm-mode 1)
   (setq helm-follow-mode t)
   (setq helm-split-window-in-side-p t)
@@ -152,7 +154,7 @@
   (global-set-key (kbd " M-/") 'dabbrev-expand))
 
 (after "helm-projectile-autoloads"
-  ;; Remove 'helm-source-projectile-projects' from C-c p h as it is
+  ;; Removes 'helm-source-projectile-projects' from C-c p h as it is
   ;; possible to switch project using 'helm-projectile-switch-project'
   (setq helm-projectile-sources-list
         '(helm-source-projectile-files-list

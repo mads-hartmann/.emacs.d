@@ -93,6 +93,7 @@
   (define-key merlin-mode-map (kbd "C-c C-p") 'prev-match)
   (define-key merlin-mode-map (kbd "C-c C-n") 'next-match)
   (define-key tuareg-mode-map (kbd "C-x C-r") 'tuareg-eval-region)
+  (define-key tuareg-mode-map (kbd "C-c C-z") 'utop)
 
   (add-hook 'tuareg-mode-hook (lambda ()
     (merlin-mode)
