@@ -120,12 +120,6 @@
   (setq ido-max-prospects 5)
   (setq ido-auto-merge-work-directories-length -1)) ; disable annoying directory search
 
-(after "virtualenvwrapper-autoloads"
-  (require 'virtualenvwrapper)
-  (venv-initialize-interactive-shells)
-  ;; TODO: set venv-location based on current project?
-  (setq venv-location '("/Users/hartmann/dev/payment/_venv/")))
-
 (after "ido-vertical-mode-autoloads"
   (ido-vertical-mode 1))
 
