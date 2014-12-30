@@ -37,6 +37,7 @@
      multiple-cursors
      expand-region
      ace-jump-mode
+     ace-jump-zap
      ido-vertical-mode
      highlight-symbol
      bookmark+
@@ -55,7 +56,7 @@
      helm-projectile
      jedi
      elisp-slime-nav
-     golden-ratio
+     elfeed
 )))
 
 ;; http://milkbox.net/note/single-file-master-emacs-configuration/
@@ -71,3 +72,18 @@
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/config.el")
 (load "~/.emacs.d/languages.el")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
+ '(fringe-mode nil nil (fringe))
+ '(golden-ratio-mode nil)
+ '(indicate-empty-lines t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

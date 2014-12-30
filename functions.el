@@ -163,3 +163,14 @@ dictionary"
                                 t nil word)))
     (delete-region start end)
     (insert (downcase word))))
+
+(defun sudo-save ()
+  (interactive)
+  (if (not buffer-file-name)
+      (write-file (concat "/sudo:root@localhost:" (ido-read-file-name "File:")))
+    (write-file (concat "/sudo:root@localhost:" buffer-file-name))))
+
+(defun mhj-org-publish-project-keep-location ()
+  (interactive)
+  (save-excursion
+    (org-publish-current-project)))

@@ -11,6 +11,8 @@
 ;; Always ask for y/n keypress instead of typing out 'yes' or 'no'
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+(setq x-select-enable-clipboard t)
+(set-default 'truncate-lines t)
 (setq variable-pitch-mode nil)
 (setq auto-save-default nil) ; disable auto-save files (#foo#)
 (setq backup-inhibited t)    ; disable backup files (foo~)
@@ -64,6 +66,7 @@
 (global-set-key (kbd "s-w") 'delete-frame)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-<tab>") 'ace-jump-mode)
+(global-set-key (kbd "M-z") 'ace-jump-zap-to-char)
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
 (global-set-key (kbd "s-+") 'text-scale-increase)
 (global-set-key (kbd "s--") 'text-scale-decrease)
@@ -224,6 +227,7 @@
   (require 'ob-sh)
   (require 'ob-sql)
   (require 'ob-python)
+  (require 'ob-js)
 
   (setq org-startup-folded nil)
   (setq org-confirm-babel-evaluate nil) ;; Living on the edge
@@ -261,8 +265,10 @@
           (emacs-lisp . t)
           (sh . t)
           (sql . t)
-          (python . t)))
+          (python . t)
+          (js . t)))
 
   (define-key org-mode-map (kbd "C-c C-a") 'org-agenda)
+  (define-key org-mode-map (kbd "C-<tab>") nil)
 
   (add-hook 'org-mode-hook 'configure-org-buffer))
