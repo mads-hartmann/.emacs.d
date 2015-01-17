@@ -1,9 +1,7 @@
 ;;; init.el --- Mads' configuration file
+(server-start)
 
 (require 'package)
-(require 'dired-x)
-
-(server-start)
 
 (setq package-enable-at-startup nil)
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
@@ -18,7 +16,6 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
-
 (load-theme 'wombat t)
 (load "~/.emacs.d/functions.el")
 
@@ -32,6 +29,7 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (setq x-select-enable-clipboard t)
+(setq require-final-newline t)
 (set-default 'truncate-lines t)
 (setq variable-pitch-mode nil)
 (setq auto-save-default nil) ; disable auto-save files (#foo#)
@@ -55,9 +53,6 @@
 (setq dabbrev-case-replace nil)
 (setq dabbrev-case-distinction nil)
 (setq dabbrev-case-fold-search nil)
-(setq-default dired-omit-files-p t)
-(setq dired-omit-files
-    (concat dired-omit-files "\\|\\.pyc$"))
 
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode 1)
@@ -110,8 +105,13 @@
   :bind ("M-z" . ace-jump-zap-to-char))
 
 (use-package dired+
+  :ensure t
+  :pre-load (setq diredp-hide-details-initially-flag nil)
   :config
   (progn
+    (setq-default dired-omit-files-p t)
+    (setq dired-omit-files
+          (concat dired-omit-files "\\|\\.pyc$"))
     (add-hook 'dired-mode-hook
               (lambda ()
                 (define-key dired-mode-map (kbd "<tab>") 'dired-insert-subdir)))))
@@ -152,10 +152,7 @@
   :init (ido-vertical-mode 1))
 
 (use-package magit
-  :config
-  (progn
-    ;; TODO: This shouldn't be required.
-    (setq magit-emacsclient-executable "/usr/local/Cellar/emacs/24.3/bin/emacsclient")))
+  :ensure t)
 
 (use-package projectile
   :ensure t
@@ -234,6 +231,7 @@
          ("S-<f2>" . bmkp-previous-bookmark-this-buffer)))
 
 (use-package ag
+  :ensure t
   :config (progn
             (setq ag-highlight-search t)
             (setq ag-reuse-buffers 't)))
@@ -250,12 +248,17 @@
           (setq undo-tree-visualizer-timestamps t)))
 
 (use-package yasnippet
+  :ensure t
   :defer
-  :ensure t)
+  :config
+  (progn
+    (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+    (yas-reload-all)))
 
 (use-package diff-hl
-  ;; :init (progn (global-diff-hl-mode))
-)
+  :ensure t
+  :disabled ; Doesn't seem to work with my emacs version
+  :init (progn (global-diff-hl-mode)))
 
 (use-package fill-column-indicator
   :init (progn (add-hook 'python-mode-hook 'fci-mode))
@@ -322,6 +325,7 @@
             ("http://lambda-the-ultimate.org/rss.xml" tech programming-languages)
             ("http://politiken.dk/rss/ibyen.rss")
             ("http://soundvenue.com/category/musik/feed" music)
+            ("http://www.slow-journalism.com/feed" news)
             ))))
 
 (use-package org
@@ -332,6 +336,7 @@
     (require 'ob-sql)
     (require 'ob-python)
     (require 'ob-js)
+    (require 'ob-R)
 
     (define-key org-mode-map (kbd "C-c C-a") 'org-agenda)
     (define-key org-mode-map (kbd "C-<tab>") nil)
@@ -368,14 +373,15 @@
             (sh . t)
             (sql . t)
             (python . t)
-            (js . t))))
+            (js . t)
+            (r . R)))
 
     (setq org-agenda-files
           '("~/Dropbox/org"
             "~/Dropbox/org/issuu"
             "~/Dropbox/org/notes"))
 
-    (add-hook 'org-mode-hook 'configure-org-buffer))
+    (add-hook 'org-mode-hook 'yas-minor-mode)))
 
 (use-package smart-mode-line
   :ensure t
@@ -416,6 +422,9 @@
     (define-key lisp-mode-map (kbd "M-,") 'pop-tag-mark)
     (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
     (add-hook 'lisp-mode 'flyspell-prog-mode)))
+
+(use-package ess
+  :ensure t)
 
 (use-package octave
   :defer
@@ -538,7 +547,8 @@
     (define-key python-mode-map (kbd "C-c C-c") 'compile)
     (define-key python-mode-map (kbd "C-c C-p") nil)
 
-    (add-hook 'python-mode-hook 'flymake-mode)))
+    (add-hook 'python-mode-hook 'flymake-mode)
+    (add-hook 'python-mode-hook 'jedi:setup)))
 
 (use-package jedi
   :defer
@@ -562,7 +572,6 @@
     ("c5a044ba03d43a725bd79700087dea813abcb6beb6be08c7eb3303ed90782482" "6a37be365d1d95fad2f4d185e51928c789ef7a4ccf17e7ca13ad63a8bf5b922f" default)))
  '(fci-rule-color "#151515")
  '(fringe-mode nil nil (fringe))
- '(golden-ratio-mode nil)
  '(indicate-empty-lines t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
