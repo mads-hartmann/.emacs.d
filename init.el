@@ -260,14 +260,6 @@
   :disabled ; Doesn't seem to work with my emacs version
   :init (progn (global-diff-hl-mode)))
 
-(use-package fill-column-indicator
-  :init (progn (add-hook 'python-mode-hook 'fci-mode))
-  :config
-  (progn
-    (set-fill-column 80)
-    (setq fci-rule-width 1)
-    (setq fci-rule-color "yellow")))
-
 (use-package elfeed
   :defer
   :ensure t
@@ -560,22 +552,3 @@
                                 (define-key jedi-mode-map "\M-." 'jedi:goto-definition)
                                 (define-key jedi-mode-map "\M-," 'jedi:goto-definition-pop-marker)
                                 ))))
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
- '(custom-safe-themes
-   (quote
-    ("c5a044ba03d43a725bd79700087dea813abcb6beb6be08c7eb3303ed90782482" "6a37be365d1d95fad2f4d185e51928c789ef7a4ccf17e7ca13ad63a8bf5b922f" default)))
- '(fci-rule-color "#151515")
- '(fringe-mode nil nil (fringe))
- '(indicate-empty-lines t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
