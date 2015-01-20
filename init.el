@@ -95,6 +95,9 @@
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
+(use-package report-spec-mode
+  :load-path "dev-pkgs/")
+
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
 
