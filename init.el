@@ -17,7 +17,9 @@
   (package-install 'use-package))
 
 (load-theme 'wombat t)
-(load "~/.emacs.d/functions.el")
+(add-to-list 'load-path "~/.emacs.d/lisp")
+(load "~/.emacs.d/lisp/functions.el")
+(load "~/.emacs.d/lisp/sql.el")
 
 (if window-system
     (set-face-attribute 'default nil :font "DejaVu Sans Mono-13:antialias=subpixel"))
@@ -28,6 +30,8 @@
 ;; Always ask for y/n keypress instead of typing out 'yes' or 'no'
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+(global-hi-lock-mode nil)
+(setq confirm-kill-emacs (quote y-or-n-p))
 (setq x-select-enable-clipboard t)
 (setq require-final-newline t)
 (set-default 'truncate-lines t)
@@ -74,14 +78,14 @@
 
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
 (global-set-key (kbd "M-;") 'comment-dwim)
+(global-set-key (kbd "C-;") #'comment-line-dwim)
+(global-set-key (kbd "M-s o") #'occur-dwim)
 (global-set-key (kbd "s-w") 'delete-frame)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
 (global-set-key (kbd "s-+") 'text-scale-increase)
 (global-set-key (kbd "s--") 'text-scale-decrease)
 (global-set-key (kbd "M-s-≥") 'sgml-close-tag) ; textmate like close tag
-(global-set-key (kbd "C-c C-p") 'prev-match)
-(global-set-key (kbd "C-c C-n") 'next-match)
 (global-set-key (kbd "s-{")  'prev-window)
 (global-set-key (kbd "s-}") 'other-window)
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
@@ -95,8 +99,14 @@
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
+(add-to-list 'load-path "/Volumes/credentials/")
+
 (use-package report-spec-mode
   :load-path "dev-pkgs/")
+
+(use-package hdl-mode
+  :load-path "dev-pkgs/"
+  :mode "\\.hdl\\'")
 
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
@@ -106,6 +116,10 @@
 
 (use-package ace-jump-zap
   :bind ("M-z" . ace-jump-zap-to-char))
+
+(use-package ace-window
+  :ensure t
+  :bind ("C-x o" . ace-window))
 
 (use-package dired+
   :ensure t
@@ -180,7 +194,8 @@
          ("C-." . helm-M-x)
          ("C-c h" . helm-mini)
          ("C-x b" . helm-buffers-list)
-         (" M-/" . dabbrev-expand)))
+         (" M-/" . dabbrev-expand)
+         ("M-y" . helm-show-kill-ring)))
 
 (use-package helm-projectile
   :ensure t
@@ -207,16 +222,6 @@
             (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
             (define-key ac-complete-mode-map "\C-n" 'ac-next)
             (define-key ac-complete-mode-map "\C-p" 'ac-previous)))
-
-(use-package highlight-symbol
-  :ensure t
-  :bind (([f5]           . highlight-symbol-at-point)
-         ((kbd "s-<f5>") . highlight-symbol-query-replace)
-         ([f6]           . highlight-symbol-next)
-         ([(shift f6)]   . highlight-symbol-prev)
-         ([f7]           . highlight-symbol-occur)
-         ([f8]           . highlight-symbol-remove-all))
-  :init (highlight-symbol-mode))
 
 (use-package multiple-cursors
   :ensure t
@@ -268,61 +273,14 @@
   :ensure t
   :config
   (progn
+    (require 'feeds)
     (setq elfeed-db-directory "~/Dropbox/Apps/elfeed")
-    (setq-default elfeed-search-filter "@1-week-ago +unread ")
+    (setq-default elfeed-search-filter "@2-week-ago +unread ")
     (setq elfeed-max-connections 1)
-    (setq elfeed-feeds
-          '(("http://feeds.feedburner.com/amirmc" tech)
-            ("http://sachachua.com/blog/feed" tech)
-            ("http://medium.com/feed/@jlouis666" tech)
-            ("http://psnively.github.com/atom.xml" tech)
-            ("http://www.drmaciver.com/feed/" tech)
-            ("http://davehakkens.nl/feed/" tech)
-            ("http://www.defmacro.org/feed.atom" tech)
-            ("http://feeds.feedburner.com/holman" tech)
-            ("http://worrydream.com/feed.xml" tech)
-            ("http://caitiem.com/feed/" tech)
-            ("http://feeds.feedburner.com/tom-preston-werner" tech)
-            ("http://mads379.github.io/feed.xml" tech)
-            ("http://logicaltypes.blogspot.com/feeds/posts/default?alt=rss" tech)
-            ("http://anil.recoil.org/feeds/atom.xml" tech)
-            ("http://feeds.feedburner.com/threeriversinstitute/khkV" tech)
-            ("http://nerds.airbnb.com/feed/" company)
-            ("http://stripe.com/blog/feed.rss" company)
-            ("http://blog.alfredapp.com/feed/" company)
-            ("http://github.com/blog.atom" company)
-            ("http://techblog.netflix.com/feeds/posts/default" company)
-            ("http://www.paus.dk/blog?format=RSS" misc)
-            ("http://designairs.com/feed/" company)
-            ("http://ocaml.janestreet.com/?q=rss.xml" company)
-            ("http://functionaltalks.org/feed.xml" programming)
-            ("http://googleonlinesecurity.blogspot.com/feeds/posts/default" programming)
-            ("http://www.openmirage.org/blog/atom.xml" programming)
-            ("http://planet.ocamlcore.org/atom.xml" programming)
-            ("http://okmij.org/ftp/rss.xml" programming)
-            ("http://emacsrocks.com/atom.xml" misc emacs)
-            ("http://endlessparentheses.com/atom.xml" emacs)
-            ("http://emacsrocks.com/atom.xml" emacs)
-            ("http://planet.emacsen.org/atom.xml" emacs)
-            ("http://whattheemacsd.com/atom.xml" emacs)
-            ("http://www.lunaryorn.com/feed.atom" emacs ocaml)
-            ("http://folkelab.dk/feed/atom.xml" misc)
-            ("http://feeds.wnyc.org/radiolab" misc)
-            ("http://blog.genbyg.dk/feed/" misc)
-            ("http://logicaltypes.blogspot.com/feeds/posts/default?alt=rss" programming)
-            ("http://anil.recoil.org/feeds/atom.xml" tech ocaml)
-            ("http://www.somerandomidiot.com/atom.xml" tech ocaml)
-            ("http://davehakkens.nl/feed/" misc)
-            ("http://www.masteringemacs.org/feed/" tech)
-            ("http://firstlook.org/theintercept/feed/" news)
-            ("http://www.schneier.com/blog/atom.xml" tech security)
-            ("http://feeds.feedburner.com/TroyHunt" tech security)
-            ("http://lambda-the-ultimate.org/rss.xml" tech programming-languages)
-            ("http://politiken.dk/rss/ibyen.rss")
-            ("http://soundvenue.com/category/musik/feed" music)
-            ("http://www.slow-journalism.com/feed" news)
-            ))))
+    (setq elfeed-feeds feeds)))
 
+(add-to-list 'load-path "~/dev/org-mode/contrib/lisp/")
+(require 'org-drill)
 (use-package org
   :init
   (progn
@@ -333,12 +291,20 @@
     (require 'ob-js)
     (require 'ob-R)
 
+    (define-key global-map (kbd "C-c c") 'org-capture)
+
     (define-key org-mode-map (kbd "C-c C-a") 'org-agenda)
     (define-key org-mode-map (kbd "C-<tab>") nil)
 
     (setq org-startup-folded nil)
     (setq org-confirm-babel-evaluate nil) ;; Living on the edge
     (setq org-startup-indented nil)
+
+    ;; Capturing notes
+    (setq org-capture-templates
+      '(("b" "Bookmark" entry (file+headline "~/Dropbox/org/urls.org" "Bookmarks")
+         "* %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n" :empty-lines 1)
+        ))
 
     ;; Blogging
     (setq org-publish-project-alist
@@ -376,7 +342,15 @@
             "~/Dropbox/org/issuu"
             "~/Dropbox/org/notes"))
 
-    (add-hook 'org-mode-hook 'yas-minor-mode)))
+    (add-hook 'org-mode-hook 'yas-minor-mode)
+
+    ;; http://www.wisdomandwonder.com/link/9573/how-to-correctly-enable-flycheck-in-babel-source-blocks
+    (defadvice org-edit-src-code (around set-buffer-file-name activate compile)
+      (let ((file-name (buffer-file-name)))
+        ad-do-it
+        (setq buffer-file-name file-name)))
+
+))
 
 (use-package smart-mode-line
   :ensure t
@@ -386,15 +360,12 @@
           (sml/apply-theme 'respectful)))
 
 (use-package scss-mode
-  :defer
   :config (setq scss-compile-at-save nil))
 
 (use-package javascript-mode
-  :defer
   :config (setq js-indent-level 4))
 
 (use-package flymake-jshint
-  :defer
   :config
   (progn
     (defun on-js-mode ()
@@ -403,14 +374,12 @@
     (add-hook 'js-mode-hook 'on-js-mode)))
 
 (use-package markdown-mode
-  :defer
   :config
   (progn
     (define-key markdown-mode-map (kbd "M-<tab>") 'ido-complete-word-ispell)
     (add-hook 'markdown-mode-hook 'flyspell-mode)))
 
 (use-package lisp-mode
-  :defer
   :config
   (progn
     (define-key lisp-mode-map (kbd "M-.") 'elisp-slime-nav-find-elisp-thing-at-point)
@@ -418,11 +387,7 @@
     (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
     (add-hook 'lisp-mode 'flyspell-prog-mode)))
 
-(use-package ess
-  :ensure t)
-
 (use-package octave
-  :defer
   :config
   (progn
     (autoload 'octave-mode "octave-mod" nil t)
@@ -434,7 +399,6 @@
                                       (font-lock-mode 1))))))
 
 (use-package erlang
-  :defer
   :config
   (progn
     (add-to-list 'load-path "/usr/local/share/distel/elisp") ; Not in melpa yet
@@ -460,7 +424,6 @@
                                   (set (make-local-variable 'compile-command) (erlang-make-cmd))))))
 
 (use-package tuareg
-  :defer
   :config
   (progn
 
@@ -504,10 +467,13 @@
     ;; (setq merlin-logfile "/Users/hartmann/Desktop/merlin.log")
     (setq merlin-error-after-save nil)
 
-    (add-hook 'tuareg-mode-hook 'utop-minor-mode)
-    (add-hook 'tuareg-mode-hook 'merlin-mode)
-    (add-hook 'tuareg-mode-hook (lambda ()
-                                  (setq indent-line-function 'ocp-indent-line)))))
+    (add-hook 'tuareg-mode-hook
+              (lambda ()
+                (merlin-mode)
+                (utop-minor-mode)
+                (define-key utop-minor-mode-map (kbd "C-c C-z") 'utop)
+                (define-key utop-minor-mode-map (kbd "C-c C-s") nil)
+                (setq indent-line-function 'ocp-indent-line)))))
 
 (use-package python
   :defer
@@ -550,8 +516,39 @@
   :config
   (progn
     (add-hook 'python-mode-hook 'jedi:setup)
-    (add-hook 'jedi-mode-hook (lambda ()
-                                (define-key jedi-mode-map (kbd "C-<tab>") nil)
-                                (define-key jedi-mode-map "\M-." 'jedi:goto-definition)
-                                (define-key jedi-mode-map "\M-," 'jedi:goto-definition-pop-marker)
-                                ))))
+    (add-hook 'jedi-mode-hook
+              (lambda ()
+                (define-key jedi-mode-map (kbd "C-<tab>") nil)
+                (define-key jedi-mode-map "\M-." 'jedi:goto-definition)
+                (define-key jedi-mode-map "\M-," 'jedi:goto-definition-pop-marker)))))
+
+(use-package hydra
+  :ensure
+  :config
+  (progn
+    (hydra-create "<f2>"
+      '(("g" text-scale-increase)
+        ("l" text-scale-decrease)))))
+
+(use-package highlight-symbol
+  :ensure t
+  :init
+  (progn
+    (global-set-key (kbd "C-x w .") 'highlight-symbol-at-point)
+    (global-set-key (kbd "C-x w %") 'highlight-symbol-query-replace)
+    (global-set-key (kbd "C-x w o") 'highlight-symbol-occur)
+    (global-set-key (kbd "C-x w c") 'highlight-symbol-remove-all)
+    (hydra-create "C-x w"
+      '(("n" highlight-symbol-next)
+        ("p" highlight-symbol-prev)))))
+
+(hydra-create "M-g"
+  '(("h" first-error "first")
+    ("n" next-error "next")
+    ("p" previous-error "prev")))
+
+(use-package jinja2-mode
+  :ensure t)
+
+(use-package wgrep :ensure t)           ; Makes it possbile to edit grep buffers!
+(use-package wgrep-helm :ensure)        ; wgrep support for helm.

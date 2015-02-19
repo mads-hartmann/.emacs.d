@@ -87,10 +87,6 @@ dictionary"
             (delete-region start end)
             (insert selection))))))
 
-(defun prev-match ()
-  (interactive)
-  (next-match -1))
-
 (defun insert-aa ()
   (interactive)
   (insert "å"))
@@ -174,3 +170,38 @@ dictionary"
   (interactive)
   (save-excursion
     (org-publish-current-project)))
+
+(defun comment-line-dwim (n)
+  "Comment or uncomment current line and leave point after it.
+With positive prefix, apply to N lines including current one.
+With negative prefix, apply to -N lines above."
+  (interactive "p")
+  (comment-or-uncomment-region
+   (line-beginning-position)
+   (goto-char (line-end-position n)))
+  (forward-line 1)
+  (back-to-indentation))
+
+;; http://oremacs.com/2015/01/26/occur-dwim/
+(defun occur-dwim ()
+  "Call `occur' with a sane default."
+  (interactive)
+  (push (if (region-active-p)
+            (buffer-substring-no-properties
+             (region-beginning)
+             (region-end))
+          (thing-at-point 'symbol))
+        regexp-history)
+  (call-interactively 'occur))
+
+(defun json-format ()
+  "Use python to pretty-print the json in the selected region"
+  (interactive)
+  (when (region-active-p)
+    (shell-command-on-region (region-beginning) (region-end) "python -m json.tool" nil t)))
+
+;; http://emacsredux.com/blog/2015/01/18/clear-comint-buffers/
+(defun comint-clear-buffer ()
+  (interactive)
+  (let ((comint-buffer-maximum-size 0))
+    (comint-truncate-buffer)))

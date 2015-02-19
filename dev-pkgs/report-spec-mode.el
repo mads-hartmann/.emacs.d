@@ -2,7 +2,7 @@
 
 
 (setq report-spec-mode-keywords
-      '("where" "by" "monthly" "weekly" "daily"))
+      '("where" "by" "monthly" "weekly" "daily" "over" "days"))
 
 (setq report-spec-mode-functions
       '("metric"))
