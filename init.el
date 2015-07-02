@@ -479,39 +479,15 @@
   :defer
   :config
   (progn
-    (defconst pylint-conf-filename "pylint.cfg")
-    (defconst epylint-path "/Users/hartmann/.emacs.d/python/epylint.py")
-    (defconst global-conf-dir "/Users/hartmann/.emacs.d/python")
-
-    ;; Enable flymake for python files. Make sure it respect the pylint.cfg
-    ;; config files if one exists.
-    (when (load "flymake" t)
-      (defun flymake-pylint-init ()
-        (let* ((project-root (upward-find-file ".git"))
-               (temp-file (flymake-init-create-temp-buffer-copy
-                           'flymake-create-temp-inplace))
-               (local-file (file-relative-name
-                            temp-file
-                            (file-name-directory buffer-file-name)))
-               (conf-file-dir (or (upward-find-file pylint-conf-filename) global-conf-dir))
-               (pylint-path (if (file-exists-p (concat project-root "/_venv/bin/pylint"))
-                                (concat project-root "/_venv/bin/pylint")
-                              "pylint"))
-               (full-conf-path (concat conf-file-dir "/" pylint-conf-filename)))
-          (list epylint-path (list pylint-path full-conf-path temp-file))))
-
-      (add-to-list 'flymake-allowed-file-name-masks
-                   '("\\.py\\'" flymake-pylint-init)))
-
     (define-key python-mode-map (kbd "M-<tab>") 'jedi:complete)
     (define-key python-mode-map (kbd "C-c C-s") 'helm-occur)
     (define-key python-mode-map (kbd "C-c C-c") 'compile)
     (define-key python-mode-map (kbd "C-c C-p") nil)
-
-    (add-hook 'python-mode-hook 'flymake-mode)
+    (add-hook 'python-mode-hook 'flycheck-mode)))
     (add-hook 'python-mode-hook 'jedi:setup)))
 
 (use-package jedi
+  :ensure
   :defer
   :config
   (progn
@@ -521,6 +497,9 @@
                 (define-key jedi-mode-map (kbd "C-<tab>") nil)
                 (define-key jedi-mode-map "\M-." 'jedi:goto-definition)
                 (define-key jedi-mode-map "\M-," 'jedi:goto-definition-pop-marker)))))
+
+(use-package flycheck
+  :ensure)
 
 (use-package hydra
   :ensure
