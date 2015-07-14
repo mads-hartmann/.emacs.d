@@ -8,24 +8,35 @@
                          ("marmalade" . "http://marmalade-repo.org/packages/")
                          ("melpa" . "http://melpa.milkbox.net/packages/")))
 
+;; It seems that this will auto-load all of the packages that I have
+;; installed. a way to get faster boot time would be to not have this
+;; and then explicitly tell use-package where to find my lisp files
+;; see http://sachachua.com/blog/2015/04/john-wiegley-on-organizing-your-emacs-configuration-with-use-package/
 (package-initialize)
 (require 'use-package)
+(setq use-package-verbose t)
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
-(load-theme 'wombat t)
 (add-to-list 'load-path "~/.emacs.d/lisp")
 (load "~/.emacs.d/lisp/functions.el")
-(load "~/.emacs.d/lisp/sql.el")
+(load "~/.emacs.d/lisp/sql-logins.el")
 
 (if window-system
-    (set-face-attribute 'default nil :font "DejaVu Sans Mono-13:antialias=subpixel"))
+    (progn
+      (load-theme 'zenburn t)
+      (set-face-attribute 'default nil :font "DejaVu Sans Mono-13:antialias=subpixel")))
 
 (unless window-system
+  (global-set-key (kbd "C-M-d") 'backward-kill-word)
   (menu-bar-mode -1))
+
+;; Put the auto-generated custom changes in another file
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file 'noerror)
 
 ;; Always ask for y/n keypress instead of typing out 'yes' or 'no'
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -123,9 +134,9 @@
 
 (use-package dired+
   :ensure t
-  :pre-load (setq diredp-hide-details-initially-flag nil)
   :config
   (progn
+    (setq diredp-hide-details-initially-flag nil)
     (setq-default dired-omit-files-p t)
     (setq dired-omit-files
           (concat dired-omit-files "\\|\\.pyc$"))
@@ -169,12 +180,14 @@
   :init (ido-vertical-mode 1))
 
 (use-package magit
-  :ensure t)
+  :ensure t
+  :config (progn
+            (setq magit-last-seen-setup-instructions "1.4.0")
+            ))
 
 (use-package projectile
   :ensure t
   :diminish " P"
-  :bind ("s-F" . projectile-grep)
   :init (progn
           (projectile-global-mode)
           (setq projectile-switch-project-action 'projectile-dired)
@@ -186,13 +199,14 @@
   :ensure t
   :init
   (progn
-    (helm-mode 1)
     (setq helm-follow-mode t)
     (setq helm-split-window-in-side-p t)
-    (setq helm-buffers-fuzzy-matching t))
+    (setq helm-buffers-fuzzy-matching t)
+    (setq helm-M-x-always-save-history nil)
+    (custom-set-faces
+     '(helm-source-header ((t (:foreground "white" :weight bold :family "Sans Serif"))))))
   :bind (("C-c C-s" . helm-occur)
          ("C-." . helm-M-x)
-         ("C-c h" . helm-mini)
          ("C-x b" . helm-buffers-list)
          (" M-/" . dabbrev-expand)
          ("M-y" . helm-show-kill-ring)))
@@ -208,6 +222,10 @@
             helm-source-projectile-buffers-list
             helm-source-projectile-recentf-list)))
   :bind ("C-c p p" . helm-projectile-switch-project))
+
+(use-package helm-git-grep
+  :ensure t
+  :bind (("s-F" . helm-git-grep)))
 
 (use-package expand-region
   :ensure t
@@ -279,11 +297,10 @@
     (setq elfeed-max-connections 1)
     (setq elfeed-feeds feeds)))
 
-(add-to-list 'load-path "~/dev/org-mode/contrib/lisp/")
-(require 'org-drill)
 (use-package org
   :init
   (progn
+    (require 'ox-publish)
     (require 'ob-ocaml)
     (require 'ob-sh)
     (require 'ob-sql)
@@ -296,9 +313,12 @@
     (define-key org-mode-map (kbd "C-c C-a") 'org-agenda)
     (define-key org-mode-map (kbd "C-<tab>") nil)
 
+    (setq org-html-htmlize-output-type 'css)
+    (setq org-src-fontify-natively t)   ;trying it out
     (setq org-startup-folded nil)
     (setq org-confirm-babel-evaluate nil) ;; Living on the edge
     (setq org-startup-indented nil)
+    (setq org-export-babel-evaluate nil) ;; Don't evaluate on export by default.
 
     ;; Capturing notes
     (setq org-capture-templates
@@ -308,7 +328,11 @@
 
     ;; Blogging
     (setq org-publish-project-alist
-          '(("org-mads379.github.com"
+          '(
+            ;;
+            ;; Blog
+            ;;
+            ("org-mads379.github.com"
              ;; Path to your org files.
              :base-directory "~/dev/mads379.github.com/_org/"
              :base-extension "org"
@@ -326,7 +350,28 @@
              :recursive t
              :publishing-function org-publish-attachment)
             ("mads379.github.com"
-             :components ("org-ianbarton" "org-static-ian"))))
+             :components ("org-ianbarton" "org-static-ian"))
+            ;;
+            ;; Notes
+            ;;
+            ("notes-org"
+             :base-directory "/Users/hartmann/Dropbox/org/"
+             :base-extension "org"
+             :publishing-directory "/Users/hartmann/Sites/notes"
+             :recursive t
+             :publishing-function org-html-publish-to-html
+             :headline-levels 4
+             :auto-preamble t
+             :html-extension "html"
+             :body-only nil)
+            ("notes-static"
+             :base-directory "/Users/hartmann/Dropbox/org/"
+             :base-extension "css\\|js\\|png\\|jpg\\|gif\\|eot\\|svg\\|ttf\\|woff\\|woff2"
+             :publishing-directory "/Users/hartmann/Sites/notes"
+             :recursive t
+             :publishing-function org-publish-attachment)
+            ("notes" :components ("notes-org" "notes-static")) ))
+
 
     (setq org-babel-load-languages
           '((ocaml . t)
@@ -354,10 +399,11 @@
 
 (use-package smart-mode-line
   :ensure t
+  :disabled t
   :init (progn
           (setq sml/no-confirm-load-theme t)
           (sml/setup)
-          (sml/apply-theme 'respectful)))
+          (sml/apply-theme 'powerline)))
 
 (use-package scss-mode
   :config (setq scss-compile-at-save nil))
@@ -365,13 +411,20 @@
 (use-package javascript-mode
   :config (setq js-indent-level 4))
 
-(use-package flymake-jshint
+(use-package js2-mode
+  :ensure t
   :config
   (progn
-    (defun on-js-mode ()
-      (flymake-mode)
-      (flymake-jshint-load))
-    (add-hook 'js-mode-hook 'on-js-mode)))
+    (add-hook 'js2-mode-hook 'flycheck-mode)
+    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))))
+
+(use-package skewer-mode
+  :ensure t
+  :config (add-hook 'js2-mode-hook 'skewer-mode))
+
+(use-package ac-js2
+  :ensure t
+  :config (add-hook 'js2-mode-hook 'ac-js2-mode))
 
 (use-package markdown-mode
   :config
@@ -382,10 +435,15 @@
 (use-package lisp-mode
   :config
   (progn
-    (define-key lisp-mode-map (kbd "M-.") 'elisp-slime-nav-find-elisp-thing-at-point)
-    (define-key lisp-mode-map (kbd "M-,") 'pop-tag-mark)
+    ;; elint current buffer seems like a fun one.
+    (define-key emacs-lisp-mode-map (kbd "M-.") 'elisp-slime-nav-find-elisp-thing-at-point)
+    (define-key emacs-lisp-mode-map (kbd "M-,") 'pop-tag-mark)
+    (define-key emacs-lisp-mode-map (kbd "M-<tab>") 'company-complete)
+    (add-hook 'emacs-lisp-mode-map 'flycheck-mode)
     (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
-    (add-hook 'lisp-mode 'flyspell-prog-mode)))
+    (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+    (add-hook 'emacs-lisp-mode-hook 'company-mode)
+    (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)))
 
 (use-package octave
   :config
@@ -401,12 +459,8 @@
 (use-package erlang
   :config
   (progn
-    (add-to-list 'load-path "/usr/local/share/distel/elisp") ; Not in melpa yet
+    (add-to-list 'load-path "/Users/hartmann/dev/distel/elisp") ; Not in melpa yet
     (require 'distel)
-    (require 'erlang-flymake)
-
-    (defun erlang-make-cmd ()
-      (concat "make -w -C " (or (upward-find-file "Makefile") ".")))
 
     (distel-setup)
     ;; http://parijatmishra.wordpress.com/2008/08/15/up-and-running-with-emacs-erlang-and-distel/
@@ -417,11 +471,10 @@
     (define-key erlang-mode-map (kbd "M-,") 'erl-find-source-unwind)
     (define-key erlang-mode-map (kbd "M-<tab>") 'erl-complete)
     (define-key erlang-mode-map (kbd "C-c C-c") 'compile)
+    (define-key erlang-mode-map (kbd "C-c C-s") nil)
     (define-key erlang-mode-map (kbd "<return>")'newline-and-indent)
 
-    (add-hook 'erlang-mode-hook 'flymake-mode)
-    (add-hook 'erlang-mode-hook (lambda ()
-                                  (set (make-local-variable 'compile-command) (erlang-make-cmd))))))
+    (add-hook 'erlang-mode-hook 'flycheck-mode)))
 
 (use-package tuareg
   :config
@@ -465,7 +518,7 @@
     (define-key tuareg-mode-map (kbd "C-c C-s") nil)
 
     ;; (setq merlin-logfile "/Users/hartmann/Desktop/merlin.log")
-    (setq merlin-error-after-save nil)
+    (setq merlin-error-after-save t)
 
     (add-hook 'tuareg-mode-hook
               (lambda ()
@@ -483,7 +536,7 @@
     (define-key python-mode-map (kbd "C-c C-s") 'helm-occur)
     (define-key python-mode-map (kbd "C-c C-c") 'compile)
     (define-key python-mode-map (kbd "C-c C-p") nil)
-    (add-hook 'python-mode-hook 'flycheck-mode)))
+    (add-hook 'python-mode-hook 'flycheck-mode)
     (add-hook 'python-mode-hook 'jedi:setup)))
 
 (use-package jedi
@@ -501,14 +554,6 @@
 (use-package flycheck
   :ensure)
 
-(use-package hydra
-  :ensure
-  :config
-  (progn
-    (hydra-create "<f2>"
-      '(("g" text-scale-increase)
-        ("l" text-scale-decrease)))))
-
 (use-package highlight-symbol
   :ensure t
   :init
@@ -517,17 +562,53 @@
     (global-set-key (kbd "C-x w %") 'highlight-symbol-query-replace)
     (global-set-key (kbd "C-x w o") 'highlight-symbol-occur)
     (global-set-key (kbd "C-x w c") 'highlight-symbol-remove-all)
-    (hydra-create "C-x w"
-      '(("n" highlight-symbol-next)
-        ("p" highlight-symbol-prev)))))
+    (defhydra hydra-navigate-symbol (global-map"C-x w")
+      "navigate-symbol"
+      ("n" highlight-symbol-next)
+      ("p" highlight-symbol-prev))))
 
-(hydra-create "M-g"
-  '(("h" first-error "first")
-    ("n" next-error "next")
-    ("p" previous-error "prev")))
 
-(use-package jinja2-mode
+(use-package company                    ; Used by alchemist
   :ensure t)
 
+(use-package elixir-mode
+  :ensure t)
+
+(use-package elixir-yasnippets
+  :ensure t)
+
+(use-package alchemist
+  :ensure t
+  :config (progn
+            (add-hook 'alchemist-mode-hook 'yas-minor-mode)
+            (add-hook 'alchemist-mode-hook 'company-mode)
+            (add-hook 'alchemist-iex-mode-hook 'company-mode)
+            (define-key alchemist-mode-map (kbd "M-<tab>") 'company-complete)
+            (define-key alchemist-mode-map (kbd "M-?") 'alchemist-help-search-at-point)
+            (define-key alchemist-mode-map (kbd "C-c C-t") 'alchemist-mix-test-file)
+            (define-key alchemist-mode-map (kbd "C-c C-c") 'alchemist-mix-compile)
+            (define-key alchemist-mode-map (kbd "C-c C-r") 'alchemist-mix-run)
+            (define-key alchemist-mode-map (kbd "C-c C-z") 'alchemist-iex-project-run)
+            ))
+
+(use-package jinja2-mode :ensure t)
+
 (use-package wgrep :ensure t)           ; Makes it possbile to edit grep buffers!
-(use-package wgrep-helm :ensure)        ; wgrep support for helm.
+(use-package wgrep-helm :ensure t)        ; wgrep support for helm.
+
+(use-package tex-mode
+  :config (progn
+            ;; This currently doesn't override the annoying tex-compile
+            (define-key tex-mode-map (kbd "C-c C-c") 'compile)
+            (define-key latex-mode-map (kbd "C-c C-c") 'compile)
+))
+
+;; Put the compilation buffer at the bottom.
+(add-to-list 'display-buffer-alist
+             `(,(rx bos "*compilation*" eos)
+               (display-buffer-reuse-window
+                display-buffer-in-side-window)
+               (reusable-frames . visible)
+               (side            . bottom)
+               (window-height   . 0.3)))
+8
