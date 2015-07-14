@@ -1,10 +1,14 @@
+;;; functions.el -- Random functions
+;;; Commentary:
+;;; Code:
+
 (defun re-read-init-file ()
   "Reread ~/.emacs.d/init.el."
   (interactive)
   (load-file "~/.emacs.d/init.el"))
 
 (defun toggle-maximize-buffer ()
-  "Maximize buffer - in a nice iTerm style way"
+  "Maximize buffer - in a nice iTerm style way."
   (interactive)
   (if (= 1 (length (window-list)))
     (jump-to-register '_)
@@ -13,10 +17,11 @@
       (delete-other-windows))))
 
 (defun upward-find-file (filename &optional startdir)
-  "Move up directories until we find a certain filename. If we
-  manage to find it, return the containing directory. Else if we
-  get to the toplevel directory and still can't find it, return
-  nil. Start at startdir or . if startdir not given"
+  "Move up directories until we find a certain FILENAME.
+
+If we manage to find it, return the containing directory.  Else if we
+get to the toplevel directory and still can't find it, return
+nil.  Start at STARTDIR or default to CWDIR if STARTDIR is not given"
 
   (let ((dirname (expand-file-name
                   (if startdir startdir ".")))
@@ -40,32 +45,35 @@
     (if found dirname nil)))
 
 (defun read-lines (filePath)
-  "Return a list of lines of a file at filePath."
+  "Return a list of lines of a file at FILEPATH."
   (with-temp-buffer
     (insert-file-contents filePath)
     (split-string (buffer-string) "\n" t)))
 
 (defun refresh-safari ()
-  "Executes a shell-script, that executes an applescript, that
-   refreshes the active tab in the front-most safari window,
-   in the background."
+  "Refresh safari browser.
+
+This is done by executing a shell-script, that executes an
+applescript, that refreshes the active tab in the front-most safari
+window, in the background."
   (interactive)
   (shell-command "source ~/.emacs.d/shell-functions/refresh-safari.sh"))
 
 (defun toggle-fullscreen ()
-  "Toggle full screen"
+  "Toggle full screen."
   (interactive)
   (set-frame-parameter
      nil 'fullscreen
      (when (not (frame-parameter nil 'fullscreen)) 'fullboth)))
 
 (defun string/starts-with (s begins)
-      "returns non-nil if string S starts with BEGINS.  Else nil."
+      "Return non-nil if string S begins with BEGINS.  Else nil."
       (cond ((>= (length s) (length begins))
              (string-equal (substring s 0 (length begins)) begins))
             (t nil)))
 
 (defun clear-shell ()
+  "Clear the current shell."
   (interactive)
   (let ((old-max comint-buffer-maximum-size))
     (setq comint-buffer-maximum-size 0)
@@ -73,8 +81,7 @@
     (setq comint-buffer-maximum-size old-max)))
 
 (defun ido-complete-word-ispell ()
-  "Completes the symbol at point based on entries in the
-dictionary"
+  "Completes the symbol at point based on entries in the dictionary."
   (interactive)
   (let* ((word (thing-at-point 'symbol))
          (boundaries (bounds-of-thing-at-point 'symbol))
@@ -88,18 +95,22 @@ dictionary"
             (insert selection))))))
 
 (defun insert-aa ()
+  "Insert the character å."
   (interactive)
   (insert "å"))
 
 (defun insert-ae ()
+  "Insert the character æ."
   (interactive)
   (insert "æ"))
 
 (defun insert-oe ()
+  "Insert the character ø."
   (interactive)
   (insert "ø"))
 
 (defun prev-window ()
+  "Focus the previous window."
   (interactive)
   (other-window -1))
 
@@ -221,3 +232,5 @@ With negative prefix, apply to -N lines above."
 (eval-after-load 'magit
   '(define-key magit-mode-map "V"
      #'endless/visit-pull-request-url))
+
+;;; functions.el ends here

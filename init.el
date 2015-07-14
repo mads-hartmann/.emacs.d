@@ -1,4 +1,7 @@
 ;;; init.el --- Mads' configuration file
+;;; Commentary:
+;;; Code:
+
 (server-start)
 
 (require 'package)
@@ -429,7 +432,7 @@
 (use-package markdown-mode
   :config
   (progn
-    (define-key markdown-mode-map (kbd "M-<tab>") 'ido-complete-word-ispell)
+    (define-key 'markdown-mode-map (kbd "M-<tab>") 'ido-complete-word-ispell)
     (add-hook 'markdown-mode-hook 'flyspell-mode)))
 
 (use-package lisp-mode
@@ -439,7 +442,7 @@
     (define-key emacs-lisp-mode-map (kbd "M-.") 'elisp-slime-nav-find-elisp-thing-at-point)
     (define-key emacs-lisp-mode-map (kbd "M-,") 'pop-tag-mark)
     (define-key emacs-lisp-mode-map (kbd "M-<tab>") 'company-complete)
-    (add-hook 'emacs-lisp-mode-map 'flycheck-mode)
+    (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
     (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
     (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
     (add-hook 'emacs-lisp-mode-hook 'company-mode)
@@ -611,4 +614,5 @@
                (reusable-frames . visible)
                (side            . bottom)
                (window-height   . 0.3)))
-8
+
+;;; init.el ends here
