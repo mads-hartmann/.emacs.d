@@ -11,20 +11,23 @@
                          ("marmalade" . "http://marmalade-repo.org/packages/")
                          ("melpa" . "http://melpa.milkbox.net/packages/")))
 
-;; It seems that this will auto-load all of the packages that I have
-;; installed. a way to get faster boot time would be to not have this
-;; and then explicitly tell use-package where to find my lisp files
-;; see http://sachachua.com/blog/2015/04/john-wiegley-on-organizing-your-emacs-configuration-with-use-package/
+;; Load my packages
 (package-initialize)
-(require 'use-package)
-(setq use-package-verbose t)
 
-;; Bootstrap `use-package'
+;; Make sure `use-package' is installed.
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
+;; It seems that this will auto-load all of the packages that I have
+;; installed. a way to get faster boot time would be to not have this
+;; and then explicitly tell use-package where to find my lisp files
+;; see http://sachachua.com/blog/2015/04/john-wiegley-on-organizing-your-emacs-configuration-with-use-package/
+(require 'use-package)
+(setq use-package-verbose t)
+
 (add-to-list 'load-path "~/.emacs.d/lisp")
+(add-to-list 'load-path "/Volumes/credentials/")
 (load "~/.emacs.d/lisp/functions.el")
 (load "~/.emacs.d/lisp/sql-logins.el")
 
@@ -71,6 +74,7 @@
 (setq dabbrev-case-replace nil)
 (setq dabbrev-case-distinction nil)
 (setq dabbrev-case-fold-search nil)
+(setq tramp-default-method "ssh")
 
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode 1)
@@ -113,50 +117,63 @@
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
-(add-to-list 'load-path "/Volumes/credentials/")
+;; Put the compilation buffer at the bottom.
+(add-to-list 'display-buffer-alist
+             `(,(rx bos "*compilation*" eos)
+               (display-buffer-reuse-window
+                display-buffer-in-side-window)
+               (reusable-frames . visible)
+               (side            . bottom)
+               (window-height   . 0.3)))
 
+;; Awesome little package for expanding macros. Helps to understand
+;; what is going on im my use-package declarations.
+(use-package macrostep
+  :ensure t
+  :bind ("C-c e m" . macrostep-expand))
+
+;; My own small package for report specifications for one of our
+;; internal analytics systems at issuu
 (use-package report-spec-mode
-  :load-path "dev-pkgs/")
+  :load-path "dev-pkgs/"
+  :defer)
 
+;; My own small package for hdl files.
 (use-package hdl-mode
   :load-path "dev-pkgs/"
-  :mode "\\.hdl\\'")
+  :mode "\\.hdl\\'" :defer)
 
+;; A different buffer view.
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
 
 (use-package ace-jump-mode
+  :ensure nil
+  :disabled
   :bind ("C-<tab>" . ace-jump-mode))
 
 (use-package ace-jump-zap
+  :disabled
   :bind ("M-z" . ace-jump-zap-to-char))
 
 (use-package ace-window
   :ensure t
+  :disabled
   :bind ("C-x o" . ace-window))
 
-(use-package dired+
+(use-package direx
   :ensure t
-  :config
-  (progn
-    (setq diredp-hide-details-initially-flag nil)
-    (setq-default dired-omit-files-p t)
-    (setq dired-omit-files
-          (concat dired-omit-files "\\|\\.pyc$"))
-    (add-hook 'dired-mode-hook
-              (lambda ()
-                (define-key dired-mode-map (kbd "<tab>") 'dired-insert-subdir)))))
-
-(use-package tramp
-  :config (setq tramp-default-method "ssh"))
+  :bind ("C-x d" . ido-wrapper/direx:find-directory)
+  :init (require 'direx))
 
 (use-package exec-path-from-shell
+  :commands exec-path-from-shell-initialize
   :config
   (progn
-    (exec-path-from-shell-initialize)
     (exec-path-from-shell-copy-env "CAML_LD_LIBRARY_PATH"))) ; Used by OCaml.
 
 (use-package shell
+  :commands shell
   :config
   (progn
     (define-key shell-mode-map (kbd "s-k") 'clear-shell)
@@ -164,6 +181,7 @@
     (define-key shell-mode-map (kbd "<down>") 'comint-next-input)))
 
 (use-package flyspell
+  :commands flyspell-mode
   :config (progn
             (define-key flyspell-mode-map (kbd "C-.") nil)))
 
@@ -184,9 +202,10 @@
 
 (use-package magit
   :ensure t
-  :config (progn
-            (setq magit-last-seen-setup-instructions "1.4.0")
-            ))
+  :commands magit-status
+  :config
+  (progn
+    (setq magit-last-seen-setup-instructions "1.4.0")))
 
 (use-package projectile
   :ensure t
@@ -216,6 +235,7 @@
 
 (use-package helm-projectile
   :ensure t
+  :bind ("C-c p p" . helm-projectile-switch-project)
   :config
   (progn
     ;; Removes 'helm-source-projectile-projects' from C-c p h as it is
@@ -223,8 +243,7 @@
     (setq helm-projectile-sources-list
           '(helm-source-projectile-files-list
             helm-source-projectile-buffers-list
-            helm-source-projectile-recentf-list)))
-  :bind ("C-c p p" . helm-projectile-switch-project))
+            helm-source-projectile-recentf-list))))
 
 (use-package helm-git-grep
   :ensure t
@@ -234,6 +253,7 @@
   :ensure t
   :bind ("C-w" . er/expand-region))
 
+;; TODO: Would prefer to use company mode everywhere.
 (use-package auto-complete
   :ensure t
   :init (global-auto-complete-mode t)
@@ -252,15 +272,16 @@
 
 (use-package bookmark+
   :ensure t
-  :config (progn
-            (setq bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
-            (setq bmkp-auto-light-when-set 'autonamed-bookmark))
   :bind (("s-<f2>" . bmkp-toggle-autonamed-bookmark-set/delete)
          ("<f2>" . bmkp-next-bookmark-this-buffer)
-         ("S-<f2>" . bmkp-previous-bookmark-this-buffer)))
+         ("S-<f2>" . bmkp-previous-bookmark-this-buffer))
+  :config (progn
+          (setq bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
+          (setq bmkp-auto-light-when-set 'autonamed-bookmark)))
 
 (use-package ag
   :ensure t
+  :commands ag
   :config (progn
             (setq ag-highlight-search t)
             (setq ag-reuse-buffers 't)))
@@ -270,15 +291,17 @@
 
 (use-package undo-tree
   :ensure t
-  :diminish " undo"
-  :init (progn
-          (global-undo-tree-mode t)
-          (setq undo-tree-visualizer-relative-timestamps t)
-          (setq undo-tree-visualizer-timestamps t)))
+  :diminish " U"
+  :bind (("C-x u" . undo-tree-visualize))
+  :init
+  (progn
+    (setq undo-tree-visualizer-relative-timestamps t)
+    (setq undo-tree-visualizer-timestamps t)))
 
 (use-package yasnippet
   :ensure t
   :defer
+  :commands yas-minor-mode
   :config
   (progn
     (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
@@ -286,8 +309,7 @@
 
 (use-package diff-hl
   :ensure t
-  :disabled ; Doesn't seem to work with my emacs version
-  :init (progn (global-diff-hl-mode)))
+  :init (global-diff-hl-mode))
 
 (use-package elfeed
   :defer
@@ -297,7 +319,7 @@
     (require 'feeds)
     (setq elfeed-db-directory "~/Dropbox/Apps/elfeed")
     (setq-default elfeed-search-filter "@2-week-ago +unread ")
-    (setq elfeed-max-connections 1)
+    (setq url-queue-parallel-processes 6)
     (setq elfeed-feeds feeds)))
 
 (use-package org
@@ -396,9 +418,7 @@
     (defadvice org-edit-src-code (around set-buffer-file-name activate compile)
       (let ((file-name (buffer-file-name)))
         ad-do-it
-        (setq buffer-file-name file-name)))
-
-))
+        (setq buffer-file-name file-name)))))
 
 (use-package smart-mode-line
   :ensure t
@@ -409,13 +429,16 @@
           (sml/apply-theme 'powerline)))
 
 (use-package scss-mode
+  :commands scss-mode
   :config (setq scss-compile-at-save nil))
 
 (use-package javascript-mode
+  :commands javascript-mode
   :config (setq js-indent-level 4))
 
 (use-package js2-mode
   :ensure t
+  :commands js2-mode
   :config
   (progn
     (add-hook 'js2-mode-hook 'flycheck-mode)
@@ -423,19 +446,26 @@
 
 (use-package skewer-mode
   :ensure t
-  :config (add-hook 'js2-mode-hook 'skewer-mode))
+  :commands skewer-mode
+  :config (progn
+            (setq httpd-port 9001)
+            (add-hook 'js2-mode-hook 'skewer-mode)))
 
 (use-package ac-js2
   :ensure t
+  :commands ac-js2-mode
   :config (add-hook 'js2-mode-hook 'ac-js2-mode))
 
 (use-package markdown-mode
+  :ensure t
+  :commands markdown-mode
   :config
   (progn
-    (define-key 'markdown-mode-map (kbd "M-<tab>") 'ido-complete-word-ispell)
+    (define-key markdown-mode-map (kbd "M-<tab>") 'ido-complete-word-ispell)
     (add-hook 'markdown-mode-hook 'flyspell-mode)))
 
 (use-package lisp-mode
+  :commands lisp-mode
   :config
   (progn
     ;; elint current buffer seems like a fun one.
@@ -449,6 +479,7 @@
     (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)))
 
 (use-package octave
+  :commands octave-mode
   :config
   (progn
     (autoload 'octave-mode "octave-mod" nil t)
@@ -460,6 +491,7 @@
                                       (font-lock-mode 1))))))
 
 (use-package erlang
+  :commands erlang-mode
   :config
   (progn
     (add-to-list 'load-path "/Users/hartmann/dev/distel/elisp") ; Not in melpa yet
@@ -480,8 +512,11 @@
     (add-hook 'erlang-mode-hook 'flycheck-mode)))
 
 (use-package tuareg
+  :commands tuareg-mode
   :config
   (progn
+    ;; TODO: Consider using flycheck: http://www.flycheck.org/manual/latest/Supported-languages.html#Supported-languages
+    ;; TODO: Can I use company-mode for this?
 
     ;; Add opam emacs directory to the load-path
     (setq opam-share (substring (shell-command-to-string "opam config var share 2> /dev/null") 0 -1))
@@ -532,7 +567,7 @@
                 (setq indent-line-function 'ocp-indent-line)))))
 
 (use-package python
-  :defer
+  :commands python-mode
   :config
   (progn
     (define-key python-mode-map (kbd "M-<tab>") 'jedi:complete)
@@ -540,7 +575,8 @@
     (define-key python-mode-map (kbd "C-c C-c") 'compile)
     (define-key python-mode-map (kbd "C-c C-p") nil)
     (add-hook 'python-mode-hook 'flycheck-mode)
-    (add-hook 'python-mode-hook 'jedi:setup)))
+    (add-hook 'python-mode-hook 'jedi:setup)
+    (add-hook 'python-mode-hook 'yas-minor-mode)))
 
 (use-package jedi
   :ensure
@@ -555,33 +591,37 @@
                 (define-key jedi-mode-map "\M-," 'jedi:goto-definition-pop-marker)))))
 
 (use-package flycheck
-  :ensure)
+  :ensure
+  :commands flycheck-mode)
 
 (use-package highlight-symbol
   :ensure t
+  :bind (("C-x w ." . highlight-symbol-at-point)
+         ("C-x w %" . highlight-symbol-query-replace)
+         ("C-x w o" . highlight-symbol-occur)
+         ("C-x w c" . highlight-symbol-remove-all))
   :init
   (progn
-    (global-set-key (kbd "C-x w .") 'highlight-symbol-at-point)
-    (global-set-key (kbd "C-x w %") 'highlight-symbol-query-replace)
-    (global-set-key (kbd "C-x w o") 'highlight-symbol-occur)
-    (global-set-key (kbd "C-x w c") 'highlight-symbol-remove-all)
     (defhydra hydra-navigate-symbol (global-map"C-x w")
       "navigate-symbol"
       ("n" highlight-symbol-next)
       ("p" highlight-symbol-prev))))
 
 
-(use-package company                    ; Used by alchemist
+(use-package company
+  :commands company-mode
   :ensure t)
 
 (use-package elixir-mode
-  :ensure t)
-
-(use-package elixir-yasnippets
-  :ensure t)
+  :ensure t
+  :commands elixir-mode
+  :config
+  (progn
+    (add-hook 'elixir-mode-hook 'alchemist-mode)))
 
 (use-package alchemist
   :ensure t
+  :commands alchemist-mode
   :config (progn
             (add-hook 'alchemist-mode-hook 'yas-minor-mode)
             (add-hook 'alchemist-mode-hook 'company-mode)
@@ -591,28 +631,59 @@
             (define-key alchemist-mode-map (kbd "C-c C-t") 'alchemist-mix-test-file)
             (define-key alchemist-mode-map (kbd "C-c C-c") 'alchemist-mix-compile)
             (define-key alchemist-mode-map (kbd "C-c C-r") 'alchemist-mix-run)
-            (define-key alchemist-mode-map (kbd "C-c C-z") 'alchemist-iex-project-run)
-            ))
+            (define-key alchemist-mode-map (kbd "C-c C-z") 'alchemist-iex-project-run)))
 
-(use-package jinja2-mode :ensure t)
+(use-package scala-mode
+  :ensure
+  :commands scala-mode
+  :config
+  (progn
+    (add-hook 'scala-mode-hook 'yas-minor-mode)
+    (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)))
+
+(use-package ensime
+  :ensure
+  :commands ensime
+  :config
+  (progn
+    ;; Disable automatic completion
+    (setq ensime-completion-style nil)
+    (define-key ensime-mode-map (kbd "<tab>") nil)
+    (define-key ensime-mode-map (kbd "M-<tab>") 'ensime-company)
+    (define-key ensime-mode-map (kbd "C-c C-t") 'ensime-print-type-at-point)))
+
+(use-package elm-mode
+  :ensure t
+  :commands elm-mode)
+
+(use-package jinja2-mode
+  :ensure t
+  :commands jinja2-mode)
 
 (use-package wgrep :ensure t)           ; Makes it possbile to edit grep buffers!
 (use-package wgrep-helm :ensure t)        ; wgrep support for helm.
 
 (use-package tex-mode
-  :config (progn
-            ;; This currently doesn't override the annoying tex-compile
-            (define-key tex-mode-map (kbd "C-c C-c") 'compile)
-            (define-key latex-mode-map (kbd "C-c C-c") 'compile)
-))
-
-;; Put the compilation buffer at the bottom.
-(add-to-list 'display-buffer-alist
-             `(,(rx bos "*compilation*" eos)
-               (display-buffer-reuse-window
-                display-buffer-in-side-window)
-               (reusable-frames . visible)
-               (side            . bottom)
-               (window-height   . 0.3)))
+  :commands tex-mode
+  :config
+  (progn
+    ;; This currently doesn't override the annoying tex-compile
+    (define-key tex-mode-map (kbd "C-c C-c") 'compile)
+    (define-key latex-mode-map (kbd "C-c C-c") 'compile)))
 
 ;;; init.el ends here
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

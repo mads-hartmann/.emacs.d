@@ -217,6 +217,13 @@ With negative prefix, apply to -N lines above."
   (let ((comint-buffer-maximum-size 0))
     (comint-truncate-buffer)))
 
+;; A cool package for browsing the file system as a tree
+;; I've written my own ido wrapper around it through.
+(defun ido-wrapper/direx:find-directory ()
+  (interactive)
+  (let ((dir (ido-read-directory-name "Direx (directory): ")))
+    (direx:find-directory dir)))
+
 (defun endless/visit-pull-request-url ()
   "Visit the current branch's PR on Github."
   (interactive)
