@@ -19,10 +19,6 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
-;; It seems that this will auto-load all of the packages that I have
-;; installed. a way to get faster boot time would be to not have this
-;; and then explicitly tell use-package where to find my lisp files
-;; see http://sachachua.com/blog/2015/04/john-wiegley-on-organizing-your-emacs-configuration-with-use-package/
 (require 'use-package)
 (setq use-package-verbose t)
 
@@ -34,7 +30,8 @@
 (if window-system
     (progn
       (load-theme 'zenburn t)
-      (set-face-attribute 'default nil :font "DejaVu Sans Mono-13:antialias=subpixel")))
+      ;; (set-face-attribute 'default nil :font "DejaVu Sans Mono-12:antialias=subpixel")
+      (set-face-attribute 'default nil :font "Hack-12:antialias=subpixel")))
 
 (unless window-system
   (global-set-key (kbd "C-M-d") 'backward-kill-word)
@@ -52,7 +49,6 @@
 (setq x-select-enable-clipboard t)
 (setq require-final-newline t)
 (set-default 'truncate-lines t)
-(setq variable-pitch-mode nil)
 (setq auto-save-default nil) ; disable auto-save files (#foo#)
 (setq backup-inhibited t)    ; disable backup files (foo~)
 (setq debug-on-error nil)
@@ -114,6 +110,7 @@
 (global-set-key (kbd "s-¬") 'ns-prev-frame)
 (global-set-key (kbd "C-c C-1") 'previous-buffer)
 (global-set-key (kbd "C-c C-2") 'next-buffer)
+(global-set-key (kbd "M-/") 'dabbrev-expand)
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
@@ -167,9 +164,9 @@
   :init (require 'direx))
 
 (use-package exec-path-from-shell
-  :commands exec-path-from-shell-initialize
-  :config
+  :init
   (progn
+    (exec-path-from-shell-initialize)
     (exec-path-from-shell-copy-env "CAML_LD_LIBRARY_PATH"))) ; Used by OCaml.
 
 (use-package shell
@@ -230,7 +227,6 @@
   :bind (("C-c C-s" . helm-occur)
          ("C-." . helm-M-x)
          ("C-x b" . helm-buffers-list)
-         (" M-/" . dabbrev-expand)
          ("M-y" . helm-show-kill-ring)))
 
 (use-package helm-projectile
@@ -434,7 +430,10 @@
 
 (use-package javascript-mode
   :commands javascript-mode
-  :config (setq js-indent-level 4))
+  :config
+  (progn
+    (setq js-indent-level 4)
+    (define-key js-mode-map (kbd "C-c C-c") 'compile)))
 
 (use-package js2-mode
   :ensure t
