@@ -195,7 +195,14 @@
 
 (use-package ido-vertical-mode
   :ensure t
-  :init (ido-vertical-mode 1))
+  :init
+  (progn
+    (ido-vertical-mode 1)
+    (defun bind-ido-keys ()
+      (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
+      (define-key ido-completion-map (kbd "C-p")   'ido-prev-match))
+
+    (add-hook 'ido-setup-hook #'bind-ido-keys)))
 
 (use-package magit
   :ensure t
