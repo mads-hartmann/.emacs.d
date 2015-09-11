@@ -215,8 +215,12 @@
   :ensure t
   :diminish " P"
   :init (progn
+
+          (defun projectile-direx ()
+            (direx:find-directory (projectile-project-root)))
+
           (projectile-global-mode)
-          (setq projectile-switch-project-action 'projectile-dired)
+          (setq projectile-switch-project-action #'projectile-direx)
           (setq projectile-completion-system 'helm)
           (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s")
           (setq projectile-use-git-grep t)))
@@ -307,7 +311,7 @@
   :commands yas-minor-mode
   :config
   (progn
-    (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+    ;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
     (yas-reload-all)))
 
 (use-package diff-hl
