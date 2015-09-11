@@ -681,17 +681,4 @@
     (define-key tex-mode-map (kbd "C-c C-c") 'compile)
     (define-key latex-mode-map (kbd "C-c C-c") 'compile)))
 
-(use-package elscreen
-  :ensure t
-  :commands elscreen-start
-  :config
-  (progn
-    ;; TODO: Change the layout of the tab so it looks more like the status bar (or whatever it is called)
-    (global-set-key (kbd "s-{") 'elscreen-previous)
-    (global-set-key (kbd "s-}") 'elscreen-next)
-    (global-set-key (kbd "s-t") 'elscreen-create)
-    ;; TODO: Create a function that will close the frame if the screen is the last one.
-    ;; (global-set-key (kbd "s-w") 'elscreen-kill)
-    ))
-
 ;;; init.el ends here
