@@ -440,13 +440,6 @@
   :commands scss-mode
   :config (setq scss-compile-at-save nil))
 
-;; (use-package javascript-mode
-;;   :commands javascript-mode
-;;   :config
-;;   (progn
-;;     (setq js-indent-level 4)
-;;     (define-key js-mode-map (kbd "C-c C-c") 'compile)))
-
 (use-package web-mode
   :ensure t
   :commands web-mode
@@ -470,8 +463,33 @@
             ad-do-it)
         ad-do-it))
 
+    ;; Get web-mode to use tern for code-completion
+    (defadvice company-tern (before web-mode-set-up-ac-sources activate)
+      "Set `tern-mode' based on current language before running company-tern."
+      (if (equal major-mode 'web-mode)
+          (let ((web-mode-cur-language
+                 (web-mode-language-at-pos)))
+            (if (or (string= web-mode-cur-language "jsx")
+                    (string= web-mode-cur-language "javascript"))
+                (unless tern-mode (tern-mode))
+              (if tern-mode (tern-mode))))))
+
+    (define-key web-mode-map (kbd "M-<tab>") 'company-tern)
+
     (add-hook 'web-mode-hook 'flycheck-mode)
+    (add-hook 'web-mode-hook 'company-mode)
+    (add-hook 'web-mode-hook 'tern-mode)
+    ;; NOTICE: Requires `npm install -g eslint`
     (flycheck-add-mode 'javascript-eslint 'web-mode)))
+
+;; Code-completion for javascript files
+;; we're using tern.
+;; NOTICE: Requires `npm install -g tern`
+(use-package tern
+  :ensure t)
+
+(use-package company-tern
+  :ensure t)
 
 (use-package markdown-mode
   :ensure t
