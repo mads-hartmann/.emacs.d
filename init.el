@@ -209,7 +209,8 @@
   :commands magit-status
   :config
   (progn
-    (setq magit-last-seen-setup-instructions "1.4.0")))
+    (setq magit-last-seen-setup-instructions "1.4.0")
+    (setq magit-push-always-verify `PP)))
 
 (use-package projectile
   :ensure t
