@@ -439,32 +439,38 @@
   :commands scss-mode
   :config (setq scss-compile-at-save nil))
 
-(use-package javascript-mode
-  :commands javascript-mode
+;; (use-package javascript-mode
+;;   :commands javascript-mode
+;;   :config
+;;   (progn
+;;     (setq js-indent-level 4)
+;;     (define-key js-mode-map (kbd "C-c C-c") 'compile)))
+
+(use-package web-mode
+  :ensure t
+  :commands web-mode
+  :mode ("\\.js[x]?\\'" . web-mode)
   :config
   (progn
-    (setq js-indent-level 4)
-    (define-key js-mode-map (kbd "C-c C-c") 'compile)))
+    ;; Force web-mode to consider all js files as potential react
+    ;; files. See more here:
+    ;; http://cha1tanya.com/2015/06/20/configuring-web-mode-with-jsx.html
+    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
 
-(use-package js2-mode
-  :ensure t
-  :commands js2-mode
-  :config
-  (progn
-    (add-hook 'js2-mode-hook 'flycheck-mode)
-    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))))
+    ;; Disable jshint making eslint the selected linter
+    (setq-default flycheck-disabled-checkers '(javascript-jshint))
 
-(use-package skewer-mode
-  :ensure t
-  :commands skewer-mode
-  :config (progn
-            (setq httpd-port 9001)
-            (add-hook 'js2-mode-hook 'skewer-mode)))
+    ;; TBH not entirely sure how this magic works. If I don't have it
+    ;; syntax highlighting for jsx parts of javascript files won't
+    ;; work.
+    (defadvice web-mode-highlight-part (around tweak-jsx activate)
+      (if (equal web-mode-content-type "jsx")
+          (let ((web-mode-enable-part-face nil))
+            ad-do-it)
+        ad-do-it))
 
-(use-package ac-js2
-  :ensure t
-  :commands ac-js2-mode
-  :config (add-hook 'js2-mode-hook 'ac-js2-mode))
+    (add-hook 'web-mode-hook 'flycheck-mode)
+    (flycheck-add-mode 'javascript-eslint 'web-mode)))
 
 (use-package markdown-mode
   :ensure t
