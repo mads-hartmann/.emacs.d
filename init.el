@@ -99,7 +99,6 @@
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
 (global-set-key (kbd "s-+") 'text-scale-increase)
 (global-set-key (kbd "s--") 'text-scale-decrease)
-(global-set-key (kbd "M-s-≥") 'sgml-close-tag) ; textmate like close tag
 (global-set-key (kbd "s-{")  'prev-window)
 (global-set-key (kbd "s-}") 'other-window)
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
@@ -441,6 +440,7 @@
     ;; files. See more here:
     ;; http://cha1tanya.com/2015/06/20/configuring-web-mode-with-jsx.html
     (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
+    (setq web-mode-enable-auto-quoting nil)
 
     ;; Disable jshint making eslint the selected linter
     (setq-default flycheck-disabled-checkers '(javascript-jshint))
@@ -466,6 +466,8 @@
               (if tern-mode (tern-mode))))))
 
     (define-key web-mode-map (kbd "M-<tab>") 'company-tern)
+    (define-key web-mode-map (kbd "C-c C-s") 'helm-occur)
+    (define-key web-mode-map (kbd "M-s-≥") 'web-mode-element-close)
 
     (add-hook 'web-mode-hook 'flycheck-mode)
     (add-hook 'web-mode-hook 'company-mode)
