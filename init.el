@@ -306,29 +306,20 @@
     (setq undo-tree-visualizer-relative-timestamps t)
     (setq undo-tree-visualizer-timestamps t)))
 
+;; TODO: Something seems broken here. It keeps trying to load a ./snippets dir
+;;       when I activate yas-minor-mode.
 (use-package yasnippet
   :ensure t
   :defer
   :commands yas-minor-mode
-  :config
-  (progn
-    ;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-    (yas-reload-all)))
+  :config (progn
+            (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+            ;; (yas-reload-all)
+            ))
 
 (use-package diff-hl
   :ensure t
   :init (global-diff-hl-mode))
-
-(use-package elfeed
-  :defer
-  :ensure t
-  :config
-  (progn
-    (require 'feeds)
-    (setq elfeed-db-directory "~/Dropbox/Apps/elfeed")
-    (setq-default elfeed-search-filter "@2-week-ago +unread ")
-    (setq url-queue-parallel-processes 6)
-    (setq elfeed-feeds feeds)))
 
 (use-package org
   :init
@@ -420,7 +411,7 @@
             "~/Dropbox/org/issuu"
             "~/Dropbox/org/notes"))
 
-    (add-hook 'org-mode-hook 'yas-minor-mode)
+    ;; (add-hook 'org-mode-hook 'yas-minor-mode)
 
     ;; http://www.wisdomandwonder.com/link/9573/how-to-correctly-enable-flycheck-in-babel-source-blocks
     (defadvice org-edit-src-code (around set-buffer-file-name activate compile)
@@ -611,7 +602,8 @@
     (define-key python-mode-map (kbd "C-c C-p") nil)
     (add-hook 'python-mode-hook 'flycheck-mode)
     (add-hook 'python-mode-hook 'jedi:setup)
-    (add-hook 'python-mode-hook 'yas-minor-mode)))
+;; (add-hook 'python-mode-hook 'yas-minor-mode)
+))
 
 (use-package jedi
   :ensure
@@ -658,7 +650,7 @@
   :ensure t
   :commands alchemist-mode
   :config (progn
-            (add-hook 'alchemist-mode-hook 'yas-minor-mode)
+            ;; (add-hook 'alchemist-mode-hook 'yas-minor-mode)
             (add-hook 'alchemist-mode-hook 'company-mode)
             (add-hook 'alchemist-iex-mode-hook 'company-mode)
             (define-key alchemist-mode-map (kbd "M-<tab>") 'company-complete)
@@ -673,7 +665,7 @@
   :commands scala-mode
   :config
   (progn
-    (add-hook 'scala-mode-hook 'yas-minor-mode)
+    ;; (add-hook 'scala-mode-hook 'yas-minor-mode)
     (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)))
 
 (use-package ensime
