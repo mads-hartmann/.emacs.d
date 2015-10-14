@@ -700,4 +700,14 @@
     (define-key tex-mode-map (kbd "C-c C-c") 'compile)
     (define-key latex-mode-map (kbd "C-c C-c") 'compile)))
 
+
+(use-package sr-speedbar
+  :ensure t
+  :config
+  (progn
+    (setq sr-speedbar-auto-refresh nil)))
+
+(use-package projectile-speedbar
+  :ensure t)
+
 ;;; init.el ends here
