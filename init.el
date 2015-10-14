@@ -273,9 +273,19 @@
 
 (use-package multiple-cursors
   :ensure t
-  :bind (("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this)
-         ("C-c C-<" . mc/mark-all-like-this)))
+  :bind (("C-M->" . mc/unmark-next-like-this)
+         ("C-M-<" . mc/unmark-previous-like-this)
+         ("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this))
+  :config (progn
+           (define-prefix-command 'hartmann/mc-map)
+           (define-key ctl-x-map "m" 'hartmann/mc-map)
+           (define-key hartmann/mc-map "i" #'mc/insert-numbers)
+           (define-key hartmann/mc-map "h" #'mc-hide-unmatched-lines-mode)
+           (define-key hartmann/mc-map "a" #'mc/mark-all-like-this)
+           (define-key hartmann/mc-map "r" #'mc/reverse-regions)
+           (define-key hartmann/mc-map "s" #'mc/sort-regions)
+           (define-key hartmann/mc-map "l" #'mc/edit-lines)))
 
 (use-package bookmark+
   :ensure t
