@@ -443,9 +443,13 @@
 (use-package web-mode
   :ensure t
   :commands web-mode
-  :mode ("\\.js[x]?\\'" . web-mode)
+  :mode (("\\.js[x]?\\'" . web-mode)
+         ("\\.html" . web-mode))
   :config
   (progn
+    ;; I used this for some of it:
+    ;; https://truongtx.me/2014/03/10/emacs-setup-jsx-mode-and-jsx-syntax-checking/
+
     ;; Force web-mode to consider all js files as potential react
     ;; files. See more here:
     ;; http://cha1tanya.com/2015/06/20/configuring-web-mode-with-jsx.html
@@ -465,6 +469,7 @@
         ad-do-it))
 
     ;; Get web-mode to use tern for code-completion
+    ;; https://github.com/fxbois/web-mode/issues/427
     (defadvice company-tern (before web-mode-set-up-ac-sources activate)
       "Set `tern-mode' based on current language before running company-tern."
       (if (equal major-mode 'web-mode)
