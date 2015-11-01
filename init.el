@@ -25,13 +25,12 @@
 (add-to-list 'load-path "~/.emacs.d/lisp")
 (add-to-list 'load-path "/Volumes/credentials/")
 (load "~/.emacs.d/lisp/functions.el")
-(load "~/.emacs.d/lisp/sql-logins.el")
 
 (if window-system
     (progn
       (load-theme 'zenburn t)
       ;; (set-face-attribute 'default nil :font "DejaVu Sans Mono-12:antialias=subpixel")
-      (set-face-attribute 'default nil :font "Hack-12:antialias=subpixel")))
+      (set-face-attribute 'default nil :font "Hack-13:antialias=subpixel")))
 
 (unless window-system
   (global-set-key (kbd "C-M-d") 'backward-kill-word)
@@ -235,10 +234,10 @@
     (setq helm-M-x-always-save-history nil)
     (custom-set-faces
      '(helm-source-header ((t (:foreground "white" :weight bold :family "Sans Serif"))))))
-  :bind (("C-c C-s" . helm-occur)
-         ("C-." . helm-M-x)
+  :bind (("C-." . helm-M-x)
          ("C-x b" . helm-buffers-list)
-         ("M-y" . helm-show-kill-ring)))
+         ("M-y" . helm-show-kill-ring)
+         ("M-s" . helm-occur)))
 
 (use-package helm-projectile
   :ensure t
@@ -481,7 +480,6 @@
               (if tern-mode (tern-mode))))))
 
     (define-key web-mode-map (kbd "M-<tab>") 'company-tern)
-    (define-key web-mode-map (kbd "C-c C-s") 'helm-occur)
     (define-key web-mode-map (kbd "M-s-≥") 'web-mode-element-close)
 
     (add-hook 'web-mode-hook 'flycheck-mode)
@@ -549,7 +547,6 @@
     (define-key erlang-mode-map (kbd "M-,") 'erl-find-source-unwind)
     (define-key erlang-mode-map (kbd "M-<tab>") 'erl-complete)
     (define-key erlang-mode-map (kbd "C-c C-c") 'compile)
-    (define-key erlang-mode-map (kbd "C-c C-s") nil)
     (define-key erlang-mode-map (kbd "<return>")'newline-and-indent)
 
     (add-hook 'erlang-mode-hook 'flycheck-mode)))
@@ -596,7 +593,6 @@
     (define-key merlin-mode-map (kbd "C-c C-p") 'prev-match)
     (define-key merlin-mode-map (kbd "C-c C-n") 'next-match)
     (define-key tuareg-mode-map (kbd "C-x C-r") 'tuareg-eval-region)
-    (define-key tuareg-mode-map (kbd "C-c C-s") nil)
 
     ;; (setq merlin-logfile "/Users/hartmann/Desktop/merlin.log")
     (setq merlin-error-after-save t)
@@ -606,7 +602,6 @@
                 (merlin-mode)
                 (utop-minor-mode)
                 (define-key utop-minor-mode-map (kbd "C-c C-z") 'utop)
-                (define-key utop-minor-mode-map (kbd "C-c C-s") nil)
                 (setq indent-line-function 'ocp-indent-line)))))
 
 (use-package python
@@ -614,13 +609,11 @@
   :config
   (progn
     (define-key python-mode-map (kbd "M-<tab>") 'jedi:complete)
-    (define-key python-mode-map (kbd "C-c C-s") 'helm-occur)
+    (define-key python-mode-map (kbd "M-s") 'helm-occur)
     (define-key python-mode-map (kbd "C-c C-c") 'compile)
     (define-key python-mode-map (kbd "C-c C-p") nil)
     (add-hook 'python-mode-hook 'flycheck-mode)
-    (add-hook 'python-mode-hook 'jedi:setup)
-;; (add-hook 'python-mode-hook 'yas-minor-mode)
-))
+    (add-hook 'python-mode-hook 'jedi:setup)))
 
 (use-package jedi
   :ensure
@@ -705,7 +698,7 @@
   :commands jinja2-mode)
 
 (use-package wgrep :ensure t)           ; Makes it possbile to edit grep buffers!
-(use-package wgrep-helm :ensure t)        ; wgrep support for helm.
+(use-package wgrep-helm :ensure t)      ; wgrep support for helm.
 
 (use-package tex-mode
   :commands tex-mode
@@ -721,8 +714,5 @@
   :config
   (progn
     (setq sr-speedbar-auto-refresh nil)))
-
-(use-package projectile-speedbar
-  :ensure t)
 
 ;;; init.el ends here
