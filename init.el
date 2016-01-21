@@ -233,7 +233,15 @@
     (setq helm-buffers-fuzzy-matching t)
     (setq helm-M-x-always-save-history nil)
     (custom-set-faces
-     '(helm-source-header ((t (:foreground "white" :weight bold :family "Sans Serif"))))))
+     '(helm-source-header ((t (:foreground "white" :weight bold :family "Sans Serif")))))
+    (setq helm-find-files-actions '
+          (("Find File" . helm-find-file-or-marked)
+           ("View file" . view-file)
+           ("Zgrep File(s)" . helm-ff-zgrep)))
+    (setq helm-type-file-actions
+          '(("Find File" . helm-find-file-or-marked)
+            ("View file" . view-file)
+            ("Zgrep File(s)" . helm-ff-zgrep))))
   :bind (("C-." . helm-M-x)
          ("C-x b" . helm-buffers-list)
          ("M-y" . helm-show-kill-ring)
@@ -488,6 +496,7 @@
     (add-hook 'web-mode-hook 'flycheck-mode)
     (add-hook 'web-mode-hook 'company-mode)
     (add-hook 'web-mode-hook 'tern-mode)
+
     ;; NOTICE: Requires `npm install -g eslint`
     (flycheck-add-mode 'javascript-eslint 'web-mode)))
 
@@ -708,7 +717,6 @@
     ;; This currently doesn't override the annoying tex-compile
     (define-key tex-mode-map (kbd "C-c C-c") 'compile)
     (define-key latex-mode-map (kbd "C-c C-c") 'compile)))
-
 
 (use-package sr-speedbar
   :ensure t
