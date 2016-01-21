@@ -30,7 +30,7 @@
     (progn
       (load-theme 'zenburn t)
       ;; (set-face-attribute 'default nil :font "DejaVu Sans Mono-12:antialias=subpixel")
-      (set-face-attribute 'default nil :font "Hack-13:antialias=subpixel")))
+      (set-face-attribute 'default nil :font "Hack-12:antialias=subpixel")))
 
 (unless window-system
   (global-set-key (kbd "C-M-d") 'backward-kill-word)
@@ -177,8 +177,10 @@
 
 (use-package flyspell
   :commands flyspell-mode
-  :config (progn
-            (define-key flyspell-mode-map (kbd "C-.") nil)))
+  :config
+  (progn
+    (define-key flyspell-mode-map (kbd "C-;") nil)
+    (define-key flyspell-mode-map (kbd "C-.") nil)))
 
 (use-package ido
   :ensure t
@@ -221,7 +223,7 @@
           (projectile-global-mode)
           (setq projectile-switch-project-action #'projectile-direx)
           (setq projectile-completion-system 'helm)
-          (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s")
+          (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s --exclude=node_modules --exclude=_venv.Darwin --exclude=build")
           (setq projectile-use-git-grep t)))
 
 (use-package helm
@@ -493,6 +495,9 @@
     (define-key web-mode-map (kbd "M-<tab>") 'company-tern)
     (define-key web-mode-map (kbd "M-s-≥") 'web-mode-element-close)
 
+    (define-key tern-mode-keymap (kbd "M-.") 'find-tag)
+    (define-key tern-mode-keymap (kbd "M-,") 'pop-tag-mark)
+
     (add-hook 'web-mode-hook 'flycheck-mode)
     (add-hook 'web-mode-hook 'company-mode)
     (add-hook 'web-mode-hook 'tern-mode)
@@ -621,7 +626,7 @@
   :config
   (progn
     (define-key python-mode-map (kbd "M-<tab>") 'jedi:complete)
-    (define-key python-mode-map (kbd "M-s") 'helm-occur)
+    (define-key python-mode-map (kbd "M-s") nil)
     (define-key python-mode-map (kbd "C-c C-c") 'compile)
     (define-key python-mode-map (kbd "C-c C-p") nil)
     (add-hook 'python-mode-hook 'flycheck-mode)
