@@ -161,6 +161,16 @@
   :bind ("C-x d" . ido-wrapper/direx:find-directory)
   :init (require 'direx))
 
+(use-package popwin
+  :ensure t
+  :config
+  (progn
+    (popwin-mode 1)
+    (push '(" *undo-tree*" :width 0.2 :position right) popwin:special-display-config)
+    (push '(direx:direx-mode :position left :width 0.3 :dedicated t) popwin:special-display-config)
+    (push '("*Flycheck errors*" :width 0.2 :position bottom) popwin:special-display-config)
+))
+
 (use-package exec-path-from-shell
   :init
   (progn
