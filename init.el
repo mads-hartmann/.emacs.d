@@ -285,6 +285,14 @@
   :ensure t
   :bind ("C-w" . er/expand-region))
 
+(use-package project-explorer
+  :ensure t
+  :bind (("<f12>" . project-explorer-toggle))
+  :config (progn
+            (setq pe/width 30)
+            (setq pe/follow-current t)
+            (setq pe/follow-current-timer 300)))
+
 ;; TODO: Would prefer to use company mode everywhere.
 (use-package auto-complete
   :ensure t
@@ -733,10 +741,15 @@
     (define-key tex-mode-map (kbd "C-c C-c") 'compile)
     (define-key latex-mode-map (kbd "C-c C-c") 'compile)))
 
-(use-package sr-speedbar
+(use-package shift-text
   :ensure t
+  :bind (("M-<up>" . shift-text-up)
+         ("M-<down>" . shift-text-down)
+         ("M-<left>" . shift-text-left)
+         ("M-<right>" . shift-text-right))
   :config
   (progn
-    (setq sr-speedbar-auto-refresh nil)))
+    (add-hook 'python-mode-hook (lambda () (setq-local st-indent-step python-indent-offset)))
+    (add-hook 'web-mode-hook (lambda () (setq-local st-indent-step web-mode-code-indent-offset)))))
 
 ;;; init.el ends here
