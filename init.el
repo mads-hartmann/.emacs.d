@@ -726,6 +726,15 @@
   :ensure t
   :commands elm-mode)
 
+(use-package yaml-mode
+  :ensure t)
+
+(use-package feature-mode
+  :ensure t)
+
+(use-package dockerfile-mode
+  :ensure t)
+
 (use-package jinja2-mode
   :ensure t
   :commands jinja2-mode)
