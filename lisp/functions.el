@@ -197,12 +197,7 @@ With negative prefix, apply to -N lines above."
 (defun occur-dwim ()
   "Call `occur' with a sane default."
   (interactive)
-  (push (if (region-active-p)
-            (buffer-substring-no-properties
-             (region-beginning)
-             (region-end))
-          (thing-at-point 'symbol))
-        regexp-history)
+  (push (mhj/region-or-symbol) regexp-history)
   (call-interactively 'occur))
 
 (defun json-format ()
@@ -239,5 +234,27 @@ With negative prefix, apply to -N lines above."
 (eval-after-load 'magit
   '(define-key magit-mode-map "V"
      #'endless/visit-pull-request-url))
+
+(defun mhj/region-or-symbol ()
+  "Return the selected region, or the symbol at the given point
+if no selection is made"
+  (if (region-active-p)
+        (buffer-substring-no-properties
+         (region-beginning)
+         (region-end))
+      (thing-at-point 'symbol)))
+
+(defun mhj/find-tag ()
+  "Just like find-tag, but use the selected region if any"
+  (interactive)
+  (let ((tag-name (mhj/region-or-symbol)))
+    (deactivate-mark)
+    (find-tag tag-name)))
+
+(defun mhj/push-tag-mark ()
+  "Push the current position to the ring of markers so that
+    \\[pop-tag-mark] can be used to come back to current position."
+  (interactive)
+  (ring-insert find-tag-marker-ring (point-marker)))
 
 ;;; functions.el ends here

@@ -90,6 +90,7 @@
 (customize-set-variable 'fringe-mode nil)        ; default fringe-mode
 
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
+(global-set-key (kbd "M-.") 'mhj/find-tag)
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key (kbd "C-;") #'comment-line-dwim)
 (global-set-key (kbd "M-s o") #'occur-dwim)
@@ -513,8 +514,7 @@
     (define-key web-mode-map (kbd "M-<tab>") 'company-tern)
     (define-key web-mode-map (kbd "M-s-≥") 'web-mode-element-close)
 
-    (define-key tern-mode-keymap (kbd "M-.") 'find-tag)
-    (define-key tern-mode-keymap (kbd "M-,") 'pop-tag-mark)
+    (define-key tern-mode-keymap (kbd "M-.") 'mhj/find-tag)
 
     (add-hook 'web-mode-hook 'flycheck-mode)
     (add-hook 'web-mode-hook 'company-mode)
@@ -546,7 +546,6 @@
   (progn
     ;; elint current buffer seems like a fun one.
     (define-key emacs-lisp-mode-map (kbd "M-.") 'elisp-slime-nav-find-elisp-thing-at-point)
-    (define-key emacs-lisp-mode-map (kbd "M-,") 'pop-tag-mark)
     (define-key emacs-lisp-mode-map (kbd "M-<tab>") 'company-complete)
     (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
     (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
@@ -624,7 +623,6 @@
 
     (define-key merlin-mode-map (kbd "M-<tab>") 'merlin-try-completion)
     (define-key merlin-mode-map "\M-." 'merlin-locate)
-    (define-key merlin-mode-map "\M-," 'merlin-pop-stack)
     (define-key merlin-mode-map (kbd "C-c C-p") 'prev-match)
     (define-key merlin-mode-map (kbd "C-c C-n") 'next-match)
     (define-key tuareg-mode-map (kbd "C-x C-r") 'tuareg-eval-region)
@@ -639,28 +637,47 @@
                 (define-key utop-minor-mode-map (kbd "C-c C-z") 'utop)
                 (setq indent-line-function 'ocp-indent-line)))))
 
+(use-package pythonic :ensure t)
+(use-package anaconda-mode :ensure t)
+(use-package company-anaconda :ensure t)
+
 (use-package python
   :commands python-mode
   :config
   (progn
-    (define-key python-mode-map (kbd "M-<tab>") 'jedi:complete)
+
+    (defun mhj/anaconda-mode-find-definitions-callback (result)
+        "My own version of
+anaconda-mode-find-definitions-callback which falls back to
+mhj/find-tag if anaconda was unsuccessful.
+
+It also takes care of pushing a tag mark so I can always use
+pop-tag-mark to get back"
+        (if result
+            (progn
+              (mhj/push-tag-mark)
+              (anaconda-mode-definitions-view result))
+          (mhj/find-tag)))
+
+    (setq anaconda-mode-find-definitions-callback 'mhj/anaconda-mode-find-definitions-callback)
+
     (define-key python-mode-map (kbd "M-s") nil)
     (define-key python-mode-map (kbd "C-c C-c") 'compile)
     (define-key python-mode-map (kbd "C-c C-p") nil)
-    (add-hook 'python-mode-hook 'flycheck-mode)
-    (add-hook 'python-mode-hook 'jedi:setup)))
+    (define-key python-mode-map (kbd "M-<tab>") 'anaconda-mode-complete)
+    (define-key python-mode-map (kbd "M-.") 'anaconda-mode-find-definitions)
+    (define-key python-mode-map (kbd "M-*") 'pop-tag-mark)
+    (define-key python-mode-map (kbd "M-,") 'anaconda-mode-find-assignments)
+    (define-key python-mode-map (kbd "M-r") 'anaconda-mode-find-references)
+    (define-key python-mode-map (kbd "M-?") 'anaconda-mode-show-doc)
 
-(use-package jedi
-  :ensure
-  :defer
-  :config
-  (progn
-    (add-hook 'python-mode-hook 'jedi:setup)
-    (add-hook 'jedi-mode-hook
-              (lambda ()
-                (define-key jedi-mode-map (kbd "C-<tab>") nil)
-                (define-key jedi-mode-map "\M-." 'jedi:goto-definition)
-                (define-key jedi-mode-map "\M-," 'jedi:goto-definition-pop-marker)))))
+    (add-hook 'python-mode-hook 'flycheck-mode)
+    ;; (add-hook 'python-mode-hook 'anaconda-mode)
+    (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+
+    (eval-after-load "company"
+      '(add-to-list 'company-backends 'company-anaconda))))
+
 
 (use-package flycheck
   :ensure
