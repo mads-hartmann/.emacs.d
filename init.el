@@ -91,6 +91,7 @@
 
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
 (global-set-key (kbd "M-.") 'mhj/find-tag)
+(global-set-key (kbd "s-.") 'mhj/tags-apropos)
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key (kbd "C-;") #'comment-line-dwim)
 (global-set-key (kbd "M-s o") #'occur-dwim)
@@ -122,6 +123,10 @@
                (side            . bottom)
                (window-height   . 0.3)))
 
+(defun makefile-mode-setup ()
+  (setq whitespace-style '(face tab-mark trailing)))
+
+(add-hook 'makefile-mode-hook 'makefile-mode-setup)
 ;; Awesome little package for expanding macros. Helps to understand
 ;; what is going on im my use-package declarations.
 (use-package macrostep
@@ -157,20 +162,38 @@
   :disabled
   :bind ("C-x o" . ace-window))
 
-(use-package direx
+(use-package dired+
   :ensure t
-  :bind ("C-x d" . ido-wrapper/direx:find-directory)
-  :init (require 'direx))
+  :demand ;; Don't defer loading this package.
+  :bind
+  (:map dired-mode-map
+        ("<enter>" . dired-find-file)
+        ("<s-down>" . dired-find-file)
+        ("<s-up>" . diredp-up-directory)
+        ("<tab>" . dired-maybe-insert-subdir)
+        ("<backtab>" . diredp-hide-subdir-nomove))
+  :init
+  (progn
+    ;; Folders on top.
+    (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
+    (setq dired-listing-switches "-lXGh --group-directories-first")
+    (add-hook 'dired-mode-hook 'dired-omit-mode)))
+
+;;narrow dired to match filter
+(use-package dired-narrow
+  :ensure t
+  :bind (:map dired-mode-map
+              ("/" . dired-narrow)))
 
 (use-package popwin
   :ensure t
   :config
   (progn
     (popwin-mode 1)
-    (push '(" *undo-tree*" :width 0.2 :position right) popwin:special-display-config)
-    (push '(direx:direx-mode :position left :width 0.3 :dedicated t) popwin:special-display-config)
-    (push '("*Flycheck errors*" :width 0.2 :position bottom) popwin:special-display-config)
-))
+    (setq popwin:special-display-config
+          '((" *undo-tree*" :width 0.2 :position right)
+           ("*Python check*" :width 0.2 :position bottom)))))
+
 
 (use-package exec-path-from-shell
   :init
@@ -227,14 +250,8 @@
   :ensure t
   :diminish " P"
   :init (progn
-
-          (defun projectile-direx ()
-            (direx:find-directory (projectile-project-root)))
-
           (projectile-global-mode)
-          (setq projectile-switch-project-action #'projectile-direx)
           (setq projectile-completion-system 'helm)
-          (setq projectile-tags-command "/usr/local/bin/ctags -Re -f %s %s --exclude=node_modules --exclude=_venv.Darwin --exclude=build")
           (setq projectile-use-git-grep t)))
 
 (use-package helm
@@ -268,7 +285,8 @@
 
 (use-package helm-projectile
   :ensure t
-  :bind ("C-c p p" . helm-projectile-switch-project)
+  :bind (("C-c p p" . helm-projectile-switch-project)
+         ("C-c p h" . nil))
   :config
   (progn
     ;; Removes 'helm-source-projectile-projects' from C-c p h as it is
@@ -282,17 +300,32 @@
   :ensure t
   :bind (("s-F" . helm-git-grep)))
 
+(use-package helm-ls-git
+  :ensure t
+  :config
+  (progn
+    ;; use `helm-browse-project` to play around with this
+    ))
+
 (use-package expand-region
   :ensure t
   :bind ("C-w" . er/expand-region))
 
 (use-package project-explorer
+  :disabled
   :ensure t
   :bind (("<f12>" . project-explorer-toggle))
   :config (progn
             (setq pe/width 30)
             (setq pe/follow-current t)
             (setq pe/follow-current-timer 300)))
+
+(use-package neotree
+  :ensure t
+  :bind (("<f12>" . neotree-toggle))
+  :config (progn
+            (setq neo-window-width 40)
+            (setq projectile-switch-project-action 'neotree-projectile-action)))
 
 ;; TODO: Would prefer to use company mode everywhere.
 (use-package auto-complete
@@ -474,8 +507,7 @@
 (use-package web-mode
   :ensure t
   :commands web-mode
-  :mode (("\\.js[x]?\\'" . web-mode)
-         ("\\.html" . web-mode))
+  :mode (("\\.js[x]?\\'" . web-mode))
   :config
   (progn
     ;; I used this for some of it:
@@ -512,8 +544,6 @@
               (if tern-mode (tern-mode))))))
 
     (define-key web-mode-map (kbd "M-<tab>") 'company-tern)
-    (define-key web-mode-map (kbd "M-s-≥") 'web-mode-element-close)
-
     (define-key tern-mode-keymap (kbd "M-.") 'mhj/find-tag)
 
     (add-hook 'web-mode-hook 'flycheck-mode)
@@ -544,9 +574,10 @@
   :commands lisp-mode
   :config
   (progn
-    ;; elint current buffer seems like a fun one.
     (define-key emacs-lisp-mode-map (kbd "M-.") 'elisp-slime-nav-find-elisp-thing-at-point)
     (define-key emacs-lisp-mode-map (kbd "M-<tab>") 'company-complete)
+    (define-key emacs-lisp-mode-map (kbd "M-?") 'describe-function)
+    ;; elint current buffer seems like a fun one.
     (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
     (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
     (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
@@ -747,7 +778,13 @@ pop-tag-mark to get back"
   :ensure t)
 
 (use-package feature-mode
-  :ensure t)
+  :ensure t
+  :config
+  (progn
+    (setq feature-indent-level 2)
+    (define-key feature-mode-map (kbd "M-.") 'mhj/find-tag)
+    (define-key feature-mode-map (kbd "M-*") 'pop-tag-mark)))
+
 
 (use-package dockerfile-mode
   :ensure t)
@@ -776,6 +813,7 @@ pop-tag-mark to get back"
   :config
   (progn
     (add-hook 'python-mode-hook (lambda () (setq-local st-indent-step python-indent-offset)))
-    (add-hook 'web-mode-hook (lambda () (setq-local st-indent-step web-mode-code-indent-offset)))))
+    (add-hook 'web-mode-hook (lambda () (setq-local st-indent-step web-mode-code-indent-offset)))
+    (add-hook 'yaml-mode-hook (lambda () (setq-local st-indent-step 2)))))
 
 ;;; init.el ends here

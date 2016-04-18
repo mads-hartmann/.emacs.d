@@ -236,8 +236,7 @@ With negative prefix, apply to -N lines above."
      #'endless/visit-pull-request-url))
 
 (defun mhj/region-or-symbol ()
-  "Return the selected region, or the symbol at the given point
-if no selection is made"
+  "Return the selected region, or the symbol at the given point if no selection is made."
   (if (region-active-p)
         (buffer-substring-no-properties
          (region-beginning)
@@ -245,15 +244,22 @@ if no selection is made"
       (thing-at-point 'symbol)))
 
 (defun mhj/find-tag ()
-  "Just like find-tag, but use the selected region if any"
+  "Just like \\[find-tag], but use the selected region if any."
   (interactive)
   (let ((tag-name (mhj/region-or-symbol)))
     (deactivate-mark)
     (find-tag tag-name)))
 
+(defun mhj/tags-apropos ()
+  "Just like \\[tags-apropos], but use the selected region if any."
+  (interactive)
+  (let ((tag-name (mhj/region-or-symbol)))
+    (deactivate-mark)
+    (tags-apropos tag-name)))
+
 (defun mhj/push-tag-mark ()
-  "Push the current position to the ring of markers so that
-    \\[pop-tag-mark] can be used to come back to current position."
+  "Push the current position to the ring of markers.
+this is so that \\[pop-tag-mark] can be used to come back to current position."
   (interactive)
   (ring-insert find-tag-marker-ring (point-marker)))
 
