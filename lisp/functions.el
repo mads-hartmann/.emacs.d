@@ -263,4 +263,17 @@ this is so that \\[pop-tag-mark] can be used to come back to current position."
   (interactive)
   (ring-insert find-tag-marker-ring (point-marker)))
 
+(defun mhj/anaconda-mode-find-definitions-callback (result)
+  "My own version of
+anaconda-mode-find-definitions-callback which falls back to
+mhj/find-tag if anaconda was unsuccessful.
+
+It also takes care of pushing a tag mark so I can always use
+pop-tag-mark to get back"
+  (if result
+      (progn
+        (mhj/push-tag-mark)
+        (anaconda-mode-definitions-view result))
+    (mhj/find-tag)))
+
 ;;; functions.el ends here

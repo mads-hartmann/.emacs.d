@@ -93,7 +93,7 @@
 (global-set-key (kbd "M-.") 'mhj/find-tag)
 (global-set-key (kbd "s-.") 'mhj/tags-apropos)
 (global-set-key (kbd "M-;") 'comment-dwim)
-(global-set-key (kbd "C-;") #'comment-line-dwim)
+(global-set-key (kbd "C-;") 'comment-line-dwim)
 (global-set-key (kbd "M-s o") #'occur-dwim)
 (global-set-key (kbd "s-w") 'delete-frame)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
@@ -127,6 +127,12 @@
   (setq whitespace-style '(face tab-mark trailing)))
 
 (add-hook 'makefile-mode-hook 'makefile-mode-setup)
+
+(add-to-list 'auto-mode-alist '("\\.html$" . html-mode))
+(add-hook
+ 'html-mode-hook
+ (lambda () (define-key html-mode-map (kbd "M-s-≥") 'sgml-close-tag)))
+
 ;; Awesome little package for expanding macros. Helps to understand
 ;; what is going on im my use-package declarations.
 (use-package macrostep
@@ -142,24 +148,19 @@
 ;; My own small package for hdl files.
 (use-package hdl-mode
   :load-path "dev-pkgs/"
-  :mode "\\.hdl\\'" :defer)
+  :mode "\\.hdl\\'"
+  :defer)
 
 ;; A different buffer view.
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
 
 (use-package ace-jump-mode
-  :ensure nil
-  :disabled
+  :ensure t
   :bind ("C-<tab>" . ace-jump-mode))
-
-(use-package ace-jump-zap
-  :disabled
-  :bind ("M-z" . ace-jump-zap-to-char))
 
 (use-package ace-window
   :ensure t
-  :disabled
   :bind ("C-x o" . ace-window))
 
 (use-package dired+
@@ -169,9 +170,7 @@
   (:map dired-mode-map
         ("<enter>" . dired-find-file)
         ("<s-down>" . dired-find-file)
-        ("<s-up>" . diredp-up-directory)
-        ("<tab>" . dired-maybe-insert-subdir)
-        ("<backtab>" . diredp-hide-subdir-nomove))
+        ("<s-up>" . diredp-up-directory))
   :init
   (progn
     ;; Folders on top.
@@ -179,11 +178,27 @@
     (setq dired-listing-switches "-lXGh --group-directories-first")
     (add-hook 'dired-mode-hook 'dired-omit-mode)))
 
-;;narrow dired to match filter
 (use-package dired-narrow
+  ;; Make it possible to filter/search in a dired buffer. After a
+  ;; filter has been applied it can be removed by refreshing the
+  ;; buffer with 'g'.
   :ensure t
-  :bind (:map dired-mode-map
-              ("/" . dired-narrow)))
+  :bind
+  (:map dired-mode-map
+        ("/" . dired-narrow)))
+
+(use-package dired-subtree
+  ;; Very helpful package that makes it possible to insert a dired
+  ;; subtree buffer directly below a folder in a dired buffer. Give
+  ;; you something similar to a tree explorer.
+  :ensure t
+  :bind
+  (:map dired-mode-map
+        ("<tab>" . dired-subtree-toggle))
+  :config
+  (progn
+    (setq dired-subtree-line-prefix (lambda (depth) (make-string (* 2 depth) ?\s)))
+    (setq dired-subtree-use-backgrounds nil)))
 
 (use-package popwin
   :ensure t
@@ -203,18 +218,19 @@
 
 (use-package shell
   :commands shell
-  :config
-  (progn
-    (define-key shell-mode-map (kbd "s-k") 'clear-shell)
-    (define-key shell-mode-map (kbd "<up>") 'comint-previous-input)
-    (define-key shell-mode-map (kbd "<down>") 'comint-next-input)))
+  :bind
+  (:map shell-mode-map
+        ("s-k" . clear-shell)
+        ("<up>" . comint-previous-input)
+        ("<down>" . comint-next-input)))
 
 (use-package flyspell
   :commands flyspell-mode
-  :config
-  (progn
-    (define-key flyspell-mode-map (kbd "C-;") nil)
-    (define-key flyspell-mode-map (kbd "C-.") nil)))
+  :bind
+  (:map flyspell-mode-map
+        ("C-;" . nil)
+        ("C-," . nil)
+        ("C-." . nil)))
 
 (use-package ido
   :ensure t
@@ -278,10 +294,9 @@
          ("M-s" . helm-occur)))
 
 (use-package helm-c-yasnippet
+  :demand
   :ensure t
-  :init
-  (progn
-    (global-set-key (kbd "C-c y") 'helm-yas-complete)))
+  :bind ("C-c y" . helm-yas-complete))
 
 (use-package helm-projectile
   :ensure t
@@ -302,30 +317,11 @@
 
 (use-package helm-ls-git
   :ensure t
-  :config
-  (progn
-    ;; use `helm-browse-project` to play around with this
-    ))
+  :bind (("C-," . helm-browse-project)))
 
 (use-package expand-region
   :ensure t
   :bind ("C-w" . er/expand-region))
-
-(use-package project-explorer
-  :disabled
-  :ensure t
-  :bind (("<f12>" . project-explorer-toggle))
-  :config (progn
-            (setq pe/width 30)
-            (setq pe/follow-current t)
-            (setq pe/follow-current-timer 300)))
-
-(use-package neotree
-  :ensure t
-  :bind (("<f12>" . neotree-toggle))
-  :config (progn
-            (setq neo-window-width 40)
-            (setq projectile-switch-project-action 'neotree-projectile-action)))
 
 ;; TODO: Would prefer to use company mode everywhere.
 (use-package auto-complete
@@ -508,6 +504,9 @@
   :ensure t
   :commands web-mode
   :mode (("\\.js[x]?\\'" . web-mode))
+  :bind
+  (:map web-mode-map
+        ("M-<tab>" . company-complete))
   :config
   (progn
     ;; I used this for some of it:
@@ -543,9 +542,6 @@
                 (unless tern-mode (tern-mode))
               (if tern-mode (tern-mode))))))
 
-    (define-key web-mode-map (kbd "M-<tab>") 'company-tern)
-    (define-key tern-mode-keymap (kbd "M-.") 'mhj/find-tag)
-
     (add-hook 'web-mode-hook 'flycheck-mode)
     (add-hook 'web-mode-hook 'company-mode)
     (add-hook 'web-mode-hook 'tern-mode)
@@ -553,14 +549,14 @@
     ;; NOTICE: Requires `npm install -g eslint`
     (flycheck-add-mode 'javascript-eslint 'web-mode)))
 
-;; Code-completion for javascript files
-;; we're using tern.
-;; NOTICE: Requires `npm install -g tern`
+(use-package company-tern :ensure t)
 (use-package tern
-  :ensure t)
-
-(use-package company-tern
-  :ensure t)
+  ;; Code-completion etc. for javascript.
+  ;; currently requires npm install -g tern
+  :ensure t
+  :bind
+  (:map tern-mode-keymap
+        ("M-." . mhj/find-tag)))
 
 (use-package markdown-mode
   :ensure t
@@ -669,46 +665,36 @@
                 (setq indent-line-function 'ocp-indent-line)))))
 
 (use-package pythonic :ensure t)
-(use-package anaconda-mode :ensure t)
 (use-package company-anaconda :ensure t)
+(use-package anaconda-mode
+  :ensure t
+  :bind
+  (:map anaconda-mode-map
+        ("C-M-i" . nil)
+        ("M-." . anaconda-mode-find-definitions)
+        ("M-," . anaconda-mode-find-assignments)
+        ("M-r" . anaconda-mode-find-references)
+        ("M-*" . pop-tag-mark)
+        ("M-?" . anaconda-mode-show-doc))
+  :config
+  (progn
+    (setq anaconda-mode-find-definitions-callback 'mhj/anaconda-mode-find-definitions-callback)
+    (eval-after-load "company" '(add-to-list 'company-backends 'company-anaconda))))
 
 (use-package python
   :commands python-mode
+  :bind
+  (:map python-mode-map
+        ("M-s" . nil)
+        ("C-c C-c" . flycheck-list-errors)
+        ("C-c C-p" . nil)
+        ("M-<tab>" . company-complete))
   :config
   (progn
-
-    (defun mhj/anaconda-mode-find-definitions-callback (result)
-        "My own version of
-anaconda-mode-find-definitions-callback which falls back to
-mhj/find-tag if anaconda was unsuccessful.
-
-It also takes care of pushing a tag mark so I can always use
-pop-tag-mark to get back"
-        (if result
-            (progn
-              (mhj/push-tag-mark)
-              (anaconda-mode-definitions-view result))
-          (mhj/find-tag)))
-
-    (setq anaconda-mode-find-definitions-callback 'mhj/anaconda-mode-find-definitions-callback)
-
-    (define-key python-mode-map (kbd "M-s") nil)
-    (define-key python-mode-map (kbd "C-c C-c") 'compile)
-    (define-key python-mode-map (kbd "C-c C-p") nil)
-    (define-key python-mode-map (kbd "M-<tab>") 'anaconda-mode-complete)
-    (define-key python-mode-map (kbd "M-.") 'anaconda-mode-find-definitions)
-    (define-key python-mode-map (kbd "M-*") 'pop-tag-mark)
-    (define-key python-mode-map (kbd "M-,") 'anaconda-mode-find-assignments)
-    (define-key python-mode-map (kbd "M-r") 'anaconda-mode-find-references)
-    (define-key python-mode-map (kbd "M-?") 'anaconda-mode-show-doc)
-
     (add-hook 'python-mode-hook 'flycheck-mode)
-    ;; (add-hook 'python-mode-hook 'anaconda-mode)
-    (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-
-    (eval-after-load "company"
-      '(add-to-list 'company-backends 'company-anaconda))))
-
+    (add-hook 'python-mode-hook 'anaconda-mode)
+    (add-hook 'python-mode-hook 'company-mode)
+    (add-hook 'python-mode-hook 'anaconda-eldoc-mode)))
 
 (use-package flycheck
   :ensure
@@ -727,10 +713,13 @@ pop-tag-mark to get back"
       ("n" highlight-symbol-next)
       ("p" highlight-symbol-prev))))
 
-
 (use-package company
   :commands company-mode
-  :ensure t)
+  :ensure t
+  :bind
+  (:map company-active-map
+        ("C-n" . company-select-next)
+        ("C-p" . company-select-previous)))
 
 (use-package elixir-mode
   :ensure t
@@ -742,15 +731,19 @@ pop-tag-mark to get back"
 (use-package alchemist
   :ensure t
   :commands alchemist-mode
-  :config (progn
-            (add-hook 'alchemist-mode-hook 'company-mode)
-            (add-hook 'alchemist-iex-mode-hook 'company-mode)
-            (define-key alchemist-mode-map (kbd "M-<tab>") 'company-complete)
-            (define-key alchemist-mode-map (kbd "M-?") 'alchemist-help-search-at-point)
-            (define-key alchemist-mode-map (kbd "C-c C-t") 'alchemist-mix-test-file)
-            (define-key alchemist-mode-map (kbd "C-c C-c") 'alchemist-mix-compile)
-            (define-key alchemist-mode-map (kbd "C-c C-r") 'alchemist-mix-run)
-            (define-key alchemist-mode-map (kbd "C-c C-z") 'alchemist-iex-project-run)))
+  :bind
+  (:map alchemist-mode-map
+        ("M-<tab>" . company-complete)
+        ("M-?" . alchemist-help-search-at-point)
+        ("C-c C-t" . alchemist-mix-test-file)
+        ("C-c C-c" . alchemist-mix-compile)
+        ("C-c C-r" . alchemist-mix-run)
+        ("C-c C-z" . alchemist-iex-project-run))
+  :config
+  (progn
+    (add-hook 'alchemist-mode-hook 'company-mode)
+    (add-hook 'alchemist-iex-mode-hook 'company-mode)))
+
 
 (use-package scala-mode
   :ensure
@@ -762,13 +755,15 @@ pop-tag-mark to get back"
 (use-package ensime
   :ensure
   :commands ensime
+  :bind
+  (:map ensime-mode-map
+        ("<tab>" .  nil)
+        ("M-<tab>" . ensime-company)
+        ("C-c C-t" . ensime-print-type-at-point))
   :config
   (progn
     ;; Disable automatic completion
-    (setq ensime-completion-style nil)
-    (define-key ensime-mode-map (kbd "<tab>") nil)
-    (define-key ensime-mode-map (kbd "M-<tab>") 'ensime-company)
-    (define-key ensime-mode-map (kbd "C-c C-t") 'ensime-print-type-at-point)))
+    (setq ensime-completion-style nil)))
 
 (use-package elm-mode
   :ensure t
@@ -779,12 +774,13 @@ pop-tag-mark to get back"
 
 (use-package feature-mode
   :ensure t
+  :bind
+  (:map feature-mode-map
+        ("M-." . mhj/find-tag)
+        ("M-*" . pop-tag-mark))
   :config
   (progn
-    (setq feature-indent-level 2)
-    (define-key feature-mode-map (kbd "M-.") 'mhj/find-tag)
-    (define-key feature-mode-map (kbd "M-*") 'pop-tag-mark)))
-
+    (setq feature-indent-level 2)))
 
 (use-package dockerfile-mode
   :ensure t)
