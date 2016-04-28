@@ -4,6 +4,8 @@
 ;;   - Make the numbers pretter, larger, and centered.
 ;;   - Figure out how to support when frames show the same buffer
 ;;     without giving them the same number.
+;;
+;; NOTE: surpassed by ace-window
 
 (defun read-number ()
   (string-to-number (char-to-string (read-char "Window: "))))
