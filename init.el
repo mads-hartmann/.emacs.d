@@ -168,7 +168,7 @@
   :demand ;; Don't defer loading this package.
   :bind
   (:map dired-mode-map
-        ("<enter>" . dired-find-file)
+        ("<enter>" . dired-find-file-other-window)
         ("<s-down>" . dired-find-file)
         ("<s-up>" . diredp-up-directory))
   :init
@@ -265,6 +265,7 @@
 (use-package projectile
   :ensure t
   :diminish " P"
+  :bind (("<f12>" . mhj/projectile-dired-side))
   :init (progn
           (projectile-global-mode)
           (setq projectile-completion-system 'helm)

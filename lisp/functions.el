@@ -276,4 +276,17 @@ pop-tag-mark to get back"
         (anaconda-mode-definitions-view result))
     (mhj/find-tag)))
 
+;; See: https://www.gnu.org/software/emacs/manual/html_node/elisp/Display-Action-Functions.html
+;; See: https://www.gnu.org/software/emacs/manual/html_node/elisp/Dedicated-Windows.html#Dedicated-Windows
+(defun mhj/projectile-dired-side ()
+  "Show the projectile root dired buffer in the side of the current frame"
+  (interactive)
+  (let
+      ((buffer (dired-noselect (projectile-project-root))))
+    (progn
+      (display-buffer-in-side-window buffer
+                                     '((side . left)
+                                       (window-width . 0.2)))
+      (set-window-dedicated-p (get-buffer-window buffer) t))))
+
 ;;; functions.el ends here
