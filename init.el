@@ -22,9 +22,8 @@
 (require 'use-package)
 (setq use-package-verbose t)
 
-(add-to-list 'load-path "~/.emacs.d/lisp")
-(add-to-list 'load-path "/Volumes/credentials/")
-(load "~/.emacs.d/lisp/functions.el")
+(load "~/.emacs.d/functions.el")
+(load "~/.emacs.d/project-frame.el")
 
 (if window-system
     (progn
@@ -81,7 +80,6 @@
 (electric-pair-mode -1)
 (global-linum-mode -1)
 (global-hl-line-mode -1)
-(global-whitespace-mode)
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
@@ -112,7 +110,17 @@
 (global-set-key (kbd "C-c C-2") 'next-buffer)
 (global-set-key (kbd "M-/") 'dabbrev-expand)
 
+(global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
+(global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
+
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
+
+;; Default width/height for initial window and subsequent windows
+(add-to-list 'initial-frame-alist '(width . 200))
+(add-to-list 'initial-frame-alist '(height . 50))
+(add-to-list 'default-frame-alist '(width . 200))
+(add-to-list 'default-frame-alist '(height . 50))
+
 
 ;; Put the compilation buffer at the bottom.
 (add-to-list 'display-buffer-alist
