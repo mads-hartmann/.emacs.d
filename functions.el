@@ -276,17 +276,56 @@ pop-tag-mark to get back"
         (anaconda-mode-definitions-view result))
     (mhj/find-tag)))
 
-;; See: https://www.gnu.org/software/emacs/manual/html_node/elisp/Display-Action-Functions.html
-;; See: https://www.gnu.org/software/emacs/manual/html_node/elisp/Dedicated-Windows.html#Dedicated-Windows
-(defun mhj/projectile-dired-side ()
-  "Show the projectile root dired buffer in the side of the current frame"
+(defun mhj/web-mode-company-complete ()
+  "A web-mode aware company-complete.
+Set the backends for company-mode based on the web-mode language of
+the current block."
+  ;; TODO: Is it really so important to turn on/off tern mode.
+  ;; TODO: Find the right set of company backends for each lang.
+  ;; TODO: Can I make yasnippet handle these cases as well
   (interactive)
-  (let
-      ((buffer (dired-noselect (projectile-project-root))))
-    (progn
-      (display-buffer-in-side-window buffer
-                                     '((side . left)
-                                       (window-width . 0.2)))
-      (set-window-dedicated-p (get-buffer-window buffer) t))))
+  (unless (equal major-mode 'web-mode)
+    (error "This only makes sense in web-mode"))
+
+  (let ((language (web-mode-language-at-pos)))
+    (cond ((string= language "html")
+           (progn
+             (if tern-mode (tern-mode -1))
+             (set (make-local-variable 'company-backends)
+                  '(company-web-html
+                    company-yasnippet
+                    company-dabbrev-code))
+             (company-complete)))
+          ((or (string= language "jsx")
+               (string= language "javascript"))
+           (progn
+             (unless tern-mode (tern-mode))
+             (set (make-local-variable 'company-backends) '(company-tern))
+             (company-complete)))
+          (t (error "Haven't configured company for %s" language)))))
+
+(defun dedicate-window-to-buffer ()
+  (interactive)
+  (set-window-dedicated-p (get-buffer-window (current-buffer)) t))
+
+(defun disable-click-in-dired ()
+  "Disable the default behavior for mouse clicks."
+  (set (make-local-variable 'mouse-1-click-follows-link) nil))
+
+(defun mhj/dwim-toggle-or-open ()
+  "Toggle subtree or open the file."
+  (if (file-directory-p (dired-get-file-for-visit))
+      (dired-subtree-toggle)
+    (dired-find-file-other-window)))
+
+(defun mhj/mouse-dwin-to-toggle-or-open (event)
+  "Toggle subtree or the open file on mouse-click in dired."
+  (interactive "e")
+  (let* ((window (posn-window (event-end event)))
+         (buffer (window-buffer window))
+         (pos (posn-point (event-end event))))
+    (with-current-buffer buffer
+      (goto-char pos)
+      (mhj/dwim-toggle-or-open))))
 
 ;;; functions.el ends here

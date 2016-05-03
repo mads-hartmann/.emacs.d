@@ -136,11 +136,6 @@
 
 (add-hook 'makefile-mode-hook 'makefile-mode-setup)
 
-(add-to-list 'auto-mode-alist '("\\.html$" . html-mode))
-(add-hook
- 'html-mode-hook
- (lambda () (define-key html-mode-map (kbd "M-s-≥") 'sgml-close-tag)))
-
 ;; Awesome little package for expanding macros. Helps to understand
 ;; what is going on im my use-package declarations.
 (use-package macrostep
@@ -176,7 +171,7 @@
   :demand ;; Don't defer loading this package.
   :bind
   (:map dired-mode-map
-        ("<enter>" . dired-find-file-other-window)
+        ("<enter>" . mhj/dwim-toggle-or-open)
         ("<s-down>" . dired-find-file)
         ("<s-up>" . diredp-up-directory))
   :init
@@ -202,21 +197,13 @@
   :ensure t
   :bind
   (:map dired-mode-map
+        ("<down-mouse-1>" . mhj/mouse-dwin-to-toggle-or-open)
         ("<tab>" . dired-subtree-toggle))
   :config
   (progn
+    (add-hook 'dired-mode-hook 'disable-click-in-dired)
     (setq dired-subtree-line-prefix (lambda (depth) (make-string (* 2 depth) ?\s)))
     (setq dired-subtree-use-backgrounds nil)))
-
-(use-package popwin
-  :ensure t
-  :config
-  (progn
-    (popwin-mode 1)
-    (setq popwin:special-display-config
-          '((" *undo-tree*" :width 0.2 :position right)
-           ("*Python check*" :width 0.2 :position bottom)))))
-
 
 (use-package exec-path-from-shell
   :init
@@ -233,6 +220,7 @@
         ("<down>" . comint-next-input)))
 
 (use-package flyspell
+  :diminish (flyspell-mode)
   :commands flyspell-mode
   :bind
   (:map flyspell-mode-map
@@ -253,17 +241,22 @@
 
 (use-package ido-vertical-mode
   :ensure t
+;; TODO: use bind instead
+;;  :bind
+;;  (:map ido-completion-map
+;;        ("C-n" . ido-next-match)
+;;        ("C-p" . ido-prev-match))
   :init
   (progn
     (ido-vertical-mode 1)
     (defun bind-ido-keys ()
       (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
       (define-key ido-completion-map (kbd "C-p")   'ido-prev-match))
-
     (add-hook 'ido-setup-hook #'bind-ido-keys)))
 
 (use-package magit
   :ensure t
+  :demand ; force load
   :commands magit-status
   :config
   (progn
@@ -272,8 +265,7 @@
 
 (use-package projectile
   :ensure t
-  :diminish " P"
-  :bind (("<f12>" . mhj/projectile-dired-side))
+  :diminish ""
   :init (progn
           (projectile-global-mode)
           (setq projectile-completion-system 'helm)
@@ -281,6 +273,10 @@
 
 (use-package helm
   :ensure t
+  :bind (("C-." . helm-M-x)
+         ("C-x b" . helm-buffers-list)
+         ("M-y" . helm-show-kill-ring)
+         ("M-s" . helm-occur))
   :init
   (progn
     (setq helm-follow-mode t)
@@ -296,11 +292,7 @@
     (setq helm-type-file-actions
           '(("Find File" . helm-find-file-or-marked)
             ("View file" . view-file)
-            ("Zgrep File(s)" . helm-ff-zgrep))))
-  :bind (("C-." . helm-M-x)
-         ("C-x b" . helm-buffers-list)
-         ("M-y" . helm-show-kill-ring)
-         ("M-s" . helm-occur)))
+            ("Zgrep File(s)" . helm-ff-zgrep)))))
 
 (use-package helm-c-yasnippet
   :demand
@@ -321,27 +313,39 @@
             helm-source-projectile-recentf-list))))
 
 (use-package helm-git-grep
+  ;; Interactive git-grep using helm
   :ensure t
   :bind (("s-F" . helm-git-grep)))
 
 (use-package helm-ls-git
+  ;; Pretty nice project overview
   :ensure t
   :bind (("C-," . helm-browse-project)))
 
+(use-package helm-ag
+  ;; Interactive ag queries using helm.
+  :ensure t)
+
 (use-package expand-region
+  ;; One of my favorite packages. Can increase/shrink a selection in
+  ;; clever ways.
   :ensure t
   :bind ("C-w" . er/expand-region))
 
-;; TODO: Would prefer to use company mode everywhere.
 (use-package auto-complete
+  ;; Code-completion backend.
+  ;; TODO: Would prefer to use company mode everywhere.
+  :diminish (auto-complete-mode)
   :ensure t
   :init (global-auto-complete-mode t)
+  :bind
+  (:map ac-complete-mode-map
+        ("\C-n" . ac-next)
+        ("\C-p" . ac-previous))
   :config (progn
             (ac-config-default)
             (setq ac-auto-start nil)
-            (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
-            (define-key ac-complete-mode-map "\C-n" 'ac-next)
-            (define-key ac-complete-mode-map "\C-p" 'ac-previous)))
+            (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")))
 
 (use-package multiple-cursors
   :ensure t
@@ -364,23 +368,22 @@
   :bind (("s-<f2>" . bmkp-toggle-autonamed-bookmark-set/delete)
          ("<f2>" . bmkp-next-bookmark-this-buffer)
          ("S-<f2>" . bmkp-previous-bookmark-this-buffer))
-  :config (progn
-          (setq bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
-          (setq bmkp-auto-light-when-set 'autonamed-bookmark)))
+  :config
+  (progn
+    (setq bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
+    (setq bmkp-auto-light-when-set 'autonamed-bookmark)))
 
 (use-package ag
   :ensure t
   :commands ag
-  :config (progn
-            (setq ag-highlight-search t)
-            (setq ag-reuse-buffers 't)))
-
-(use-package diminish
-  :ensure t)
+  :config
+  (progn
+    (setq ag-highlight-search t)
+    (setq ag-reuse-buffers 't)))
 
 (use-package undo-tree
   :ensure t
-  :diminish " U"
+  :diminish (undo-tree-mode)
   :bind (("C-x u" . undo-tree-visualize))
   :init
   (progn
@@ -389,11 +392,13 @@
 
 (use-package yasnippet
   :ensure t
+  :diminish (yas-minor-mode)
   :defer
-  :init (progn
-          (yas-global-mode)
-          (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-          (yas-reload-all)))
+  :init
+  (progn
+    (yas-global-mode)
+    (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+    (yas-reload-all)))
 
 (use-package diff-hl
   :ensure t
@@ -487,9 +492,8 @@
     (setq org-agenda-files
           '("~/Dropbox/org"
             "~/Dropbox/org/issuu"
+            "~/Dropbox/org/projects"
             "~/Dropbox/org/notes"))
-
-    ;; (add-hook 'org-mode-hook 'yas-minor-mode)
 
     ;; http://www.wisdomandwonder.com/link/9573/how-to-correctly-enable-flycheck-in-babel-source-blocks
     (defadvice org-edit-src-code (around set-buffer-file-name activate compile)
@@ -500,22 +504,26 @@
 (use-package smart-mode-line
   :ensure t
   :disabled t
-  :init (progn
-          (setq sml/no-confirm-load-theme t)
-          (sml/setup)
-          (sml/apply-theme 'powerline)))
+  :init
+  (progn
+    (setq sml/no-confirm-load-theme t)
+    (sml/setup)
+    (sml/apply-theme 'powerline)))
 
 (use-package scss-mode
   :commands scss-mode
   :config (setq scss-compile-at-save nil))
 
+(use-package company-web :ensure t)
 (use-package web-mode
   :ensure t
   :commands web-mode
-  :mode (("\\.js[x]?\\'" . web-mode))
+  :mode
+  (("\\.js[x]?\\'" . web-mode)
+   ("\\.html$" . web-mode))
   :bind
   (:map web-mode-map
-        ("M-<tab>" . company-complete))
+        ("M-<tab>" . mhj/web-mode-company-complete))
   :config
   (progn
     ;; I used this for some of it:
@@ -539,49 +547,51 @@
             ad-do-it)
         ad-do-it))
 
-    ;; Get web-mode to use tern for code-completion
-    ;; https://github.com/fxbois/web-mode/issues/427
-    (defadvice company-tern (before web-mode-set-up-ac-sources activate)
-      "Set `tern-mode' based on current language before running company-tern."
-      (if (equal major-mode 'web-mode)
-          (let ((web-mode-cur-language
-                 (web-mode-language-at-pos)))
-            (if (or (string= web-mode-cur-language "jsx")
-                    (string= web-mode-cur-language "javascript"))
-                (unless tern-mode (tern-mode))
-              (if tern-mode (tern-mode))))))
-
     (add-hook 'web-mode-hook 'flycheck-mode)
     (add-hook 'web-mode-hook 'company-mode)
     (add-hook 'web-mode-hook 'tern-mode)
 
-    ;; NOTICE: Requires `npm install -g eslint`
+    ;; Requires `npm install -g eslint`
     (flycheck-add-mode 'javascript-eslint 'web-mode)))
 
-(use-package company-tern :ensure t)
+(use-package company-tern
+  ;; company backend for tern
+  :ensure t)
+
 (use-package tern
   ;; Code-completion etc. for javascript.
   ;; currently requires npm install -g tern
   :ensure t
   :bind
   (:map tern-mode-keymap
-        ("M-." . mhj/find-tag)))
+        ("M-." . mhj/find-tag)
+        ("M-?" . tern-get-docs)))
 
 (use-package markdown-mode
   :ensure t
   :commands markdown-mode
+  :bind
+  (:map markdown-mode-map
+        ("M-<tab>" . ido-complete-word-ispell))
   :config
   (progn
-    (define-key markdown-mode-map (kbd "M-<tab>") 'ido-complete-word-ispell)
     (add-hook 'markdown-mode-hook 'flyspell-mode)))
+
+(use-package eldoc
+  :diminish (eldoc-mode))
+
+(use-package elisp-slime-nav
+  :diminish (elisp-slime-nav-mode))
 
 (use-package lisp-mode
   :commands lisp-mode
+  :bind
+  (:map emacs-lisp-mode-map
+        ("M-." . elisp-slime-nav-find-elisp-thing-at-point)
+        ("M-<tab>" . company-complete)
+        ("M-?" . describe-function))
   :config
   (progn
-    (define-key emacs-lisp-mode-map (kbd "M-.") 'elisp-slime-nav-find-elisp-thing-at-point)
-    (define-key emacs-lisp-mode-map (kbd "M-<tab>") 'company-complete)
-    (define-key emacs-lisp-mode-map (kbd "M-?") 'describe-function)
     ;; elint current buffer seems like a fun one.
     (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
     (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
@@ -591,34 +601,34 @@
 
 (use-package octave
   :commands octave-mode
+  :mode (("\\.m$" . octave-mode))
   :config
   (progn
     (autoload 'octave-mode "octave-mod" nil t)
-    (setq auto-mode-alist (cons '("\\.m$" . octave-mode) auto-mode-alist))
-    (add-hook 'octave-mode-hook (lambda ()
-                                  (abbrev-mode 1)
-                                  (auto-fill-mode 1)
-                                  (if (eq window-system 'x)
-                                      (font-lock-mode 1))))))
+    (add-hook 'octave-mode-hook
+              (lambda ()
+                (abbrev-mode 1)
+                (auto-fill-mode 1)
+                (if (eq window-system 'x)
+                    (font-lock-mode 1))))))
 
 (use-package erlang
   :commands erlang-mode
+  :bind
+  (:map erlang-mode-map
+        ("M-." . erl-find-source-under-point)
+        ("M-," . erl-find-source-unwind)
+        ("M-<tab>" . erl-complete)
+        ("C-c C-c" . compile)
+        ("<return>" . newline-and-indent))
   :config
   (progn
     (add-to-list 'load-path "/Users/hartmann/dev/distel/elisp") ; Not in melpa yet
     (require 'distel)
-
     (distel-setup)
     ;; http://parijatmishra.wordpress.com/2008/08/15/up-and-running-with-emacs-erlang-and-distel/
     ;; http://alexott.net/en/writings/emacs-devenv/EmacsErlang.html#sec8
     (setq inferior-erlang-machine-options '("-sname" "emacs"))
-
-    (define-key erlang-mode-map (kbd "M-.") 'erl-find-source-under-point)
-    (define-key erlang-mode-map (kbd "M-,") 'erl-find-source-unwind)
-    (define-key erlang-mode-map (kbd "M-<tab>") 'erl-complete)
-    (define-key erlang-mode-map (kbd "C-c C-c") 'compile)
-    (define-key erlang-mode-map (kbd "<return>")'newline-and-indent)
-
     (add-hook 'erlang-mode-hook 'flycheck-mode)))
 
 (use-package tuareg
@@ -673,10 +683,18 @@
                 (define-key utop-minor-mode-map (kbd "C-c C-z") 'utop)
                 (setq indent-line-function 'ocp-indent-line)))))
 
-(use-package pythonic :ensure t)
-(use-package company-anaconda :ensure t)
+(use-package pythonic
+  ;; Active/deactivate python virtualenvs
+  :ensure t)
+
+(use-package company-anaconda
+  ;; Company backend for anaconda-mode
+  :ensure t)
+
 (use-package anaconda-mode
+  ;; Code-completion, etc. for Python
   :ensure t
+  :commands anaconda-mode
   :bind
   (:map anaconda-mode-map
         ("C-M-i" . nil)
@@ -687,8 +705,9 @@
         ("M-?" . anaconda-mode-show-doc))
   :config
   (progn
-    (setq anaconda-mode-find-definitions-callback 'mhj/anaconda-mode-find-definitions-callback)
-    (eval-after-load "company" '(add-to-list 'company-backends 'company-anaconda))))
+    ;; pip install anaconda-mode
+    (setq anaconda-mode-server-script "/usr/local/lib/python2.7/site-packages/anaconda_mode.py")
+    (setq anaconda-mode-find-definitions-callback 'mhj/anaconda-mode-find-definitions-callback)))
 
 (use-package python
   :commands python-mode
@@ -703,10 +722,15 @@
     (add-hook 'python-mode-hook 'flycheck-mode)
     (add-hook 'python-mode-hook 'anaconda-mode)
     (add-hook 'python-mode-hook 'company-mode)
-    (add-hook 'python-mode-hook 'anaconda-eldoc-mode)))
+    (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+    (add-hook 'python-mode-hook
+            (lambda ()
+              (set (make-local-variable 'company-backends)
+                   '(company-anaconda company-yasnippet company-etags))))))
 
 (use-package flycheck
-  :ensure
+  :ensure t
+  :diminish ""
   :commands flycheck-mode)
 
 (use-package highlight-symbol
@@ -724,6 +748,7 @@
 
 (use-package company
   :commands company-mode
+  :diminish ""
   :ensure t
   :bind
   (:map company-active-map
@@ -752,7 +777,6 @@
   (progn
     (add-hook 'alchemist-mode-hook 'company-mode)
     (add-hook 'alchemist-iex-mode-hook 'company-mode)))
-
 
 (use-package scala-mode
   :ensure
@@ -798,8 +822,13 @@
   :ensure t
   :commands jinja2-mode)
 
-(use-package wgrep :ensure t)           ; Makes it possbile to edit grep buffers!
-(use-package wgrep-helm :ensure t)      ; wgrep support for helm.
+(use-package wgrep
+  ; Makes it possbile to edit grep buffers!
+  :ensure t)
+
+(use-package wgrep-helm
+  ; wgrep support for helm.
+  :ensure t)
 
 (use-package tex-mode
   :commands tex-mode
@@ -808,6 +837,15 @@
     ;; This currently doesn't override the annoying tex-compile
     (define-key tex-mode-map (kbd "C-c C-c") 'compile)
     (define-key latex-mode-map (kbd "C-c C-c") 'compile)))
+
+(use-package glsl-mode
+  :ensure t)
+
+(use-package iedit
+  :ensure t)
+
+(use-package helm-gtags
+  :ensure t)
 
 (use-package shift-text
   :ensure t
@@ -820,5 +858,11 @@
     (add-hook 'python-mode-hook (lambda () (setq-local st-indent-step python-indent-offset)))
     (add-hook 'web-mode-hook (lambda () (setq-local st-indent-step web-mode-code-indent-offset)))
     (add-hook 'yaml-mode-hook (lambda () (setq-local st-indent-step 2)))))
+
+(use-package whitespace
+  :diminish (global-whitespace-mode
+             whitespace-mode
+             whitespace-newline-mode)
+  :config (global-whitespace-mode))
 
 ;;; init.el ends here
