@@ -70,6 +70,10 @@
 (setq dabbrev-case-fold-search nil)
 (setq tramp-default-method "ssh")
 
+;; Set the threshold of when to split a window into more windows.
+(setq split-width-threshold 320)
+(setq split-height-threshold 160)
+
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode 1)
 (delete-selection-mode t)
@@ -171,7 +175,6 @@
   :demand ;; Don't defer loading this package.
   :bind
   (:map dired-mode-map
-        ("<enter>" . mhj/dwim-toggle-or-open)
         ("<s-down>" . dired-find-file)
         ("<s-up>" . diredp-up-directory))
   :init
@@ -194,11 +197,14 @@
   ;; Very helpful package that makes it possible to insert a dired
   ;; subtree buffer directly below a folder in a dired buffer. Give
   ;; you something similar to a tree explorer.
+  :demand
   :ensure t
   :bind
   (:map dired-mode-map
-        ("<down-mouse-1>" . mhj/mouse-dwin-to-toggle-or-open)
-        ("<tab>" . dired-subtree-toggle))
+        ("<enter>" . mhj/dwim-toggle-or-open)
+        ("<return>" . mhj/dwim-toggle-or-open)
+        ("<tab>" . mhj/dwim-toggle-or-open)
+        ("<down-mouse-1>" . mhj/mouse-dwin-to-toggle-or-open))
   :config
   (progn
     (add-hook 'dired-mode-hook 'disable-click-in-dired)

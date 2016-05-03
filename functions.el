@@ -314,8 +314,11 @@ the current block."
 
 (defun mhj/dwim-toggle-or-open ()
   "Toggle subtree or open the file."
+  (interactive)
   (if (file-directory-p (dired-get-file-for-visit))
-      (dired-subtree-toggle)
+      (progn
+        (dired-subtree-toggle)
+        (revert-buffer))
     (dired-find-file-other-window)))
 
 (defun mhj/mouse-dwin-to-toggle-or-open (event)
