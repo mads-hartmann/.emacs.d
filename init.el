@@ -715,7 +715,9 @@
         ("M-*" . pop-tag-mark)
         ("M-?" . elpy-doc)
         ("C-c r" . hydra-elpy-refactor/body)
-        ("C-c C-z" . elpy-shell-switch-to-shell))
+        ("C-c C-z" . elpy-shell-switch-to-shell)
+   :map elpy-mode-map
+        ("C-c C-c" . nil))
   :config
   (progn
 
@@ -745,8 +747,8 @@
   :bind
   (:map python-mode-map
         ("M-s" . nil)
-        ("C-c C-c" . flycheck-list-errors)
         ("C-c C-p" . nil)
+        ("C-c C-c" . flycheck-list-errors)
         ("M-<tab>" . company-complete))
   :config
   (progn
@@ -772,6 +774,7 @@ Wait till after the .dir-locals.el has been loaded."
     (add-hook 'python-mode-hook 'flycheck-mode)
     (add-hook 'python-mode-hook 'flycheck-mode)
     (add-hook 'python-mode-hook 'company-mode)
+    (add-hook 'python-mode-hook 'linum-mode)
     (add-hook 'python-mode-hook 'company-python-setup)
     (add-hook 'python-mode-hook 'elpy-mode)))
 

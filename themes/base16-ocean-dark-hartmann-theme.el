@@ -468,11 +468,14 @@
 
    ;; company-mode
    `(company-tooltip ((t :foreground ,base00 :background ,base03)))
-   `(company-tooltip-common ((t :foreground ,base00 :weight bold)))
-   `(company-tooltip-selection ((t :foreground ,base00 :background ,base02)))
-   `(company-tooltip-common-selection ((t :foreground ,base00 :weight bold)))
+   `(company-tooltip-common ((t :foreground ,base0A)))
+   `(company-tooltip-selection ((t :foreground ,base00 :weight bold)))
+   `(company-tooltip-common-selection ((t :foreground ,base0A)))
    `(company-tooltip-annotation ((t :foreground ,base0F :weight bold)))
-   `(company-tooltip-annotation-selection ((t :foreground ,base0F :weight light)))
+   `(company-tooltip-annotation-selection ((t :foreground ,base0F :weight bold)))
+   `(company-scrollbar-fg ((t :background ,base0A)))
+   `(company-scrollbar-bg ((t :background ,base03)))
+   `(company-preview-common ((t :foreground ,base0A :background ,base00)))
 
    ;; helm
    `(helm-M-x-key ((t (:foreground ,base0C))))
