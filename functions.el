@@ -319,16 +319,24 @@ the current block."
       (progn
         (dired-subtree-toggle)
         (revert-buffer))
-    (dired-find-file-other-window)))
+    (dired-find-file)))
 
-(defun mhj/mouse-dwin-to-toggle-or-open (event)
+(defun mhj/mouse-dwim-to-toggle-or-open (event)
   "Toggle subtree or the open file on mouse-click in dired."
   (interactive "e")
   (let* ((window (posn-window (event-end event)))
          (buffer (window-buffer window))
          (pos (posn-point (event-end event))))
-    (with-current-buffer buffer
-      (goto-char pos)
-      (mhj/dwim-toggle-or-open))))
+    (progn
+      (with-current-buffer buffer
+        (goto-char pos)
+        (mhj/dwim-toggle-or-open)))))
+
+(defun what-face (pos)
+  (interactive "d")
+  (let ((face (or (get-char-property (point) 'read-face-name)
+                  (get-char-property (point) 'face))))
+    (if face (message "Face: %s" face) (message "No face at %d" pos))))
+
 
 ;;; functions.el ends here

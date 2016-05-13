@@ -21,6 +21,7 @@
 
 (require 'use-package)
 (setq use-package-verbose t)
+(setq use-package-always-ensure t)
 
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/project-frame.el")
@@ -31,15 +32,14 @@
 
 (if window-system
     (progn
-      ;; (load-theme 'zenburn t)
-      ;; (set-face-attribute 'default nil :font "Hack-11:antialias=subpixel")
-      (load-theme 'base16-ocean-dark t)
-      (set-face-attribute 'default nil :font "Operator Mono-16:antialias=subpixel:weight=light")
+      (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+      (load-theme 'base16-ocean-dark-hartmann t)
+      (set-face-attribute 'default nil :font "Operator Mono-12:antialias=subpixel:weight=light")
 
       ;; Default width/height for initial window and subsequent windows
-      (add-to-list 'initial-frame-alist '(width . 200))
+      (add-to-list 'initial-frame-alist '(width . 150))
       (add-to-list 'initial-frame-alist '(height . 50))
-      (add-to-list 'default-frame-alist '(width . 200))
+      (add-to-list 'default-frame-alist '(width . 150))
       (add-to-list 'default-frame-alist '(height . 50))))
 
 ;; Put the auto-generated custom changes in another file
@@ -64,13 +64,9 @@
 (setq ring-bell-function 'ignore)
 (setq inhibit-startup-echo-area-message t)
 (setq inhibit-startup-message t)
-(setq compilation-scroll-output t)
 (setq ns-pop-up-frames nil)
-(setq compilation-ask-about-save nil) ; Automatically save buffers before compiling
 (setq frame-title-format '((:eval buffer-file-name)))
 (setq whitespace-style '(trailing tabs tab-mark face))
-(setq compilation-read-command nil)
-(setq speedbar-show-unknown-files t)
 (setq enable-local-variables :all) ; Sort of scary.
 (setq dabbrev-case-replace nil)
 (setq dabbrev-case-distinction nil)
@@ -97,13 +93,9 @@
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
+;; Customize the fringe.
 (customize-set-variable 'indicate-empty-lines t) ; get those cute dashes in the fringe.
 (customize-set-variable 'fringe-mode '(8 . 2)) ; left/right width of fringe
-(set-face-attribute 'fringe nil
-                    :foreground (face-background 'mode-line-inactive)
-                    :background (face-background 'mode-line-inactive))
-(set-face-attribute 'vertical-border nil
-                    :foreground (face-background 'mode-line-inactive))
 
 
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
@@ -111,7 +103,6 @@
 (global-set-key (kbd "s-.") 'mhj/tags-apropos)
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key (kbd "C-;") 'comment-line-dwim)
-(global-set-key (kbd "M-s o") #'occur-dwim)
 (global-set-key (kbd "s-w") 'delete-frame)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
@@ -134,55 +125,87 @@
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
+(use-package hydra)
 
+(use-package flycheck
+  ;; On the fly linting.
+  :diminish ""
+  :bind
+  (:map flycheck-mode-map
+        ("C-c ! ?" . flycheck-display-error-at-point))
+  :commands flycheck-mode
+  :init
+  (progn
+    ;; TODO: Only check after buffer is saved.
+    (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled))
+    (setq flycheck-highlighting-mode 'symbols)
+    (setq flycheck-indication-mode nil)
 
-;; Put the compilation buffer at the bottom.
-(add-to-list 'display-buffer-alist
-             `(,(rx bos "*compilation*" eos)
-               (display-buffer-reuse-window
-                display-buffer-in-side-window)
-               (reusable-frames . visible)
-               (side            . bottom)
-               (window-height   . 0.3)))
+    (add-to-list 'display-buffer-alist
+                 `(,(rx bos "*Flycheck errors*" eos)
+                   (display-buffer-reuse-window
+                    display-buffer-in-side-window)
+                   (reusable-frames . visible)
+                   (side            . bottom)
+                   (window-height   . 0.3)))))
 
-(defun makefile-mode-setup ()
-  (setq whitespace-style '(face tab-mark trailing)))
+(use-package compilation
+  ;; Configuration of the built-in compilation-mode
+  :ensure nil
+  :config
+  (progn
+    (setq compilation-scroll-output t)
+    (setq compilation-read-command nil)
+    (setq compilation-ask-about-save nil) ; Automatically save buffers before compiling
+    (add-to-list 'display-buffer-alist
+                 `(,(rx bos "*compilation*" eos)
+                   (display-buffer-reuse-window
+                    display-buffer-in-side-window)
+                   (reusable-frames . visible)
+                   (side            . bottom)
+                   (window-height   . 0.3)))))
 
-(add-hook 'makefile-mode-hook 'makefile-mode-setup)
+(use-package makefile
+  ;; Configuration of the built-in makefile-mode
+  :ensure nil
+  :config
+  (progn
+    (defun makefile-mode-setup ()
+      (setq whitespace-style '(face tab-mark trailing)))
 
-;; Awesome little package for expanding macros. Helps to understand
-;; what is going on im my use-package declarations.
+    (add-hook 'makefile-mode-hook 'makefile-mode-setup)))
+
 (use-package macrostep
-  :ensure t
+  ;; Awesome little package for expanding macros. Helps to understand
+  ;; what is going on im my use-package declarations.
   :bind ("C-c e m" . macrostep-expand))
 
-;; My own small package for report specifications for one of our
-;; internal analytics systems at issuu
 (use-package report-spec-mode
+  ;; My own small package for report specifications for one of our
+  ;; internal analytics systems at issuu
+  :ensure nil
   :load-path "dev-pkgs/"
   :defer)
 
-;; My own small package for hdl files.
 (use-package hdl-mode
+  ;; My own small package for hdl files.
+  :ensure nil
   :load-path "dev-pkgs/"
   :mode "\\.hdl\\'"
   :defer)
 
-;; A different buffer view.
 (use-package ibuffer
+  ;; A different buffer view.
   :bind ("C-x C-b" . ibuffer))
 
 (use-package ace-jump-mode
-  :ensure t
   :bind ("C-<tab>" . ace-jump-mode))
 
 (use-package ace-window
-  :ensure t
-  :bind ("C-x o" . ace-window))
+  :bind ("s-1" . ace-window))
 
 (use-package dired+
-  :ensure t
-  :demand ;; Don't defer loading this package.
+  :demand
   :bind
   (:map dired-mode-map
         ("<s-down>" . dired-find-file)
@@ -203,7 +226,6 @@
   ;; Make it possible to filter/search in a dired buffer. After a
   ;; filter has been applied it can be removed by refreshing the
   ;; buffer with 'g'.
-  :ensure t
   :bind
   (:map dired-mode-map
         ("/" . dired-narrow)))
@@ -213,7 +235,6 @@
   ;; subtree buffer directly below a folder in a dired buffer. Give
   ;; you something similar to a tree explorer.
   :demand
-  :ensure t
   :bind
   (:map dired-mode-map
         ("<enter>" . mhj/dwim-toggle-or-open)
@@ -228,8 +249,7 @@
 (use-package exec-path-from-shell
   :init
   (progn
-    (exec-path-from-shell-initialize)
-    (exec-path-from-shell-copy-env "CAML_LD_LIBRARY_PATH"))) ; Used by OCaml.
+    (exec-path-from-shell-initialize)))
 
 (use-package shell
   :commands shell
@@ -249,34 +269,27 @@
         ("C-." . nil)))
 
 (use-package ido
-  :ensure t
   :init
   (progn
     (ido-mode 1)
     (setq ido-enable-flex-matching t)
     (setq ido-use-filename-at-point nil)
     (setq ido-create-new-buffer 'always)
-    (setq ido-max-prospects 5)
+    (setq ido-max-prospects 7)
     (setq ido-auto-merge-work-directories-length -1))) ; disable annoying directory search
 
 (use-package ido-vertical-mode
-  :ensure t
-;; TODO: use bind instead
-;;  :bind
-;;  (:map ido-completion-map
-;;        ("C-n" . ido-next-match)
-;;        ("C-p" . ido-prev-match))
+  :demand
   :init
   (progn
     (ido-vertical-mode 1)
     (defun bind-ido-keys ()
       (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
       (define-key ido-completion-map (kbd "C-p")   'ido-prev-match))
-    (add-hook 'ido-setup-hook #'bind-ido-keys)))
+    (add-hook 'ido-setup-hook 'bind-ido-keys)))
 
 (use-package magit
-  :ensure t
-  :demand ; force load
+  :demand
   :commands magit-status
   :config
   (progn
@@ -284,15 +297,14 @@
     (setq magit-push-always-verify `PP)))
 
 (use-package projectile
-  :ensure t
   :diminish ""
-  :init (progn
-          (projectile-global-mode)
-          (setq projectile-completion-system 'helm)
-          (setq projectile-use-git-grep t)))
+  :init
+  (progn
+    (projectile-global-mode)
+    (setq projectile-completion-system 'helm)
+    (setq projectile-use-git-grep t)))
 
 (use-package helm
-  :ensure t
   :bind (("C-." . helm-M-x)
          ("C-x b" . helm-buffers-list)
          ("M-y" . helm-show-kill-ring)
@@ -316,11 +328,9 @@
 
 (use-package helm-c-yasnippet
   :demand
-  :ensure t
   :bind ("C-c y" . helm-yas-complete))
 
 (use-package helm-projectile
-  :ensure t
   :bind (("C-c p p" . helm-projectile-switch-project)
          ("C-c p h" . nil))
   :config
@@ -334,29 +344,24 @@
 
 (use-package helm-git-grep
   ;; Interactive git-grep using helm
-  :ensure t
   :bind (("s-F" . helm-git-grep)))
 
 (use-package helm-ls-git
   ;; Pretty nice project overview
-  :ensure t
   :bind (("C-," . helm-browse-project)))
 
-(use-package helm-ag
-  ;; Interactive ag queries using helm.
-  :ensure t)
+;; Interactive ag queries using helm.
+(use-package helm-ag)
 
 (use-package expand-region
   ;; One of my favorite packages. Can increase/shrink a selection in
   ;; clever ways.
-  :ensure t
   :bind ("C-w" . er/expand-region))
 
 (use-package auto-complete
   ;; Code-completion backend.
   ;; TODO: Would prefer to use company mode everywhere.
   :diminish (auto-complete-mode)
-  :ensure t
   :init (global-auto-complete-mode t)
   :bind
   (:map ac-complete-mode-map
@@ -368,33 +373,33 @@
             (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")))
 
 (use-package multiple-cursors
-  :ensure t
   :bind (("C-M->" . mc/unmark-next-like-this)
          ("C-M-<" . mc/unmark-previous-like-this)
          ("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this))
-  :config (progn
-           (define-prefix-command 'hartmann/mc-map)
-           (define-key ctl-x-map "m" 'hartmann/mc-map)
-           (define-key hartmann/mc-map "i" #'mc/insert-numbers)
-           (define-key hartmann/mc-map "h" #'mc-hide-unmatched-lines-mode)
-           (define-key hartmann/mc-map "a" #'mc/mark-all-like-this)
-           (define-key hartmann/mc-map "r" #'mc/reverse-regions)
-           (define-key hartmann/mc-map "s" #'mc/sort-regions)
-           (define-key hartmann/mc-map "l" #'mc/edit-lines)))
+  :init
+  (progn
+    (defhydra hydra-multiple-cursors (:color blue)
+      "Multiple cursors"
+      ("i" mc/insert-numbers "Insert numbers")
+      ("h" mc-hide-unmatched-lines-mode "Hide Unmatched Lines")
+      ("a" mc/mark-all-like-this "Mark All Like This")
+      ("r" mc/reverse-regions "Reverse Regions")
+      ("s" mc/sort-regions "Sort Regions")
+      ("l" mc/edit-lines "Edit Lines"))))
 
 (use-package bookmark+
-  :ensure t
   :bind (("s-<f2>" . bmkp-toggle-autonamed-bookmark-set/delete)
          ("<f2>" . bmkp-next-bookmark-this-buffer)
          ("S-<f2>" . bmkp-previous-bookmark-this-buffer))
   :config
   (progn
     (setq bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
-    (setq bmkp-auto-light-when-set 'autonamed-bookmark)))
+    (setq bmkp-light-left-fringe-bitmap 'empty-line)
+    (setq bmkp-auto-light-when-set 'autonamed-bookmark)
+))
 
 (use-package ag
-  :ensure t
   :commands ag
   :config
   (progn
@@ -402,16 +407,21 @@
     (setq ag-reuse-buffers 't)))
 
 (use-package undo-tree
-  :ensure t
   :diminish (undo-tree-mode)
   :bind (("C-x u" . undo-tree-visualize))
   :init
   (progn
     (setq undo-tree-visualizer-relative-timestamps t)
-    (setq undo-tree-visualizer-timestamps t)))
+    (setq undo-tree-visualizer-timestamps t)
+    (setq undo-tree-visualizer-diff t)
+
+    (add-to-list 'display-buffer-alist
+                 `(,(rx bos " *undo-tree*" eos)
+                   (display-buffer-in-side-window)
+                   (side . right)
+                   (window-width . 0.4)))))
 
 (use-package yasnippet
-  :ensure t
   :diminish (yas-minor-mode)
   :defer
   :init
@@ -421,7 +431,6 @@
     (yas-reload-all)))
 
 (use-package diff-hl
-  :ensure t
   :init (global-diff-hl-mode))
 
 (use-package org
@@ -521,22 +530,12 @@
         ad-do-it
         (setq buffer-file-name file-name)))))
 
-(use-package smart-mode-line
-  :ensure t
-  :disabled t
-  :init
-  (progn
-    (setq sml/no-confirm-load-theme t)
-    (sml/setup)
-    (sml/apply-theme 'powerline)))
-
 (use-package scss-mode
   :commands scss-mode
   :config (setq scss-compile-at-save nil))
 
-(use-package company-web :ensure t)
+(use-package company-web)
 (use-package web-mode
-  :ensure t
   :commands web-mode
   :mode
   (("\\.js[x]?\\'" . web-mode)
@@ -574,21 +573,19 @@
     ;; Requires `npm install -g eslint`
     (flycheck-add-mode 'javascript-eslint 'web-mode)))
 
-(use-package company-tern
-  ;; company backend for tern
-  :ensure t)
+;; company backend for tern
+(use-package company-tern)
+
 
 (use-package tern
   ;; Code-completion etc. for javascript.
   ;; currently requires npm install -g tern
-  :ensure t
   :bind
   (:map tern-mode-keymap
         ("M-." . mhj/find-tag)
         ("M-?" . tern-get-docs)))
 
 (use-package markdown-mode
-  :ensure t
   :commands markdown-mode
   :bind
   (:map markdown-mode-map
@@ -603,19 +600,25 @@
 (use-package elisp-slime-nav
   :diminish (elisp-slime-nav-mode))
 
+(use-package slime)
+(use-package slime-company)
+
 (use-package lisp-mode
+  ;; Configuration of the built-in lisp-mode.
+  :ensure nil
   :commands lisp-mode
   :bind
   (:map emacs-lisp-mode-map
         ("M-." . elisp-slime-nav-find-elisp-thing-at-point)
         ("M-<tab>" . company-complete)
-        ("M-?" . describe-function))
+        ("M-?" . describe-function)
+        ("C-c C-c" . flycheck-list-errors))
   :config
   (progn
     ;; elint current buffer seems like a fun one.
     (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
     (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
-    (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+    ;; (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
     (add-hook 'emacs-lisp-mode-hook 'company-mode)
     (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)))
 
@@ -703,31 +706,39 @@
                 (define-key utop-minor-mode-map (kbd "C-c C-z") 'utop)
                 (setq indent-line-function 'ocp-indent-line)))))
 
-(use-package pythonic
-  ;; Active/deactivate python virtualenvs
-  :ensure t)
-
-(use-package company-anaconda
-  ;; Company backend for anaconda-mode
-  :ensure t)
-
-(use-package anaconda-mode
-  ;; Code-completion, etc. for Python
-  :ensure t
-  :commands anaconda-mode
+(use-package elpy
+  ;; TODO: Use .dir-locals to set the venv so it always uses workon.
+  :commands elpy-enable
   :bind
-  (:map anaconda-mode-map
-        ("C-M-i" . nil)
-        ("M-." . anaconda-mode-find-definitions)
-        ("M-," . anaconda-mode-find-assignments)
-        ("M-r" . anaconda-mode-find-references)
+  (:map python-mode-map
+        ("M-." . elpy-goto-definition)
         ("M-*" . pop-tag-mark)
-        ("M-?" . anaconda-mode-show-doc))
+        ("M-?" . elpy-doc)
+        ("C-c r" . hydra-elpy-refactor/body)
+        ("C-c C-z" . elpy-shell-switch-to-shell))
   :config
   (progn
-    ;; pip install anaconda-mode
-    (setq anaconda-mode-server-script "/usr/local/lib/python2.7/site-packages/anaconda_mode.py")
-    (setq anaconda-mode-find-definitions-callback 'mhj/anaconda-mode-find-definitions-callback)))
+
+    (defun disable-flymake ()
+      (flymake-mode-off))
+
+    (defhydra hydra-elpy-refactor (:color blue)
+      "elpy refactor"
+      ("r" elpy-refactor "Refactor")
+      ("e" elpy-multiedit-python-symbol-at-point "Edit symbol")
+      ("f" elpy-format-code "Format Code")
+      ("o" elpy-importmagic-fixup "Organize imports")
+      ("i" elpy-importmagic-add-import "Add missing import"))
+
+    (setq elpy-rpc-backend "jedi")
+    (setq elpy-modules
+          '(elpy-module-sane-defaults
+            elpy-module-company
+            elpy-module-eldoc
+            ;; elpy-module-flymake
+            ;; elpy-module-highlight-indentation
+            ;; elpy-module-yasnippet
+            elpy-module-pyvenv))))
 
 (use-package python
   :commands python-mode
@@ -739,22 +750,32 @@
         ("M-<tab>" . company-complete))
   :config
   (progn
-    (add-hook 'python-mode-hook 'flycheck-mode)
-    (add-hook 'python-mode-hook 'anaconda-mode)
-    (add-hook 'python-mode-hook 'company-mode)
-    (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-    (add-hook 'python-mode-hook
-            (lambda ()
-              (set (make-local-variable 'company-backends)
-                   '(company-anaconda company-yasnippet company-etags))))))
 
-(use-package flycheck
-  :ensure t
-  :diminish ""
-  :commands flycheck-mode)
+    (defun flycheck-python-set-pylint-executable ()
+      "Use the pylint executable from your local venv."
+      (let ((exec-path (python-shell-calculate-exec-path)))
+        (setq flycheck-python-pylint-executable (executable-find "pylint"))))
+
+    (defun flycheck-python-setup ()
+      "Configure flycheck to use pylint and respect the projects configuration.
+Wait till after the .dir-locals.el has been loaded."
+      (add-hook 'hack-local-variables-hook 'flycheck-python-set-pylint-executable nil 'local)
+      (setq flycheck-checker 'python-pylint)
+      (setq flycheck-pylintrc (concat (upward-find-file "pylint.cfg") "/pylint.cfg")))
+
+    (defun company-python-setup ()
+      "Set the relevant backends for company-mode when editing python files."
+      (set (make-local-variable 'company-backends)
+           '(elpy-company-backend company-yasnippet company-etags)))
+
+    (add-hook 'python-mode-hook 'flycheck-python-setup)
+    (add-hook 'python-mode-hook 'flycheck-mode)
+    (add-hook 'python-mode-hook 'flycheck-mode)
+    (add-hook 'python-mode-hook 'company-mode)
+    (add-hook 'python-mode-hook 'company-python-setup)
+    (add-hook 'python-mode-hook 'elpy-mode)))
 
 (use-package highlight-symbol
-  :ensure t
   :bind (("C-x w ." . highlight-symbol-at-point)
          ("C-x w %" . highlight-symbol-query-replace)
          ("C-x w o" . highlight-symbol-occur)
@@ -769,21 +790,21 @@
 (use-package company
   :commands company-mode
   :diminish ""
-  :ensure t
   :bind
   (:map company-active-map
         ("C-n" . company-select-next)
-        ("C-p" . company-select-previous)))
+        ("C-p" . company-select-previous))
+  :config
+  (progn
+    (setq company-show-numbers t)))
 
 (use-package elixir-mode
-  :ensure t
   :commands elixir-mode
   :config
   (progn
     (add-hook 'elixir-mode-hook 'alchemist-mode)))
 
 (use-package alchemist
-  :ensure t
   :commands alchemist-mode
   :bind
   (:map alchemist-mode-map
@@ -799,14 +820,12 @@
     (add-hook 'alchemist-iex-mode-hook 'company-mode)))
 
 (use-package scala-mode
-  :ensure
   :commands scala-mode
   :config
   (progn
     (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)))
 
 (use-package ensime
-  :ensure
   :commands ensime
   :bind
   (:map ensime-mode-map
@@ -819,14 +838,11 @@
     (setq ensime-completion-style nil)))
 
 (use-package elm-mode
-  :ensure t
   :commands elm-mode)
 
-(use-package yaml-mode
-  :ensure t)
+(use-package yaml-mode)
 
 (use-package feature-mode
-  :ensure t
   :bind
   (:map feature-mode-map
         ("M-." . mhj/find-tag)
@@ -835,20 +851,16 @@
   (progn
     (setq feature-indent-level 2)))
 
-(use-package dockerfile-mode
-  :ensure t)
+(use-package dockerfile-mode)
 
 (use-package jinja2-mode
-  :ensure t
   :commands jinja2-mode)
 
-(use-package wgrep
-  ; Makes it possbile to edit grep buffers!
-  :ensure t)
+;; Makes it possbile to edit grep buffers!
+(use-package wgrep)
 
-(use-package wgrep-helm
-  ; wgrep support for helm.
-  :ensure t)
+;; wgrep support for helm.
+(use-package wgrep-helm)
 
 (use-package tex-mode
   :commands tex-mode
@@ -858,14 +870,11 @@
     (define-key tex-mode-map (kbd "C-c C-c") 'compile)
     (define-key latex-mode-map (kbd "C-c C-c") 'compile)))
 
-(use-package glsl-mode
-  :ensure t)
+(use-package glsl-mode)
 
-(use-package iedit
-  :ensure t)
+(use-package iedit)
 
-(use-package helm-gtags
-  :ensure t)
+(use-package helm-gtags)
 
 (use-package shift-text
   :ensure t
