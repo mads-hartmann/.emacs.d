@@ -25,15 +25,22 @@
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/project-frame.el")
 
-(if window-system
-    (progn
-      (load-theme 'zenburn t)
-      ;; (set-face-attribute 'default nil :font "DejaVu Sans Mono-12:antialias=subpixel")
-      (set-face-attribute 'default nil :font "Hack-12:antialias=subpixel")))
-
 (unless window-system
   (global-set-key (kbd "C-M-d") 'backward-kill-word)
   (menu-bar-mode -1))
+
+(if window-system
+    (progn
+      ;; (load-theme 'zenburn t)
+      ;; (set-face-attribute 'default nil :font "Hack-11:antialias=subpixel")
+      (load-theme 'base16-ocean-dark t)
+      (set-face-attribute 'default nil :font "Operator Mono-16:antialias=subpixel:weight=light")
+
+      ;; Default width/height for initial window and subsequent windows
+      (add-to-list 'initial-frame-alist '(width . 200))
+      (add-to-list 'initial-frame-alist '(height . 50))
+      (add-to-list 'default-frame-alist '(width . 200))
+      (add-to-list 'default-frame-alist '(height . 50))))
 
 ;; Put the auto-generated custom changes in another file
 (setq custom-file "~/.emacs.d/custom.el")
@@ -69,9 +76,11 @@
 (setq dabbrev-case-distinction nil)
 (setq dabbrev-case-fold-search nil)
 (setq tramp-default-method "ssh")
+(setq mouse-1-click-follows-link nil)
+(setq mouse-1-click-in-non-selected-windows nil)
 
 ;; Set the threshold of when to split a window into more windows.
-(setq split-width-threshold 320)
+(setq split-width-threshold (* 2 160))
 (setq split-height-threshold 160)
 
 (pending-delete-mode t)
@@ -89,7 +98,13 @@
 (put 'downcase-region 'disabled nil)
 
 (customize-set-variable 'indicate-empty-lines t) ; get those cute dashes in the fringe.
-(customize-set-variable 'fringe-mode nil)        ; default fringe-mode
+(customize-set-variable 'fringe-mode '(8 . 2)) ; left/right width of fringe
+(set-face-attribute 'fringe nil
+                    :foreground (face-background 'mode-line-inactive)
+                    :background (face-background 'mode-line-inactive))
+(set-face-attribute 'vertical-border nil
+                    :foreground (face-background 'mode-line-inactive))
+
 
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
 (global-set-key (kbd "M-.") 'mhj/find-tag)
@@ -119,11 +134,6 @@
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
-;; Default width/height for initial window and subsequent windows
-(add-to-list 'initial-frame-alist '(width . 200))
-(add-to-list 'initial-frame-alist '(height . 50))
-(add-to-list 'default-frame-alist '(width . 200))
-(add-to-list 'default-frame-alist '(height . 50))
 
 
 ;; Put the compilation buffer at the bottom.
@@ -182,6 +192,11 @@
     ;; Folders on top.
     (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
     (setq dired-listing-switches "-lXGh --group-directories-first")
+
+    (custom-set-faces
+     '(diredp-dir-heading ((t (:foreground "#b48ead" :weight bold))))
+     '(diredp-dir-name ((t (:foreground "#d08770" :underline nil :weight medium)))))
+
     (add-hook 'dired-mode-hook 'dired-omit-mode)))
 
 (use-package dired-narrow
@@ -204,10 +219,9 @@
         ("<enter>" . mhj/dwim-toggle-or-open)
         ("<return>" . mhj/dwim-toggle-or-open)
         ("<tab>" . mhj/dwim-toggle-or-open)
-        ("<down-mouse-1>" . mhj/mouse-dwin-to-toggle-or-open))
+        ("<down-mouse-1>" . mhj/mouse-dwim-to-toggle-or-open))
   :config
   (progn
-    (add-hook 'dired-mode-hook 'disable-click-in-dired)
     (setq dired-subtree-line-prefix (lambda (depth) (make-string (* 2 depth) ?\s)))
     (setq dired-subtree-use-backgrounds nil)))
 
