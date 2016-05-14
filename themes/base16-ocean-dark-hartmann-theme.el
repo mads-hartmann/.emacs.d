@@ -203,6 +203,17 @@
    `(diff-hl-delete ((t (:background ,base08 :foreground ,base08))))
    `(diff-hl-insert ((t (:background ,base0B :foreground ,base0B))))
 
+   `(helm-ls-git-conflict-face ((t (:background ,base08 :foreground: base05))))
+
+   `(helm-ls-git-untracked-face ((t (:foreground ,base08))))
+   `(helm-ls-git-added-copied-face ((t ((t (:foreground ,base0B))))))
+   `(helm-ls-git-added-modified-face ((t ((t (:foreground ,base0B))))))
+   `(helm-ls-git-deleted-and-staged-face ((t ((t (:foreground ,base08))))))
+   `(helm-ls-git-deleted-not-staged-face ((t ((t (:foreground ,base08))))))
+   `(helm-ls-git-renamed-modified-face ((t (:foreground ,base0A))))
+   `(helm-ls-git-modified-and-staged-face ((t (:foreground ,base0A))))
+   `(helm-ls-git-modified-not-staged-face ((t (:foreground ,base0A))))
+
    ;; undo-tree
    `(undo-tree-visualizer-default-face ((t (:foreground ,base06))))
    `(undo-tree-visualizer-current-face ((t (:foreground ,base0B :weight bold))))
@@ -479,6 +490,8 @@
    `(company-preview-common ((t :foreground ,base0A :background ,base00)))
 
    ;; helm
+   `(helm-source-header ((t (:foreground ,base0E :weight medium))))
+   `(helm-header ((t (:foreground ,base0A :background ,base01 :underline nil))))
    `(helm-M-x-key ((t (:foreground ,base0C))))
    `(helm-action ((t (:foreground ,base05))))
    `(helm-buffer-directory ((t (:foreground ,base04 :background nil :weight bold))))
@@ -487,7 +500,7 @@
    `(helm-buffer-process ((t (:foreground ,base03))))
    `(helm-buffer-saved-out ((t (:foreground ,base0F))))
    `(helm-buffer-size ((t (:foreground ,base09))))
-   `(helm-candidate-number ((t (:foreground ,base00 :background ,base09))))
+   `(helm-candidate-number ((t (:foreground ,base09))))
    `(helm-ff-directory ((t (:foreground ,base04 :background nil :weight bold))))
    `(helm-ff-executable ((t (:foreground ,base0B))))
    `(helm-ff-file ((t (:foreground ,base0C))))
@@ -500,13 +513,11 @@
    `(helm-grep-lineno ((t (:foreground ,base03))))
    `(helm-grep-match ((t (:foreground ,base0A))))
    `(helm-grep-running ((t (:foreground ,base09))))
-   `(helm-header ((t (:foreground ,base0A :background ,base00 :underline nil))))
    `(helm-match ((t (:foreground ,base0A))))
    `(helm-moccur-buffer ((t (:foreground ,base0C))))
    `(helm-selection ((t (:foreground nil :background ,base02 :underline nil))))
    `(helm-selection-line ((t (:foreground nil :background ,base02))))
    `(helm-separator ((t (:foreground ,base02))))
-   `(helm-source-header ((t (:foreground ,base05 :background ,base01 :weight bold))))
    `(helm-visible-mark ((t (:foreground ,base00 :background ,base0B))))
 
    `(custom-variable-tag ((t (:foreground ,base0D))))

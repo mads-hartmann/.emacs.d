@@ -313,8 +313,6 @@
     (setq helm-split-window-in-side-p t)
     (setq helm-buffers-fuzzy-matching t)
     (setq helm-M-x-always-save-history nil)
-    (custom-set-faces
-     '(helm-source-header ((t (:foreground "white" :weight bold :family "Sans Serif")))))
     (setq helm-find-files-actions '
           (("Find File" . helm-find-file-or-marked)
            ("View file" . view-file)
@@ -346,7 +344,14 @@
 
 (use-package helm-ls-git
   ;; Pretty nice project overview
-  :bind (("C-," . helm-browse-project)))
+  :bind (("C-," . helm-browse-project))
+  :config
+  (progn
+    (setq helm-ls-git-default-sources
+          '(helm-source-ls-git-buffers
+            helm-source-ls-git-status
+            helm-source-ls-git))
+    (setq helm-ls-git-show-abs-or-relative 'relative)))
 
 ;; Interactive ag queries using helm.
 (use-package helm-ag)
@@ -432,6 +437,9 @@
   :init (global-diff-hl-mode))
 
 (use-package org
+  :bind
+  (:map org-mode-map
+        ("C-," . nil))
   :init
   (progn
     (require 'ox-publish)
@@ -453,12 +461,6 @@
     (setq org-confirm-babel-evaluate nil) ;; Living on the edge
     (setq org-startup-indented nil)
     (setq org-export-babel-evaluate nil) ;; Don't evaluate on export by default.
-
-    ;; Capturing notes
-    (setq org-capture-templates
-      '(("b" "Bookmark" entry (file+headline "~/Dropbox/org/urls.org" "Bookmarks")
-         "* %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n" :empty-lines 1)
-        ))
 
     ;; Blogging
     (setq org-publish-project-alist
