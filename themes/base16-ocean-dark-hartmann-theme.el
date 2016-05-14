@@ -227,7 +227,8 @@
 
    ;; dired+
    `(diredp-compressed-file-suffix ((t (:foreground ,base0D))))
-   `(diredp-dir-heading ((t (:foreground nil :background nil :inherit heading))))
+   `(diredp-dir-heading ((t (:foreground ,base0B :background nil :slant italic :weight bold))))
+   `(diredp-dir-name ((t (:foreground ,base09 :underline nil :weight medium))))
    `(diredp-dir-priv ((t (:foreground ,base0C :background nil))))
    `(diredp-exec-priv ((t (:foreground ,base0D :background nil))))
    `(diredp-executable-tag ((t (:foreground ,base08 :background nil))))

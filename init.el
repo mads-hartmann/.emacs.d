@@ -76,8 +76,11 @@
 (setq mouse-1-click-in-non-selected-windows nil)
 
 ;; Set the threshold of when to split a window into more windows.
-(setq split-width-threshold (* 2 160))
-(setq split-height-threshold 160)
+;; Some interesting readering:
+;;     split-window-sensibly
+;;     window-splittable-p
+(setq split-width-threshold 80)
+(setq split-height-threshold 40)
 
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode 1)
@@ -215,11 +218,6 @@
     ;; Folders on top.
     (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
     (setq dired-listing-switches "-lXGh --group-directories-first")
-
-    (custom-set-faces
-     '(diredp-dir-heading ((t (:foreground "#b48ead" :weight bold))))
-     '(diredp-dir-name ((t (:foreground "#d08770" :underline nil :weight medium)))))
-
     (add-hook 'dired-mode-hook 'dired-omit-mode)))
 
 (use-package dired-narrow
@@ -542,7 +540,8 @@
    ("\\.html$" . web-mode))
   :bind
   (:map web-mode-map
-        ("M-<tab>" . mhj/web-mode-company-complete))
+        ("M-<tab>" . mhj/web-mode-company-complete)
+        ("C-c C-c" . flycheck-list-errors))
   :config
   (progn
     ;; I used this for some of it:
@@ -589,9 +588,12 @@
   :commands markdown-mode
   :bind
   (:map markdown-mode-map
-        ("M-<tab>" . ido-complete-word-ispell))
+        ("M-<tab>" . ido-complete-word-ispell)
+        ("M-?" . ispell-word)
+        ("C-c C-c" . flycheck-list-errors))
   :config
   (progn
+    (add-hook 'markdown-mode-hook 'flycheck-mode)
     (add-hook 'markdown-mode-hook 'flyspell-mode)))
 
 (use-package eldoc
@@ -619,6 +621,7 @@
     (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
     (add-hook 'emacs-lisp-mode-hook 'turn-on-elisp-slime-nav-mode)
     ;; (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+    (add-hook 'emacs-lisp-mode-hook 'linum-mode)
     (add-hook 'emacs-lisp-mode-hook 'company-mode)
     (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)))
 
@@ -737,9 +740,6 @@
           '(elpy-module-sane-defaults
             elpy-module-company
             elpy-module-eldoc
-            ;; elpy-module-flymake
-            ;; elpy-module-highlight-indentation
-            ;; elpy-module-yasnippet
             elpy-module-pyvenv))))
 
 (use-package python
