@@ -899,4 +899,8 @@ Wait till after the .dir-locals.el has been loaded."
              whitespace-newline-mode)
   :config (global-whitespace-mode))
 
+(use-package osx-dictionary
+  ;; Look up a string in the dictionary used by Dictionary.app
+  :bind ("M-?" . osx-dictionary-search-pointer))
+
 ;;; init.el ends here
