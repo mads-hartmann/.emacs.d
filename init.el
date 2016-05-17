@@ -842,6 +842,21 @@ Wait till after the .dir-locals.el has been loaded."
     ;; Disable automatic completion
     (setq ensime-completion-style nil)))
 
+(use-package sql
+  :config
+  (progn
+    (defun extend-with-mysql-syntax-and-keywords ()
+      ;; Make # start a new line comment in SQL.
+      (modify-syntax-entry ?# "< b" sql-mode-syntax-table)
+      ;; Add a couple of MySQL keywords
+      (font-lock-add-keywords
+       'sql-mode
+       '(("REPLACE" . 'font-lock-keyword-face)
+         ("ALGORITHM" . 'font-lock-keyword-face)
+         ("MERGE" . 'font-lock-keyword-face))))
+
+    (add-hook 'sql-mode-hook 'extend-with-mysql-syntax-and-keywords)))
+
 (use-package elm-mode
   :commands elm-mode)
 
