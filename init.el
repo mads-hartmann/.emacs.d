@@ -66,11 +66,7 @@
 (setq inhibit-startup-message t)
 (setq ns-pop-up-frames nil)
 (setq frame-title-format '((:eval buffer-file-name)))
-(setq whitespace-style '(trailing tabs tab-mark face))
 (setq enable-local-variables :all) ; Sort of scary.
-(setq dabbrev-case-replace nil)
-(setq dabbrev-case-distinction nil)
-(setq dabbrev-case-fold-search nil)
 (setq tramp-default-method "ssh")
 (setq mouse-1-click-follows-link nil)
 (setq mouse-1-click-in-non-selected-windows nil)
@@ -79,8 +75,9 @@
 ;; Some interesting readering:
 ;;     split-window-sensibly
 ;;     window-splittable-p
-(setq split-width-threshold 80)
-(setq split-height-threshold 40)
+;; These values makes sense for me on a 13" rMBP with a high DPI
+(setq split-width-threshold 160)
+(setq split-height-threshold 25)
 
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode 1)
@@ -90,7 +87,6 @@
 (tool-bar-mode -1)
 (global-auto-revert-mode 1)  ; pick up changes to files on disk automatically
 (electric-pair-mode -1)
-(global-linum-mode -1)
 (global-hl-line-mode -1)
 
 (put 'upcase-region 'disabled nil)
@@ -98,7 +94,7 @@
 
 ;; Customize the fringe.
 (customize-set-variable 'indicate-empty-lines t) ; get those cute dashes in the fringe.
-(customize-set-variable 'fringe-mode '(8 . 2)) ; left/right width of fringe
+(customize-set-variable 'fringe-mode '(4 . 2)) ; left/right width of fringe
 
 
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
@@ -111,17 +107,15 @@
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
 (global-set-key (kbd "s-+") 'text-scale-increase)
 (global-set-key (kbd "s--") 'text-scale-decrease)
-(global-set-key (kbd "s-{")  'prev-window)
+(global-set-key (kbd "s-{") 'prev-window)
 (global-set-key (kbd "s-}") 'other-window)
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
 (global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
-(global-set-key (kbd "C-`") 'switch-buffer-visual)
 (global-set-key (kbd "s-`") 'ns-next-frame)
 (global-set-key (kbd "s-¬") 'ns-prev-frame)
 (global-set-key (kbd "C-c C-1") 'previous-buffer)
 (global-set-key (kbd "C-c C-2") 'next-buffer)
-(global-set-key (kbd "M-/") 'dabbrev-expand)
 
 (global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
 (global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
@@ -168,6 +162,22 @@
                    (side            . bottom)
                    (window-height   . 0.3)))))
 
+(use-package dabbrev
+  ;; configuration of the built-in dynamic abbreviation package.
+  :bind ("M-/" . dabbrev-expand)
+  :config
+  (progn
+    (setq dabbrev-case-replace nil)
+    (setq dabbrev-case-distinction nil)
+    (setq dabbrev-case-fold-search nil)))
+
+(use-package linum
+  ;; Configuration of the built-in linum-mode.
+  :config
+  (progn
+    (global-linum-mode -1)
+    (setq linum-format " %d ")))
+
 (use-package makefile
   ;; Configuration of the built-in makefile-mode
   :ensure nil
@@ -175,7 +185,7 @@
   (progn
     (defun makefile-mode-setup ()
       (setq whitespace-style '(face tab-mark trailing)))
-
+    (add-hook 'makefile-mode-hook 'linum-mode)
     (add-hook 'makefile-mode-hook 'makefile-mode-setup)))
 
 (use-package macrostep
@@ -399,8 +409,7 @@
   (progn
     (setq bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
     (setq bmkp-light-left-fringe-bitmap 'empty-line)
-    (setq bmkp-auto-light-when-set 'autonamed-bookmark)
-))
+    (setq bmkp-auto-light-when-set 'autonamed-bookmark)))
 
 (use-package ag
   :commands ag
@@ -595,6 +604,7 @@
         ("C-c C-c" . flycheck-list-errors))
   :config
   (progn
+    (add-hook 'markdown-mode-hook 'linum-mode)
     (add-hook 'markdown-mode-hook 'flycheck-mode)
     (add-hook 'markdown-mode-hook 'flyspell-mode)))
 
@@ -855,6 +865,7 @@ Wait till after the .dir-locals.el has been loaded."
          ("ALGORITHM" . 'font-lock-keyword-face)
          ("MERGE" . 'font-lock-keyword-face))))
 
+    (add-hook 'sql-mode-hook 'linum-mode)
     (add-hook 'sql-mode-hook 'extend-with-mysql-syntax-and-keywords)))
 
 (use-package elm-mode
@@ -912,7 +923,10 @@ Wait till after the .dir-locals.el has been loaded."
   :diminish (global-whitespace-mode
              whitespace-mode
              whitespace-newline-mode)
-  :config (global-whitespace-mode))
+  :config
+  (progn
+    (setq whitespace-style '(trailing tabs tab-mark face))
+    (global-whitespace-mode)))
 
 (use-package osx-dictionary
   ;; Look up a string in the dictionary used by Dictionary.app
