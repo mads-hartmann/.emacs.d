@@ -26,10 +26,6 @@
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/project-frame.el")
 
-(unless window-system
-  (global-set-key (kbd "C-M-d") 'backward-kill-word)
-  (menu-bar-mode -1))
-
 (if window-system
     (progn
       (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
@@ -40,7 +36,10 @@
       (add-to-list 'initial-frame-alist '(width . 150))
       (add-to-list 'initial-frame-alist '(height . 50))
       (add-to-list 'default-frame-alist '(width . 150))
-      (add-to-list 'default-frame-alist '(height . 50))))
+      (add-to-list 'default-frame-alist '(height . 50)))
+  (progn
+    (global-set-key (kbd "C-M-d") 'backward-kill-word)
+    (menu-bar-mode -1)))
 
 ;; Put the auto-generated custom changes in another file
 (setq custom-file "~/.emacs.d/custom.el")
@@ -50,6 +49,7 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (global-hi-lock-mode nil)
+(setq column-number-mode t)
 (setq confirm-kill-emacs (quote y-or-n-p))
 (setq x-select-enable-clipboard t)
 (setq require-final-newline t)
@@ -77,7 +77,7 @@
 ;;     window-splittable-p
 ;; These values makes sense for me on a 13" rMBP with a high DPI
 (setq split-width-threshold 160)
-(setq split-height-threshold 25)
+(setq split-height-threshold 30)
 
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode 1)
@@ -98,6 +98,7 @@
 
 
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
+(global-set-key (kbd "C-o") 'open-line)
 (global-set-key (kbd "M-.") 'mhj/find-tag)
 (global-set-key (kbd "s-.") 'mhj/tags-apropos)
 (global-set-key (kbd "M-;") 'comment-dwim)
@@ -121,8 +122,6 @@
 (global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
-
-(use-package hydra)
 
 (use-package flycheck
   ;; On the fly linting.
@@ -212,12 +211,16 @@
   :bind ("C-x C-b" . ibuffer))
 
 (use-package ace-jump-mode
+  ;; Quick way to jump to a given char.
   :bind ("C-<tab>" . ace-jump-mode))
 
 (use-package ace-window
+  ;; Quick visual way to switch between windows.
+  :disabled
   :bind ("s-1" . ace-window))
 
 (use-package dired+
+  ;; A grab-bag of add-ons for dired-mode.
   :demand
   :bind
   (:map dired-mode-map
@@ -255,9 +258,16 @@
     (setq dired-subtree-use-backgrounds nil)))
 
 (use-package exec-path-from-shell
+  ;; Make sure that emacs inherit environment variables from ~/.zshenv
+  ;; and files like that.
   :init
   (progn
     (exec-path-from-shell-initialize)))
+
+(use-package sh-script
+  :config
+  (progn
+    (add-hook 'sh-mode-hook 'linum-mode)))
 
 (use-package shell
   :commands shell
@@ -268,6 +278,7 @@
         ("<down>" . comint-next-input)))
 
 (use-package flyspell
+  ;; Spell-checking of emacs buffers.
   :diminish (flyspell-mode)
   :commands flyspell-mode
   :bind
@@ -277,6 +288,7 @@
         ("C-." . nil)))
 
 (use-package ido
+  ;; interactively-do-things. Improved find-file and M-x.
   :init
   (progn
     (ido-mode 1)
@@ -287,6 +299,7 @@
     (setq ido-auto-merge-work-directories-length -1))) ; disable annoying directory search
 
 (use-package ido-vertical-mode
+  ;; Display suggestions in the ido minibuffer vertically.
   :demand
   :init
   (progn
@@ -384,6 +397,8 @@
             (ac-config-default)
             (setq ac-auto-start nil)
             (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")))
+
+(use-package hydra)
 
 (use-package multiple-cursors
   :bind (("C-M->" . mc/unmark-next-like-this)
@@ -579,6 +594,7 @@
     (add-hook 'web-mode-hook 'flycheck-mode)
     (add-hook 'web-mode-hook 'company-mode)
     (add-hook 'web-mode-hook 'tern-mode)
+    (add-hook 'web-mode-hook 'linum-mode)
 
     ;; Requires `npm install -g eslint`
     (flycheck-add-mode 'javascript-eslint 'web-mode)))
