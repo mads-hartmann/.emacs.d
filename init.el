@@ -4,6 +4,8 @@
 
 (server-start)
 
+;; Configure package and use-package
+;; ---------------------------------
 (require 'package)
 
 (setq package-enable-at-startup nil)
@@ -23,23 +25,32 @@
 (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 
+;; Load my various elisp files.
+;; ---------------------------------
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/project-frame.el")
 
+;; window-system specific configuration
+;; ---------------------------------
 (if window-system
     (progn
-      (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-      (load-theme 'base16-ocean-dark-hartmann t)
-      (set-face-attribute 'default nil :font "Operator Mono-12:antialias=subpixel:weight=light")
-
       ;; Default width/height for initial window and subsequent windows
       (add-to-list 'initial-frame-alist '(width . 150))
       (add-to-list 'initial-frame-alist '(height . 50))
       (add-to-list 'default-frame-alist '(width . 150))
-      (add-to-list 'default-frame-alist '(height . 50)))
+      (add-to-list 'default-frame-alist '(height . 50))
+
+      (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+      (load-theme 'base16-ocean-dark-hartmann t)
+
+      (set-face-attribute 'default nil :font "Operator Mono-12:antialias=subpixel:weight=light"))
   (progn
     (global-set-key (kbd "C-M-d") 'backward-kill-word)
     (menu-bar-mode -1)))
+
+
+;; Global configuration
+;; ---------------------------------
 
 ;; Put the auto-generated custom changes in another file
 (setq custom-file "~/.emacs.d/custom.el")
@@ -125,6 +136,7 @@
 
 (use-package flycheck
   ;; On the fly linting.
+  ;; TODO: Configure where it stores its temporary files.
   :diminish ""
   :bind
   (:map flycheck-mode-map
@@ -132,7 +144,6 @@
   :commands flycheck-mode
   :init
   (progn
-    ;; TODO: Only check after buffer is saved.
     (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled))
     (setq flycheck-highlighting-mode 'symbols)
     (setq flycheck-indication-mode nil)
@@ -177,9 +188,8 @@
     (global-linum-mode -1)
     (setq linum-format " %d ")))
 
-(use-package makefile
+(use-package make-mode
   ;; Configuration of the built-in makefile-mode
-  :ensure nil
   :config
   (progn
     (defun makefile-mode-setup ()
@@ -351,14 +361,15 @@
 
 (use-package helm-projectile
   :bind (("C-c p p" . helm-projectile-switch-project)
-         ("C-c p h" . nil))
+         ("C-," . helm-projectile))
   :config
   (progn
     ;; Removes 'helm-source-projectile-projects' from C-c p h as it is
     ;; possible to switch project using 'helm-projectile-switch-project'
     (setq helm-projectile-sources-list
-          '(helm-source-projectile-files-list
-            helm-source-projectile-buffers-list
+          '(helm-source-projectile-buffers-list
+            helm-source-ls-git-status ;; requires helm-ls-git
+            helm-source-projectile-files-list
             helm-source-projectile-recentf-list))))
 
 (use-package helm-git-grep
@@ -367,7 +378,6 @@
 
 (use-package helm-ls-git
   ;; Pretty nice project overview
-  :bind (("C-," . helm-browse-project))
   :config
   (progn
     (setq helm-ls-git-default-sources
@@ -547,6 +557,8 @@
             "~/Dropbox/org/issuu"
             "~/Dropbox/org/projects"
             "~/Dropbox/org/notes"))
+
+    (add-hook 'org-mode-hook 'linum-mode)
 
     ;; http://www.wisdomandwonder.com/link/9573/how-to-correctly-enable-flycheck-in-babel-source-blocks
     (defadvice org-edit-src-code (around set-buffer-file-name activate compile)
@@ -738,7 +750,6 @@
                 (setq indent-line-function 'ocp-indent-line)))))
 
 (use-package elpy
-  ;; TODO: Use .dir-locals to set the venv so it always uses workon.
   :commands elpy-enable
   :bind
   (:map python-mode-map
@@ -887,7 +898,10 @@ Wait till after the .dir-locals.el has been loaded."
 (use-package elm-mode
   :commands elm-mode)
 
-(use-package yaml-mode)
+(use-package yaml-mode
+  :config
+  (progn
+    (add-hook 'yaml-mode-hook 'linum-mode)))
 
 (use-package feature-mode
   :bind
@@ -898,7 +912,10 @@ Wait till after the .dir-locals.el has been loaded."
   (progn
     (setq feature-indent-level 2)))
 
-(use-package dockerfile-mode)
+(use-package dockerfile-mode
+  :config
+  (progn
+    (add-hook 'dockerfile-mode-hook 'linum-mode)))
 
 (use-package jinja2-mode
   :commands jinja2-mode)
@@ -918,10 +935,6 @@ Wait till after the .dir-locals.el has been loaded."
     (define-key latex-mode-map (kbd "C-c C-c") 'compile)))
 
 (use-package glsl-mode)
-
-(use-package iedit)
-
-(use-package helm-gtags)
 
 (use-package shift-text
   :ensure t
