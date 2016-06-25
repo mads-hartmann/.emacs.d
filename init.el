@@ -353,7 +353,12 @@
     (setq helm-type-file-actions
           '(("Find File" . helm-find-file-or-marked)
             ("View file" . view-file)
-            ("Zgrep File(s)" . helm-ff-zgrep)))))
+            ("Zgrep File(s)" . helm-ff-zgrep)))
+    (add-to-list 'display-buffer-alist
+                 `(,(rx bos "*helm" (+ anything) "*" eos)
+                   (display-buffer-in-side-window)
+                   (side            . bottom)
+                   (window-height   . 0.3)))))
 
 (use-package helm-c-yasnippet
   :demand
