@@ -1015,4 +1015,19 @@ Wait till after the .dir-locals.el has been loaded."
   ;; Look up a string in the dictionary used by Dictionary.app
   :bind ("M-?" . osx-dictionary-search-pointer))
 
+(use-package tabs
+  ;; My own small package for report specifications for one of our
+  ;; internal analytics systems at issuu
+  :ensure nil
+  :load-path "tabs/"
+  :commands tabs-mode
+  :diminish tabs-mode
+  :bind
+  (("s-T" . tabs-mode)
+   ("s-t" . tabs-new-tab)
+   :map tabs-keymap
+   ("s-}" . tabs-next-tab)
+   ("s-w" . tabs-close-current-tab)
+   ("s-{" . tabs-previous-tab)))
+
 ;;; init.el ends here

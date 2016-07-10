@@ -507,17 +507,17 @@
           :box (:line-width 4 :color ,base01 :style nil)))))
 
    ;; Window tabs
-   ;; `(window-tabs-background-face ((t (:background ,base01 :foreground ,base03))))
+   ;; `(tabs-background-face ((t (:background ,base01 :foreground ,base03))))
    ;; ;; `(elscreen-tab-control-face ((t (:background ,base03 :underline nil))))
    ;; ;; TODO: Might be nicer to use the ornage font?
-   `(window-tabs-active-tab
+   `(tabs-active-tab
      ((t (:background ,base01
           :foreground ,base0E
           :height 110
           :slant italic
           :box (:line-width 4 :color ,base01 :style nil)))))
 
-   `(window-tabs-inactive-tab
+   `(tabs-inactive-tab
      ((t (:background ,base01
           :foreground ,base03
           :height 110
