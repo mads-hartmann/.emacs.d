@@ -35,18 +35,16 @@
 (if window-system
     (progn
       ;; Default width/height for initial window and subsequent windows
+      ;; (set-face-attribute 'default nil :font "Hack-11:antialias=subpixel")
       (add-to-list 'initial-frame-alist '(width . 150))
       (add-to-list 'initial-frame-alist '(height . 50))
       (add-to-list 'default-frame-alist '(width . 150))
       (add-to-list 'default-frame-alist '(height . 50))
-
       (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
       (load-theme 'base16-ocean-dark-hartmann t)
-
-      (set-face-attribute 'default nil :font "Operator Mono-12:antialias=subpixel:weight=light"))
+      (set-face-attribute 'default nil :font "Operator Mono-13:antialias=subpixel:weight=normal"))
   (progn
-    (global-set-key (kbd "C-M-d") 'backward-kill-word)
-    (menu-bar-mode -1)))
+    (global-set-key (kbd "C-M-d") 'backward-kill-word)))
 
 
 ;; Global configuration
@@ -60,6 +58,7 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (global-hi-lock-mode nil)
+(setq mouse-wheel-scroll-amount '(0.01))
 (setq column-number-mode t)
 (setq confirm-kill-emacs (quote y-or-n-p))
 (setq x-select-enable-clipboard t)
@@ -87,8 +86,11 @@
 ;;     split-window-sensibly
 ;;     window-splittable-p
 ;; These values makes sense for me on a 13" rMBP with a high DPI
+;; (setq split-width-threshold 160)
+;; (setq split-height-threshold 30)
+;; These values makes sense on an Apple 30" display
 (setq split-width-threshold 160)
-(setq split-height-threshold 30)
+(setq split-height-threshold 70)
 
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode 1)
@@ -119,8 +121,8 @@
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
 (global-set-key (kbd "s-+") 'text-scale-increase)
 (global-set-key (kbd "s--") 'text-scale-decrease)
-(global-set-key (kbd "s-{") 'prev-window)
-(global-set-key (kbd "s-}") 'other-window)
+(global-set-key (kbd "C-x C-[") 'prev-window)
+(global-set-key (kbd "C-x C-]") 'other-window)
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
 (global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
@@ -224,11 +226,6 @@
   ;; Quick way to jump to a given char.
   :bind ("C-<tab>" . ace-jump-mode))
 
-(use-package ace-window
-  ;; Quick visual way to switch between windows.
-  :disabled
-  :bind ("s-1" . ace-window))
-
 (use-package dired+
   ;; A grab-bag of add-ons for dired-mode.
   :demand
@@ -329,6 +326,9 @@
 
 (use-package projectile
   :diminish ""
+  :bind
+  (:map projectile-mode-map
+        ("C-c p f" . nil))
   :init
   (progn
     (projectile-global-mode)
@@ -346,14 +346,17 @@
     (setq helm-split-window-in-side-p t)
     (setq helm-buffers-fuzzy-matching t)
     (setq helm-M-x-always-save-history nil)
+
     (setq helm-find-files-actions '
           (("Find File" . helm-find-file-or-marked)
            ("View file" . view-file)
            ("Zgrep File(s)" . helm-ff-zgrep)))
+
     (setq helm-type-file-actions
           '(("Find File" . helm-find-file-or-marked)
             ("View file" . view-file)
             ("Zgrep File(s)" . helm-ff-zgrep)))
+
     (add-to-list 'display-buffer-alist
                  `(,(rx bos "*helm" (+ anything) "*" eos)
                    (display-buffer-in-side-window)
@@ -366,16 +369,19 @@
 
 (use-package helm-projectile
   :bind (("C-c p p" . helm-projectile-switch-project)
+         ("C-c p f" . helm-projectile-find-file)
          ("C-," . helm-projectile))
   :config
   (progn
     ;; Removes 'helm-source-projectile-projects' from C-c p h as it is
     ;; possible to switch project using 'helm-projectile-switch-project'
+
+    ;; other options:
+    ;;    helm-source-projectile-files-list
+    ;;    helm-source-projectile-recentf-list
     (setq helm-projectile-sources-list
           '(helm-source-projectile-buffers-list
-            helm-source-ls-git-status ;; requires helm-ls-git
-            helm-source-projectile-files-list
-            helm-source-projectile-recentf-list))))
+            helm-source-ls-git-status)))) ;; requires helm-ls-git
 
 (use-package helm-git-grep
   ;; Interactive git-grep using helm
@@ -457,11 +463,12 @@
     (setq undo-tree-visualizer-timestamps t)
     (setq undo-tree-visualizer-diff t)
 
-    (add-to-list 'display-buffer-alist
-                 `(,(rx bos " *undo-tree*" eos)
-                   (display-buffer-in-side-window)
-                   (side . right)
-                   (window-width . 0.4)))))
+    (add-to-list
+     'display-buffer-alist
+     `(,(rx bos " *undo-tree*" eos)
+       (display-buffer-in-side-window)
+       (side . right)
+       (window-width . 0.4)))))
 
 (use-package yasnippet
   :diminish (yas-minor-mode)
@@ -625,7 +632,9 @@
   ;; currently requires npm install -g tern
   :bind
   (:map tern-mode-keymap
-        ("M-." . mhj/find-tag)
+        ;; ("M-." . mhj/find-tag)
+        ("M-." . tern-find-definition)
+        ("M-*" . tern-pop-find-definition)
         ("M-?" . tern-get-docs)))
 
 (use-package markdown-mode
@@ -870,19 +879,21 @@ Wait till after the .dir-locals.el has been loaded."
   :commands scala-mode
   :config
   (progn
-    (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)))
+    (add-hook 'scala-mode-hook 'ensime-mode)
+    (add-hook 'scala-mode-hook 'linum-mode)))
 
 (use-package ensime
-  :commands ensime
+  :commands ensime ensime-mode
   :bind
   (:map ensime-mode-map
         ("<tab>" .  nil)
-        ("M-<tab>" . ensime-company)
+        ("M-<tab>" . company-complete)
+        ("M-?" . ensime-show-doc-for-symbol-at-point)
         ("C-c C-t" . ensime-print-type-at-point))
   :config
   (progn
-    ;; Disable automatic completion
-    (setq ensime-completion-style nil)))
+    (setq ensime-sem-high-enabled-p nil)
+    (setq ensime-completion-style 'company)))
 
 (use-package sql
   :config
@@ -961,6 +972,44 @@ Wait till after the .dir-locals.el has been loaded."
   (progn
     (setq whitespace-style '(trailing tabs tab-mark face))
     (global-whitespace-mode)))
+
+(use-package elscreen
+  ;; TODO: I still want to be able to have a split-screen.
+  ;; TODO: Make it work with side windows.
+  ;; TODO: Hook it up with find-file functions etc.?
+  ;; TODO: Bind s-W to close the tab (or window if it's the last tab?)
+  :disabled
+  :bind (
+         ("s-T" . elscreen-create) ;; todo
+         ("s-{" . elscreen-previous)
+         ("s-}" . elscreen-next)
+         ("s-1" . mhj/elscreen-goto-0)
+         ("s-2" . mhj/elscreen-goto-1)
+         ("s-3" . mhj/elscreen-goto-2)
+         ("s-4" . mhj/elscreen-goto-3)
+         ("s-5" . mhj/elscreen-goto-4)
+         ("s-6" . mhj/elscreen-goto-5)
+         ("s-7" . mhj/elscreen-goto-6)
+         ("s-8" . mhj/elscreen-goto-7)
+         ("s-9" . mhj/elscreen-goto-8))
+  :config
+  (progn
+    ;; No support for lambda's in :bind right now.
+    (defun mhj/elscreen-goto-0 () (interactive)(elscreen-goto 0))
+    (defun mhj/elscreen-goto-1 () (interactive)(elscreen-goto 1))
+    (defun mhj/elscreen-goto-2 () (interactive)(elscreen-goto 2))
+    (defun mhj/elscreen-goto-3 () (interactive)(elscreen-goto 3))
+    (defun mhj/elscreen-goto-4 () (interactive)(elscreen-goto 4))
+    (defun mhj/elscreen-goto-5 () (interactive)(elscreen-goto 5))
+    (defun mhj/elscreen-goto-6 () (interactive)(elscreen-goto 6))
+    (defun mhj/elscreen-goto-7 () (interactive)(elscreen-goto 7))
+    (defun mhj/elscreen-goto-8 () (interactive)(elscreen-goto 8))
+
+    (setq elscreen-tab-display-kill-screen nil)
+    (setq elscreen-tab-display-control nil)
+    (setq elscreen-display-screen-number nil)))
+
+(use-package groovy-mode)
 
 (use-package osx-dictionary
   ;; Look up a string in the dictionary used by Dictionary.app

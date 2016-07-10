@@ -52,12 +52,12 @@
    `(warning ((t (:foreground ,base09 :weight bold))))
    `(success ((t (:foreground ,base0B :weight bold))))
 
-   `(header-line ((t (:inherit mode-line :foreground ,base0E :background nil))))
+   `(header-line ((t (:inherit mode-line :foreground ,base03 :background ,base01))))
 
    ;; Font-lock stuff
    `(font-lock-builtin-face ((t (:foreground ,base0C))))
    `(font-lock-comment-delimiter-face ((t (:foreground ,base02))))
-   `(font-lock-comment-face ((t (:foreground ,base03))))
+   `(font-lock-comment-face ((t (:foreground ,base03 :distant-foreground ,base03))))
    `(font-lock-constant-face ((t (:foreground ,base09))))
    `(font-lock-doc-face ((t (:foreground ,base04))))
    `(font-lock-doc-string-face ((t (:foreground ,base03))))
@@ -73,7 +73,7 @@
    `(font-lock-warning-face ((t (:foreground ,base08))))
 
    ;; linum-mode
-   `(linum ((t (:background ,base01 :foreground ,base03))))
+   `(linum ((t (:background ,base01 :distant-foreground ,base03 :foreground ,base03))))
 
    ;; Search
    `(match ((t (:foreground ,base0D :background ,base01 :inverse-video t))))
@@ -488,6 +488,40 @@
    `(company-scrollbar-fg ((t :background ,base0A)))
    `(company-scrollbar-bg ((t :background ,base03)))
    `(company-preview-common ((t :foreground ,base0A :background ,base00)))
+
+   ;; elscreen
+   `(elscreen-tab-background-face ((t (:background ,base01 :foreground ,base03))))
+   `(elscreen-tab-control-face ((t (:background ,base03 :underline nil))))
+   ;; TODO: Might be nicer to use the ornage font?
+   `(elscreen-tab-current-screen-face
+     ((t (:background ,base01
+          :foreground ,base0E
+          :height 110
+          :slant italic
+          :box (:line-width 4 :color ,base01 :style nil)))))
+
+   `(elscreen-tab-other-screen-face
+     ((t (:background ,base01
+          :foreground ,base03
+          :height 110
+          :box (:line-width 4 :color ,base01 :style nil)))))
+
+   ;; Window tabs
+   ;; `(window-tabs-background-face ((t (:background ,base01 :foreground ,base03))))
+   ;; ;; `(elscreen-tab-control-face ((t (:background ,base03 :underline nil))))
+   ;; ;; TODO: Might be nicer to use the ornage font?
+   `(window-tabs-active-tab
+     ((t (:background ,base01
+          :foreground ,base0E
+          :height 110
+          :slant italic
+          :box (:line-width 4 :color ,base01 :style nil)))))
+
+   `(window-tabs-inactive-tab
+     ((t (:background ,base01
+          :foreground ,base03
+          :height 110
+          :box (:line-width 4 :color ,base01 :style nil)))))
 
    ;; helm
    `(helm-source-header ((t (:foreground ,base0E :weight medium))))

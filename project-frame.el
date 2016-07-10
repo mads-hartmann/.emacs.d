@@ -30,7 +30,7 @@ Shows the projectile root folder using dired on the left side of
 the frame and makes it a dedicated window for that buffer."
   (let ((buffer (dired-noselect (projectile-project-root))))
     (progn
-      (display-buffer-in-side-window buffer '((side . left) (window-width . 0.2)))
+      (display-buffer-in-side-window buffer '((side . right) (window-width . 0.2)))
       (set-window-dedicated-p (get-buffer-window buffer) t))))
 
 (defun mhj/hide-project-explorer ()
