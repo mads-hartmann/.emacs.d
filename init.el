@@ -228,7 +228,7 @@
 
 (use-package dired+
   ;; A grab-bag of add-ons for dired-mode.
-  :demand
+  :disabled
   :bind
   (:map dired-mode-map
         ("<s-down>" . dired-find-file)
@@ -973,25 +973,50 @@ Wait till after the .dir-locals.el has been loaded."
     (setq whitespace-style '(trailing tabs tab-mark face))
     (global-whitespace-mode)))
 
+(use-package tabbar
+  :bind
+  (("s-{" . tabbar-backward-tab)
+   ("s-}" . tabbar-forward-tab))
+  :config
+  (progn
+    (defun projectile-buffer-groups-function ()
+      (list
+       (cond
+        ((string-equal "*" (substring (buffer-name) 0 1)) "Emacs")
+         (t (if (projectile-project-p) (projectile-project-name) "Common")))))
+
+    (custom-set-variables
+     '(tabbar-home-button (quote (("[o]") "[x]")))
+     '(tabbar-mode t nil (tabbar))
+     '(tabbar-mwheel-mode nil nil (tabbar))
+     '(tabbar-scroll-left-button (quote ((" <") " <")))
+     '(tabbar-scroll-right-button (quote ((" >") " >")))
+     '(tabbar-separator (quote (0.5)))
+     '(tabbar-use-images nil))
+
+    (setq tabbar-buffer-groups-function 'projectile-buffer-groups-function)))
+
+(global-set-key (kbd "s-T") nil)
 (use-package elscreen
   ;; TODO: I still want to be able to have a split-screen.
   ;; TODO: Make it work with side windows.
   ;; TODO: Hook it up with find-file functions etc.?
   ;; TODO: Bind s-W to close the tab (or window if it's the last tab?)
+  :commands elscreen-start
   :disabled
-  :bind (
-         ("s-T" . elscreen-create) ;; todo
-         ("s-{" . elscreen-previous)
-         ("s-}" . elscreen-next)
-         ("s-1" . mhj/elscreen-goto-0)
-         ("s-2" . mhj/elscreen-goto-1)
-         ("s-3" . mhj/elscreen-goto-2)
-         ("s-4" . mhj/elscreen-goto-3)
-         ("s-5" . mhj/elscreen-goto-4)
-         ("s-6" . mhj/elscreen-goto-5)
-         ("s-7" . mhj/elscreen-goto-6)
-         ("s-8" . mhj/elscreen-goto-7)
-         ("s-9" . mhj/elscreen-goto-8))
+  :bind
+  (("s-T" . elscreen-create)
+   ("s-{" . elscreen-previous)
+   ("s-}" . elscreen-next)
+   ("s-1" . mhj/elscreen-goto-0)
+   ("s-2" . mhj/elscreen-goto-1)
+   ("s-3" . mhj/elscreen-goto-2)
+   ("s-4" . mhj/elscreen-goto-3)
+   ("s-5" . mhj/elscreen-goto-4)
+   ("s-6" . mhj/elscreen-goto-5)
+   ("s-7" . mhj/elscreen-goto-6)
+   ("s-8" . mhj/elscreen-goto-7)
+   ("s-9" . mhj/elscreen-goto-8))
   :config
   (progn
     ;; No support for lambda's in :bind right now.
@@ -1018,16 +1043,18 @@ Wait till after the .dir-locals.el has been loaded."
 (use-package tabs
   ;; My own small package for report specifications for one of our
   ;; internal analytics systems at issuu
+  :disabled
   :ensure nil
   :load-path "tabs/"
   :commands tabs-mode
-  :diminish tabs-mode
+  ;; :diminish tabs-mode
   :bind
-  (("s-T" . tabs-mode)
+  (("s-T" . tabs-toggle-display)
    ("s-t" . tabs-new-tab)
    :map tabs-keymap
    ("s-}" . tabs-next-tab)
-   ("s-w" . tabs-close-current-tab)
-   ("s-{" . tabs-previous-tab)))
+   ("s-{" . tabs-previous-tab)
+   ("s-w" . tabs-close-current-tab))
+  :config (tabs-mode))
 
 ;;; init.el ends here

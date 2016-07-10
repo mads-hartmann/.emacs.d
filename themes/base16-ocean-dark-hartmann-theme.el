@@ -492,24 +492,41 @@
    ;; elscreen
    `(elscreen-tab-background-face ((t (:background ,base01 :foreground ,base03))))
    `(elscreen-tab-control-face ((t (:background ,base03 :underline nil))))
-   ;; TODO: Might be nicer to use the ornage font?
    `(elscreen-tab-current-screen-face
      ((t (:background ,base01
           :foreground ,base0E
           :height 110
           :slant italic
           :box (:line-width 4 :color ,base01 :style nil)))))
-
    `(elscreen-tab-other-screen-face
      ((t (:background ,base01
           :foreground ,base03
           :height 110
           :box (:line-width 4 :color ,base01 :style nil)))))
 
-   ;; Window tabs
-   ;; `(tabs-background-face ((t (:background ,base01 :foreground ,base03))))
-   ;; ;; `(elscreen-tab-control-face ((t (:background ,base03 :underline nil))))
-   ;; ;; TODO: Might be nicer to use the ornage font?
+   ;; tabbar
+   `(tabbar-background-color ((t (:inherit header-line))))
+   `(tabbar-button ((t (:box nil))))
+   `(tabbar-selected
+     ((t (:background ,base01
+          :foreground ,base0E
+          :height 110
+          :slant italic
+          :box (:line-width 4 :color ,base01 :style nil)))))
+   `(tabbar-default
+     ((t (:background ,base01
+          :foreground ,base03
+          :height 110
+          :box (:line-width 4 :color ,base01 :style nil)))))
+   `(tabbar-unselected
+     ((t (:background ,base01
+          :foreground ,base03
+          :height 110
+          :box (:line-width 4 :color ,base01 :style nil)))))
+   `(tabbar-modified ((t (:foreground ,base0A :height 110))))
+   `(tabbar-selected-modified ((t (:foreground ,base0E :height 110))))
+
+   ;; tabs-active
    `(tabs-active-tab
      ((t (:background ,base01
           :foreground ,base0E

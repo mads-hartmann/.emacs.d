@@ -9,23 +9,64 @@
 ;;
 ;; This is a tabs manager that window specific.
 ;;
+;; Similar packages
+;; --------------
+;;
+;; elscreen.el
+;;     This package (as the name suggests) adds the concept of tabbar
+;;     and screens.  A tab thus stores the whole frame configuration.
+;;
+;; tabbar.el
+;;     With a good amount of configuration it might actually be
+;;     possible to get this package to do the same.
+;;
+;; Implementation
+;; --------------
+;;
+;; Conceptually each window has a potentially empty tab-list.  The
+;; header-line is used to display the tabs.  The header-line-format is
+;; a buffer-local variable.  There isn't a concept of a window-local
+;; variable but it is emulated using indirect buffer.
+;;
 ;; Window-parameters are used keep track of the state of each
 ;; window.  The following parameters are stored for each window:
 ;;
-;;     'tabs-show :: A boolean value.  True if tabs should be shown.
-;;     'tabs-list :: A list of buffers
-;;     'tabs-active-tab-index :: A number representing the currently selected tab
+;; `tabs-initialized'
+;; `tabs-display'
+;; `tabs-current-index'
+;; `tabs-list'
 ;;
 ;; To change the look you should change the
 ;;
-;;    header-line
-;;    tabs-active-tab
-;;    tabs-inactive-tab
+;; `header-line'
+;;     As the header-line is used to display the tabs this is the face
+;;     you should change in order to set the background color of the
+;;     tab bar.
+;; `tabs-active-tab'
+;;     The face for the tab that is active.
+;; `tabs-inactive-tab'
+;;     The face for the tabs that are inactive.
+;;
+;; Discarded ideas
+;; ---------------
+;;
+;; - window-local header-line-format: The header-line-format is a
+;;   buffer-local variable, meaning that if I show a buffer in another
+;;   window or frame it will also display the tab bar there which is
+;;   unfortunate as I'd prefer the tab bar to only be associated with
+;;   a given window (and not the buffer).  However, Emacs doens't have
+;;   support for window-local variables.  They can be emulated by
+;;   using indirect buffers, but that then I would need to have two
+;;   copies of every buffer in the tab bar -- the base buffer and the
+;;   indirect buffer.
+;;
+;;   TODO: Write to the Emacs mailing list about this.  It seems to me
+;;         that the header-line and mode-line should actually be
+;;         window-specific variables.
 ;;
 ;;; Code:
 ;;
-;; - TODO: The header-line-format is buffer-local. We want
-;;         window-local.
+;; - TODO: Hook into creation of buffer.  It should always set the header-mode-lin
 ;; - TODO: Change the tab face if it has git-changes, isn't saved etc.?
 ;; - TODO: Use a namespace?
 
@@ -111,10 +152,37 @@ order to not have tabs in the fringe."
 
 ;;; Model:
 
+(defun tabs-initialize-window ()
+  "Initialize the state of the tabbar for the current window."
+  (if (not (tabs-initializedp))
+      (progn
+        (set-window-parameter nil :tabs-initialized t)
+        (set-window-parameter nil :tabs-display t)
+        (set-window-parameter nil :tabs-current-index 0)
+        (set-window-parameter nil :tabs-list (list (current-buffer))))))
+
+(defun tabs-initializedp ()
+  "True if the state has been initialized for the current window."
+  (window-parameter nil :tabs-initialized))
+
+(defun tabs-displayp ()
+  "True if the tab bar is displayed."
+  (window-parameter nil :tabs-display))
+
+(defun tabs-set-display (bool)
+  "Set the winodws tab display property to BOOL."
+  (set-window-parameter nil :tabs-display bool))
+
 (defun tabs-set-current-index (index)
   "Set the currently selected tab to be INDEX."
-  (set-window-parameter nil :tabs-current-index index)
-  (tabs-render))
+  (if (or (< index (- (length (tabs-get-tabs)) 1))
+          (> index 0))
+      (progn
+        (set-window-parameter nil :tabs-current-index index)
+        (window--display-buffer
+         (nth index (tabs-get-tabs))
+         (get-buffer-window (current-buffer))
+         'window))))
 
 (defun tabs-get-current-index ()
   "Return the index of the currently selected tab."
@@ -122,20 +190,21 @@ order to not have tabs in the fringe."
 
 (defun tabs-get-tabs ()
   "Get the tabs of the current window."
-  (window-parameter nil 'tabs-list))
+  (window-parameter nil :tabs-list))
 
 (defun tabs-new-tab-with-buffer (buffer)
   "Create a new tab with BUFFER in the current window."
-  (set-window-parameter nil 'tabs-list (cons buffer (tabs-get-tabs)))
-  (tabs-render))
+  (set-window-parameter nil :tabs-list (cons buffer (tabs-get-tabs))))
 
 (defun tabs-close-tab (index)
   "Close the tab at the given INDEX."
-  (set-window-parameter
-   nil 'tabs-list
-   (wt/remove-at (tabs-get-current-index) (tabs-get-tabs)))
-  (tabs-set-current-index (- (tabs-get-current-index) 1))
-  (tabs-render))
+  (let* ((current-list (tabs-get-tabs))
+         (current-index (tabs-get-current-index))
+         (new-list (wt/remove-at current-index current-list))
+         (new-index (- current-index 1)))
+    (progn
+      (set-window-parameter nil :tabs-list new-list)
+      (set-window-parameter nil :tabs-current-index new-index))))
 
 ;;; Interactive functions:
 ;;  Functions that I expect a bufer to call.
@@ -143,23 +212,26 @@ order to not have tabs in the fringe."
 (defun tabs-new-tab ()
   "Create a new tab using the default buffer."
   (interactive)
-  (tabs-new-tab-with-buffer (get-buffer-create "*scratch*")))
+  (tabs-new-tab-with-buffer (get-buffer-create "*scratch*"))
+  (tabs-render))
 
 (defun tabs-close-current-tab ()
   "Close the current tab."
   (interactive)
   (tabs-close-tab (tabs-get-current-index))
-  (tabs-new-tab-with-buffer (get-buffer-create "*scratch*")))
+  (tabs-render))
 
 (defun tabs-next-tab ()
   "Select the next (right) tab in the window."
   (interactive)
-  (tabs-set-current-index (+ 1 (tabs-get-current-index))))
+  (tabs-set-current-index (+ 1 (tabs-get-current-index)))
+  (tabs-render))
 
 (defun tabs-previous-tab ()
   "Select the previous (left) tab in the window."
   (interactive)
-  (tabs-set-current-index (- (tabs-get-current-index) 1)))
+  (tabs-set-current-index (- (tabs-get-current-index) 1))
+  (tabs-render))
 
 (defun tabs-select-tab-index (index)
   "Select the tab with the specific INDEX.
@@ -168,16 +240,22 @@ The index starts at 0"
   (interactive)
   (message "not implemented"))
 
+(defun tabs-toggle-display ()
+  "Display tabs bar in current window."
+  (interactive)
+  (tabs-set-display (not (tabs-displayp)))
+  (tabs-render))
+
 (defun tabs-enable ()
   "Show tabs for the current window."
   (interactive)
-  ;; TODO: If there are no tabs, add the current tab
-  ;; TODO: Initialize some things.
+  (tabs-initialize-window)
   (tabs-render))
 
 (defun tabs-disable ()
   "Don't show tabs for the current window."
   (interactive)
+  ;; Clean-up. reset all windows?
   (setq header-line-format nil))
 
 ;;;###autoload
