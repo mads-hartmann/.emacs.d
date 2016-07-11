@@ -121,8 +121,8 @@
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
 (global-set-key (kbd "s-+") 'text-scale-increase)
 (global-set-key (kbd "s--") 'text-scale-decrease)
-(global-set-key (kbd "C-x C-[") 'prev-window)
-(global-set-key (kbd "C-x C-]") 'other-window)
+(global-set-key (kbd "s-{") 'prev-window)
+(global-set-key (kbd "s-}") 'other-window)
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
 (global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
@@ -226,19 +226,18 @@
   ;; Quick way to jump to a given char.
   :bind ("C-<tab>" . ace-jump-mode))
 
-(use-package dired+
-  ;; A grab-bag of add-ons for dired-mode.
-  :disabled
+(use-package dired
+  :ensure nil
   :bind
   (:map dired-mode-map
         ("<s-down>" . dired-find-file)
         ("<s-up>" . diredp-up-directory))
-  :init
+  :config
   (progn
-    ;; Folders on top.
     (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
     (setq dired-listing-switches "-lXGh --group-directories-first")
-    (add-hook 'dired-mode-hook 'dired-omit-mode)))
+    (add-hook 'dired-mode-hook 'dired-omit-mode)
+    (add-hook 'dired-mode-hook 'dired-hide-details-mode)))
 
 (use-package dired-narrow
   ;; Make it possible to filter/search in a dired buffer. After a
@@ -974,6 +973,7 @@ Wait till after the .dir-locals.el has been loaded."
     (global-whitespace-mode)))
 
 (use-package tabbar
+  :disabled
   :bind
   (("s-{" . tabbar-backward-tab)
    ("s-}" . tabbar-forward-tab))
@@ -996,7 +996,6 @@ Wait till after the .dir-locals.el has been loaded."
 
     (setq tabbar-buffer-groups-function 'projectile-buffer-groups-function)))
 
-(global-set-key (kbd "s-T") nil)
 (use-package elscreen
   ;; TODO: I still want to be able to have a split-screen.
   ;; TODO: Make it work with side windows.
