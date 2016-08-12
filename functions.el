@@ -317,8 +317,7 @@ the current block."
   (interactive)
   (if (file-directory-p (dired-get-file-for-visit))
       (progn
-        (dired-subtree-toggle)
-        (revert-buffer))
+        (dired-subtree-toggle))
     (dired-find-file)))
 
 (defun mhj/mouse-dwim-to-toggle-or-open (event)
