@@ -32,7 +32,7 @@
    ;; Built-in stuff (Emacs 23)
    `(border ((t (:background ,base03))))
    `(border-glyph ((t (nil))))
-   `(cursor ((t (:background ,base08))))
+   `(cursor ((t (:background ,base0E))))
    `(default ((t (:background ,base00 :foreground ,base05))))
    `(fringe ((t (:background ,base01 :foreground ,base01))))
    `(vertical-border ((t (:foreground ,base01))))
@@ -41,7 +41,7 @@
    `(link ((t (:foreground ,base0D))))
    `(link-visited ((t (:foreground ,base0E))))
    `(minibuffer-prompt ((t (:foreground ,base0D))))
-   `(mode-line ((t (:background ,base02 :foreground ,base04 :box nil))))
+   `(mode-line ((t (:background ,base01 :foreground ,base04 :box nil :slant italic ))))
    `(mode-line-buffer-id ((t (:foreground ,base0E :background nil))))
    `(mode-line-emphasis ((t (:foreground ,base06 :slant italic))))
    `(mode-line-highlight ((t (:foreground ,base0E :box nil :weight bold))))
@@ -56,7 +56,7 @@
 
    ;; Font-lock stuff
    `(font-lock-builtin-face ((t (:foreground ,base0C))))
-   `(font-lock-comment-delimiter-face ((t (:foreground ,base02))))
+   `(font-lock-comment-delimiter-face ((t (:foreground ,base02 :distant-foreground ,base02))))
    `(font-lock-comment-face ((t (:foreground ,base03 :distant-foreground ,base03))))
    `(font-lock-constant-face ((t (:foreground ,base09))))
    `(font-lock-doc-face ((t (:foreground ,base04))))
@@ -82,7 +82,6 @@
    `(isearch-fail ((t (:background ,base01 :inherit font-lock-warning-face :inverse-video t))))
    `(evil-search-highlight-persist-highlight-face ((t (:background ,base01 :inherit font-lock-warning-face :inverse-video t))))
 
-
    ;; Popups
    `(popup-face ((t (:foreground ,base05 :background ,base02))))
    `(popup-isearch-match ((t (:foreground ,base00 :background ,base0B))))
@@ -106,6 +105,12 @@
    ;; Flymake
    `(flymake-warnline ((t (:underline ,base09 :background ,base01))))
    `(flymake-errline ((t (:underline ,base08 :background ,base01))))
+
+   ;; Flyspell
+   `(flyspell-incorrect ((t (:underline ,base09 :background ,base01))))
+
+   ;; Flycheck
+   `(flycheck-warning ((t (:underline ,base09 :background ,base01))))
 
    ;; Clojure errors
    `(clojure-test-failure-face ((t (:background nil :inherit flymake-warnline))))
@@ -559,6 +564,11 @@
 
   (custom-theme-set-variables
    'base16-ocean-dark-hartmann
+   `(dired-sidebar-background ,base01)
+
+   ;; Window-number
+   `(window-number-inactive-foreground ,base0F)
+   `(window-number-inactive-background ,base01)
 
    `(ansi-color-names-vector
      ;; black, base08, base0B, base0A, base0D, magenta, cyan, white

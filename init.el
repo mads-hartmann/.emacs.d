@@ -41,10 +41,13 @@
       (add-to-list 'default-frame-alist '(height . 50))
       (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
       (load-theme 'base16-ocean-dark-hartmann t)
-      (set-face-attribute 'default nil :font "Operator Mono-13:antialias=subpixel:weight=normal"))
+      ;; (load-theme 'basic-light t)
+      (set-face-attribute 'default nil :font "Operator Mono-13:antialias=subpixel:weight=thin"))
   (progn
+    (tool-bar-mode -1)
+    (menu-bar-mode -1)
+    (define-key key-translation-map [?\C-h] [?\C-?])
     (global-set-key (kbd "C-M-d") 'backward-kill-word)))
-
 
 ;; Global configuration
 ;; ---------------------------------
@@ -57,6 +60,7 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (global-hi-lock-mode nil)
+(setq-default fill-column 80)
 (setq mouse-wheel-scroll-amount '(0.01))
 (setq column-number-mode t)
 (setq confirm-kill-emacs (quote y-or-n-p))
@@ -132,6 +136,7 @@
 
 (global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
 (global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
+(global-set-key (kbd "s-0") 'mhj/focus-project-explorer)
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
@@ -145,9 +150,9 @@
   :commands flycheck-mode
   :init
   (progn
-    (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled))
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
     (setq flycheck-highlighting-mode 'symbols)
-    (setq flycheck-indication-mode nil)
+    (setq flycheck-indication-mode 'left-fringe)
 
     (add-to-list 'display-buffer-alist
                  `(,(rx bos "*Flycheck errors*" eos)
@@ -193,8 +198,23 @@
   ;; Configuration of the built-in makefile-mode
   :config
   (progn
+
+    (add-to-list 'auto-mode-alist '("\\Makefile\\'" . makefile-mode))
+    (add-to-list 'auto-mode-alist '("\\.mk\\'" . makefile-mode))
+
+    (font-lock-add-keywords
+     'makefile-mode
+     '(("define" . font-lock-keyword-face)
+       ("endef" . font-lock-keyword-face)
+       ("ifeq" . font-lock-keyword-face)
+       ("ifdef" . font-lock-keyword-face)
+       ("ifndef" . font-lock-keyword-face)
+       ("else" . font-lock-keyword-face)
+       ("endif" . font-lock-keyword-face)))
+
     (defun makefile-mode-setup ()
       (setq whitespace-style '(face tab-mark trailing)))
+
     (add-hook 'makefile-mode-hook 'linum-mode)
     (add-hook 'makefile-mode-hook 'makefile-mode-setup)))
 
@@ -233,8 +253,16 @@
         ("<s-up>" . diredp-up-directory))
   :config
   (progn
+
+    (defun dired-mode-hook-set-faces ()
+      ;; (setq mode-line-format (projectile-project-name))
+      ;; (buffer-face-set '(:background "#343d46")) ;; dark theme
+      ;; (buffer-face-set '(:background "#DEDEDE")) ;; basic light
+      (message "color is %s" (car (custom-variable-theme-value 'dired-sidebar-background))))
+
     (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
     (setq dired-listing-switches "-lXGh --group-directories-first")
+    (add-hook 'dired-mode-hook 'dired-mode-hook-set-faces)
     (add-hook 'dired-mode-hook 'dired-omit-mode)
     (add-hook 'dired-mode-hook 'dired-hide-details-mode)))
 
@@ -1033,6 +1061,16 @@ Wait till after the .dir-locals.el has been loaded."
     (setq elscreen-display-screen-number nil)))
 
 (use-package groovy-mode)
+
+(use-package groovy-mode
+  :config
+  (progn
+    (add-hook 'groovy-mode 'linum-mode)))
+
+(use-package window-number
+  :init
+  (progn
+    (window-number-meta-mode)))
 
 (use-package osx-dictionary
   ;; Look up a string in the dictionary used by Dictionary.app
