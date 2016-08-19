@@ -60,7 +60,7 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (global-hi-lock-mode nil)
-(setq-default fill-column 80)
+(setq-default fill-column 70)
 (setq mouse-wheel-scroll-amount '(0.01))
 (setq column-number-mode t)
 (setq confirm-kill-emacs (quote y-or-n-p))
@@ -134,6 +134,11 @@
 (global-set-key (kbd "C-c C-1") 'previous-buffer)
 (global-set-key (kbd "C-c C-2") 'next-buffer)
 
+(define-key global-map [M-up] '(lambda () (interactive) (shrink-window 1)))
+(define-key global-map [M-down] '(lambda () (interactive) (shrink-window -1)))
+(define-key global-map [C-up] '(lambda () (interactive) (scroll-up 1)))
+(define-key global-map [C-down] '(lambda () (interactive) (scroll-down 1)))
+
 (global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
 (global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
 (global-set-key (kbd "s-0") 'mhj/focus-project-explorer)
@@ -162,6 +167,11 @@
                    (side            . bottom)
                    (window-height   . 0.3)))))
 
+(use-package conf-mode
+  :init
+  (progn
+    (add-to-list 'auto-mode-alist '("\\.cnf\\'" . conf-mode))))
+
 (use-package compilation
   ;; Configuration of the built-in compilation-mode
   :ensure nil
@@ -181,7 +191,7 @@
 (use-package dabbrev
   ;; configuration of the built-in dynamic abbreviation package.
   :bind ("M-/" . dabbrev-expand)
-  :config
+  :init
   (progn
     (setq dabbrev-case-replace nil)
     (setq dabbrev-case-distinction nil)
@@ -189,14 +199,14 @@
 
 (use-package linum
   ;; Configuration of the built-in linum-mode.
-  :config
+  :init
   (progn
     (global-linum-mode -1)
     (setq linum-format " %d ")))
 
 (use-package make-mode
   ;; Configuration of the built-in makefile-mode
-  :config
+  :init
   (progn
 
     (add-to-list 'auto-mode-alist '("\\Makefile\\'" . makefile-mode))
@@ -207,6 +217,7 @@
      '(("define" . font-lock-keyword-face)
        ("endef" . font-lock-keyword-face)
        ("ifeq" . font-lock-keyword-face)
+       ("ifneq" . font-lock-keyword-face)
        ("ifdef" . font-lock-keyword-face)
        ("ifndef" . font-lock-keyword-face)
        ("else" . font-lock-keyword-face)
@@ -237,9 +248,27 @@
   :mode "\\.hdl\\'"
   :defer)
 
+(use-package ibuffer-git)
+(use-package ibuffer-projectile)
 (use-package ibuffer
   ;; A different buffer view.
-  :bind ("C-x C-b" . ibuffer))
+  :bind ("C-x C-b" . ibuffer)
+  :config
+  (progn
+    (require 'ibuf-ext)
+
+    (setq ibuffer-filter-group-name-face 'success) ; TODO: declare it's own face.
+    (setq ibuffer-show-empty-filter-groups nil)
+    (add-to-list 'ibuffer-never-show-predicates "^\\*")
+
+    (add-hook 'ibuffer-mode-hooks 'ibuffer-filter-by-mode)
+    (add-hook 'ibuffer-mode-hooks 'ibuffer-auto-mode)
+
+    (setq ibuffer-formats
+          '((mark modified read-only " " (name 18 18 :left :elide) " " (size 9 -1 :right) " " (mode 16 16 :left :elide) " " filename-and-process)
+            (mark " " (name 16 -1) " " filename)
+            (mark modified read-only " " (filename 18 -1 :left :elide) " " (git-status 8 8 :left))))))
+
 
 (use-package ace-jump-mode
   ;; Quick way to jump to a given char.
@@ -251,19 +280,34 @@
   (:map dired-mode-map
         ("<s-down>" . dired-find-file)
         ("<s-up>" . diredp-up-directory))
-  :config
+  :init
   (progn
 
+    ;; TODO: Don't show the root folder
+    ;; TODO: This is only nice for the sidebar?
+    (defun dired-mode-hook-header-line ()
+      (if (projectile-project-p)
+          (progn
+            (setq mode-line-format (list ""))
+            (setq header-line-format
+                  (list
+                   " > "
+                   '(:eval (propertize (projectile-project-name) 'face font-lock-keyword-face))
+                   " ["
+                   (vc-working-revision (concat (projectile-project-root) "README.md"))
+                   "] ")))))
+
     (defun dired-mode-hook-set-faces ()
-      ;; (setq mode-line-format (projectile-project-name))
-      ;; (buffer-face-set '(:background "#343d46")) ;; dark theme
-      ;; (buffer-face-set '(:background "#DEDEDE")) ;; basic light
-      (message "color is %s" (car (custom-variable-theme-value 'dired-sidebar-background))))
+      (if (projectile-project-p)
+          (progn
+            (message "color is %s" (car (custom-variable-theme-value 'dired-sidebar-background)))
+            (buffer-face-set '(:background "#343d46")))))
 
     (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
     (setq dired-listing-switches "-lXGh --group-directories-first")
-    (add-hook 'dired-mode-hook 'dired-mode-hook-set-faces)
     (add-hook 'dired-mode-hook 'dired-omit-mode)
+    (add-hook 'dired-mode-hook 'dired-mode-hook-header-line)
+    (add-hook 'dired-mode-hook 'dired-mode-hook-set-faces)
     (add-hook 'dired-mode-hook 'dired-hide-details-mode)))
 
 (use-package dired-narrow
@@ -328,7 +372,7 @@
     (setq ido-enable-flex-matching t)
     (setq ido-use-filename-at-point nil)
     (setq ido-create-new-buffer 'always)
-    (setq ido-max-prospects 7)
+    (setq ido-max-prospects 20)
     (setq ido-auto-merge-work-directories-length -1))) ; disable annoying directory search
 
 (use-package ido-vertical-mode
@@ -354,13 +398,15 @@
   :diminish ""
   :bind
   (:map projectile-mode-map
-        ("C-c p f" . nil))
+        ("C-c p f" . projectile-find-file)
+        ("C-c p p" . projectile-switch-project))
   :init
   (progn
     (projectile-global-mode)
-    (setq projectile-completion-system 'helm)
+    (setq projectile-completion-system 'ido) ;; alternatively, 'helm
     (setq projectile-use-git-grep t)))
 
+;; (global-set-key (kbd "C-.") 'helm-M-x)
 (use-package helm
   :bind (("C-." . helm-M-x)
          ("C-x b" . helm-buffers-list)
@@ -369,9 +415,17 @@
   :init
   (progn
     (setq helm-follow-mode t)
-    (setq helm-split-window-in-side-p t)
+    (setq helm-samewindow t)
+    ;; (setq helm-split-window-in-side-p nil)
+    ;; (setq helm-split-window-in-side-p t)
+    ;; (setq helm-split-window-default-side 'above)
+
     (setq helm-buffers-fuzzy-matching t)
     (setq helm-M-x-always-save-history nil)
+
+    ;; (helm-autoresize-mode 1)
+    ;; (setq helm-autoresize-max-height 20)
+    ;; (setq helm-autoresize-min-height 20)
 
     (setq helm-find-files-actions '
           (("Find File" . helm-find-file-or-marked)
@@ -383,20 +437,20 @@
             ("View file" . view-file)
             ("Zgrep File(s)" . helm-ff-zgrep)))
 
-    (add-to-list 'display-buffer-alist
-                 `(,(rx bos "*helm" (+ anything) "*" eos)
-                   (display-buffer-in-side-window)
-                   (side            . bottom)
-                   (window-height   . 0.3)))))
+
+    ;; (add-to-list 'display-buffer-alist
+    ;;              `(,(rx bos "*helm" (+ anything) "*" eos)
+    ;;                (display-buffer-in-side-window)
+    ;;                (side            . bottom)
+    ;;                (window-height   . 0.2)))
+))
 
 (use-package helm-c-yasnippet
   :demand
   :bind ("C-c y" . helm-yas-complete))
 
 (use-package helm-projectile
-  :bind (("C-c p p" . helm-projectile-switch-project)
-         ("C-c p f" . helm-projectile-find-file)
-         ("C-," . helm-projectile))
+  :bind (("C-," . helm-projectile))
   :config
   (progn
     ;; Removes 'helm-source-projectile-projects' from C-c p h as it is
@@ -413,6 +467,10 @@
   ;; Interactive git-grep using helm
   :bind (("s-F" . helm-git-grep)))
 
+(use-package helm-ag
+  ;; Interactive ag queries using helm.
+  :bind (("s-F" . helm-projectile-ag)))
+
 (use-package helm-ls-git
   ;; Pretty nice project overview
   :config
@@ -422,9 +480,6 @@
             helm-source-ls-git-status
             helm-source-ls-git))
     (setq helm-ls-git-show-abs-or-relative 'relative)))
-
-;; Interactive ag queries using helm.
-(use-package helm-ag)
 
 (use-package expand-region
   ;; One of my favorite packages. Can increase/shrink a selection in
@@ -489,12 +544,13 @@
     (setq undo-tree-visualizer-timestamps t)
     (setq undo-tree-visualizer-diff t)
 
-    (add-to-list
-     'display-buffer-alist
-     `(,(rx bos " *undo-tree*" eos)
-       (display-buffer-in-side-window)
-       (side . right)
-       (window-width . 0.4)))))
+    ;; (add-to-list
+    ;;  'display-buffer-alist
+    ;;  `(,(rx bos " *undo-tree*" eos)
+    ;;    (display-buffer-in-side-window)
+    ;;    (side . right)
+    ;;    (window-width . 0.4)))
+))
 
 (use-package yasnippet
   :diminish (yas-minor-mode)
@@ -511,7 +567,8 @@
 (use-package org
   :bind
   (:map org-mode-map
-        ("C-," . nil))
+        ("C-," . nil)
+        ("C-c C-j" . helm-org-in-buffer-headings))
   :init
   (progn
     (require 'ox-publish)
@@ -534,31 +591,17 @@
     (setq org-startup-indented nil)
     (setq org-export-babel-evaluate nil) ;; Don't evaluate on export by default.
 
+    ;; This is important, otherwise I can't tangle source blocks
+    ;; written in makefile mode.
+    (setq org-src-preserve-indentation t)
+
+    ;; Even if sh-mode source-blocks fail I still want the output.
+    (setq org-babel-default-header-args:sh
+          '((:prologue . "exec 2>&1") (:epilogue . ":")))
+
     ;; Blogging
     (setq org-publish-project-alist
           '(
-            ;;
-            ;; Blog
-            ;;
-            ("org-mads379.github.com"
-             ;; Path to your org files.
-             :base-directory "~/dev/mads379.github.com/_org/"
-             :base-extension "org"
-             ;; Path to your Jekyll project.
-             :publishing-directory "~/dev/mads379.github.com/"
-             :recursive t
-             :publishing-function org-html-publish-to-html
-             :headline-levels 4
-             :html-extension "html"
-             :body-only t) ;; Only export section between <body> </body>
-            ("org-static-mads379.github.com"
-             :base-directory "~/dev/mads379.github.com/org/"
-             :base-extension "css\\|js\\|png\\|jpg\\|gif"
-             :publishing-directory "~/dev/mads379.github.com/"
-             :recursive t
-             :publishing-function org-publish-attachment)
-            ("mads379.github.com"
-             :components ("org-ianbarton" "org-static-ian"))
             ;;
             ;; Notes
             ;;
@@ -586,6 +629,7 @@
             (emacs-lisp . t)
             (sh . t)
             (sql . t)
+            (makefile . t)
             (python . t)
             (js . t)
             (r . R)))
@@ -597,6 +641,12 @@
             "~/Dropbox/org/notes"))
 
     (add-hook 'org-mode-hook 'linum-mode)
+    (add-hook 'org-mode-hook 'flyspell-mode)
+
+    (setq org-goto-interface 'outline-path-completion org-goto-max-level 10)
+
+    (add-hook 'org-mode-hook
+                    (lambda () (imenu-add-to-menubar "Imenu")))
 
     ;; http://www.wisdomandwonder.com/link/9573/how-to-correctly-enable-flycheck-in-babel-source-blocks
     (defadvice org-edit-src-code (around set-buffer-file-name activate compile)
@@ -606,7 +656,10 @@
 
 (use-package scss-mode
   :commands scss-mode
-  :config (setq scss-compile-at-save nil))
+  :config
+  (progn
+    (setq scss-compile-at-save nil)
+    (add-hook 'scss-mode-hook 'linum-mode)))
 
 (use-package company-web)
 (use-package web-mode
@@ -839,7 +892,7 @@
 
     (defun flycheck-python-setup ()
       "Configure flycheck to use pylint and respect the projects configuration.
-Wait till after the .dir-locals.el has been loaded."
+       Wait till after the .dir-locals.el has been loaded."
       (add-hook 'hack-local-variables-hook 'flycheck-python-set-pylint-executable nil 'local)
       (setq flycheck-checker 'python-pylint)
       (setq flycheck-pylintrc (concat (upward-find-file "pylint.cfg") "/pylint.cfg")))
@@ -847,7 +900,7 @@ Wait till after the .dir-locals.el has been loaded."
     (defun company-python-setup ()
       "Set the relevant backends for company-mode when editing python files."
       (set (make-local-variable 'company-backends)
-           '(elpy-company-backend company-yasnippet company-etags)))
+           '(company-jedi)))
 
     (add-hook 'python-mode-hook 'flycheck-python-setup)
     (add-hook 'python-mode-hook 'flycheck-mode)
@@ -855,7 +908,19 @@ Wait till after the .dir-locals.el has been loaded."
     (add-hook 'python-mode-hook 'company-mode)
     (add-hook 'python-mode-hook 'linum-mode)
     (add-hook 'python-mode-hook 'company-python-setup)
-    (add-hook 'python-mode-hook 'elpy-mode)))
+    (add-hook 'python-mode-hook 'jedi:setup)))
+
+(use-package company-jedi)
+
+(use-package jedi
+  :bind
+  (:map python-mode-map
+        ("M-." . jedi:goto-definition)
+        ("M-*" . jedi:goto-definition-pop-marker)
+        ("M-?" . jedi:show-doc))
+  :init
+  (progn
+    (setq jedi:complete-on-dot nil)))
 
 (use-package highlight-symbol
   :bind (("C-x w ." . highlight-symbol-at-point)
@@ -1002,14 +1067,15 @@ Wait till after the .dir-locals.el has been loaded."
 (use-package tabbar
   :disabled
   :bind
-  (("s-{" . tabbar-backward-tab)
-   ("s-}" . tabbar-forward-tab))
+  (("C-c C-1" . tabbar-backward-tab)
+   ("C-c C-2" . tabbar-forward-tab))
   :config
   (progn
     (defun projectile-buffer-groups-function ()
       (list
        (cond
         ((string-equal "*" (substring (buffer-name) 0 1)) "Emacs")
+         ((string-equal "dired" major-mode) "Dired")
          (t (if (projectile-project-p) (projectile-project-name) "Common")))))
 
     (custom-set-variables
@@ -1060,17 +1126,31 @@ Wait till after the .dir-locals.el has been loaded."
     (setq elscreen-tab-display-control nil)
     (setq elscreen-display-screen-number nil)))
 
-(use-package groovy-mode)
+(use-package suggest)
 
 (use-package groovy-mode
-  :config
+  :init
   (progn
     (add-hook 'groovy-mode 'linum-mode)))
 
 (use-package window-number
   :init
   (progn
-    (window-number-meta-mode)))
+
+    (autoload 'window-number-mode "window-number"
+      "A global minor mode that enables selection of windows according to
+ numbers with the C-x C-j prefix.  Another mode,
+ `window-number-meta-mode' enables the use of the M- prefix."
+   t)
+
+ (autoload 'window-number-meta-mode "window-number"
+   "A global minor mode that enables use of the M- prefix to select
+ windows, use `window-number-mode' to display the window numbers in
+ the mode-line."
+   t)
+
+    (window-number-mode 1)
+    (window-number-meta-mode 1)))
 
 (use-package osx-dictionary
   ;; Look up a string in the dictionary used by Dictionary.app

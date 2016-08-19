@@ -28,9 +28,11 @@
   "Project dired buffer on the side of the frame.
 Shows the projectile root folder using dired on the left side of
 the frame and makes it a dedicated window for that buffer."
+  ;; TODO: I think it's possible to not show the dired headerline (the folder name)
+  ;; I don't want the dired header line as I now have emacs header line.
   (let ((buffer (dired-noselect (projectile-project-root))))
     (progn
-      (display-buffer-in-side-window buffer '((side . right) (window-width . 0.2)))
+      (display-buffer-in-side-window buffer '((side . left) (window-width . 0.2)))
       (set-window-dedicated-p (get-buffer-window buffer) t))))
 
 (defun mhj/hide-project-explorer ()
@@ -39,6 +41,13 @@ the frame and makes it a dedicated window for that buffer."
     (progn
       (delete-window (get-buffer-window buffer))
       (kill-buffer buffer))))
+
+(defun mhj/focus-project-explorer ()
+  "Focus project explorer window."
+  (interactive)
+  (let* ((buffer (dired-noselect (projectile-project-root)))
+         (window (get-buffer-window buffer)))
+    (select-window window)))
 
 ;; --------------
 ;; info sidebar.
