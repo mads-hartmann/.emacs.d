@@ -59,6 +59,10 @@
 ;; Always ask for y/n keypress instead of typing out 'yes' or 'no'
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+;; Explicitly state that option should be and command should be super.
+(setq mac-option-modifier 'meta)
+(setq mac-command-modifier 'super)
+
 (global-hi-lock-mode nil)
 (setq-default fill-column 70)
 (setq mouse-wheel-scroll-amount '(0.01))
@@ -112,32 +116,42 @@
 (customize-set-variable 'indicate-empty-lines t) ; get those cute dashes in the fringe.
 (customize-set-variable 'fringe-mode '(4 . 2)) ; left/right width of fringe
 
+;; OS X like behaviour.
+(global-set-key (kbd "s-a") 'mark-whole-buffer)
+(global-set-key (kbd "s-v") 'yank)
+(global-set-key (kbd "s-c") 'kill-ring-save)
+(global-set-key (kbd "s-z") 'undo)
+(global-set-key (kbd "s-x") 'kill-region)
+(global-set-key (kbd "s-s") 'save-buffer)
+(global-set-key (kbd "s-l") 'goto-line)
+(global-set-key (kbd "s-w") 'delete-frame)
+(global-set-key (kbd "s-n") 'new-frame)
+(global-set-key (kbd "s-+") 'text-scale-increase)
+(global-set-key (kbd "s--") 'text-scale-decrease)
+(global-set-key (kbd "s-`") 'ns-next-frame)
+(global-set-key (kbd "s-¬") 'ns-prev-frame)
 
+;; Other global bindings
 (global-set-key [(super shift return)] 'toggle-maximize-buffer)
 (global-set-key (kbd "C-o") 'open-line)
 (global-set-key (kbd "M-.") 'mhj/find-tag)
 (global-set-key (kbd "s-.") 'mhj/tags-apropos)
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key (kbd "C-;") 'comment-line-dwim)
-(global-set-key (kbd "s-w") 'delete-frame)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
-(global-set-key (kbd "s-+") 'text-scale-increase)
-(global-set-key (kbd "s--") 'text-scale-decrease)
 (global-set-key (kbd "s-{") 'prev-window)
 (global-set-key (kbd "s-}") 'other-window)
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
 (global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
-(global-set-key (kbd "s-`") 'ns-next-frame)
-(global-set-key (kbd "s-¬") 'ns-prev-frame)
 (global-set-key (kbd "C-c C-1") 'previous-buffer)
 (global-set-key (kbd "C-c C-2") 'next-buffer)
 
 (define-key global-map [M-up] '(lambda () (interactive) (shrink-window 1)))
 (define-key global-map [M-down] '(lambda () (interactive) (shrink-window -1)))
-(define-key global-map [C-up] '(lambda () (interactive) (scroll-up 1)))
-(define-key global-map [C-down] '(lambda () (interactive) (scroll-down 1)))
+(define-key global-map [C-up] '(lambda () (interactive) (scroll-up -1)))
+(define-key global-map [C-down] '(lambda () (interactive) (scroll-down -1)))
 
 (global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
 (global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
@@ -202,7 +216,7 @@
   :init
   (progn
     (global-linum-mode -1)
-    (setq linum-format " %d ")))
+    (setq linum-format "%4d ")))
 
 (use-package make-mode
   ;; Configuration of the built-in makefile-mode
@@ -368,6 +382,14 @@
   ;; interactively-do-things. Improved find-file and M-x.
   :init
   (progn
+    (defun ido-M-x ()
+      (interactive)
+      (call-interactively
+       (intern
+        (ido-completing-read
+         "M-x "
+         (all-completions "" obarray 'commandp)))))
+
     (ido-mode 1)
     (setq ido-enable-flex-matching t)
     (setq ido-use-filename-at-point nil)
@@ -377,7 +399,6 @@
 
 (use-package ido-vertical-mode
   ;; Display suggestions in the ido minibuffer vertically.
-  :demand
   :init
   (progn
     (ido-vertical-mode 1)
@@ -403,10 +424,9 @@
   :init
   (progn
     (projectile-global-mode)
-    (setq projectile-completion-system 'ido) ;; alternatively, 'helm
+    (setq projectile-completion-system 'helm) ;; alternatively, 'ido
     (setq projectile-use-git-grep t)))
 
-;; (global-set-key (kbd "C-.") 'helm-M-x)
 (use-package helm
   :bind (("C-." . helm-M-x)
          ("C-x b" . helm-buffers-list)
@@ -415,10 +435,10 @@
   :init
   (progn
     (setq helm-follow-mode t)
-    (setq helm-samewindow t)
+    (setq helm-samewindow nil)
     ;; (setq helm-split-window-in-side-p nil)
-    ;; (setq helm-split-window-in-side-p t)
-    ;; (setq helm-split-window-default-side 'above)
+    (setq helm-split-window-in-side-p t)
+    (setq helm-split-window-default-side 'below)
 
     (setq helm-buffers-fuzzy-matching t)
     (setq helm-M-x-always-save-history nil)
@@ -438,11 +458,11 @@
             ("Zgrep File(s)" . helm-ff-zgrep)))
 
 
-    ;; (add-to-list 'display-buffer-alist
-    ;;              `(,(rx bos "*helm" (+ anything) "*" eos)
-    ;;                (display-buffer-in-side-window)
-    ;;                (side            . bottom)
-    ;;                (window-height   . 0.2)))
+    (add-to-list 'display-buffer-alist
+                 `(,(rx bos "*helm" (+ anything) "*" eos)
+                   (display-buffer-in-side-window)
+                   (side            . bottom)
+                   (window-height   . 0.3)))
 ))
 
 (use-package helm-c-yasnippet
@@ -490,7 +510,8 @@
   ;; Code-completion backend.
   ;; TODO: Would prefer to use company mode everywhere.
   :diminish (auto-complete-mode)
-  :init (global-auto-complete-mode t)
+  :init
+  (progn (global-auto-complete-mode t))
   :bind
   (:map ac-complete-mode-map
         ("\C-n" . ac-next)
@@ -544,12 +565,12 @@
     (setq undo-tree-visualizer-timestamps t)
     (setq undo-tree-visualizer-diff t)
 
-    ;; (add-to-list
-    ;;  'display-buffer-alist
-    ;;  `(,(rx bos " *undo-tree*" eos)
-    ;;    (display-buffer-in-side-window)
-    ;;    (side . right)
-    ;;    (window-width . 0.4)))
+    (add-to-list
+     'display-buffer-alist
+     `(,(rx bos " *undo-tree*" eos)
+       (display-buffer-in-side-window)
+       (side . right)
+       (window-width . 0.3)))
 ))
 
 (use-package yasnippet
@@ -731,6 +752,8 @@
 
 (use-package eldoc
   :diminish (eldoc-mode))
+
+(use-package paredit)
 
 (use-package elisp-slime-nav
   :diminish (elisp-slime-nav-mode))
@@ -1129,6 +1152,7 @@
 (use-package suggest)
 
 (use-package groovy-mode
+  :disabled
   :init
   (progn
     (add-hook 'groovy-mode 'linum-mode)))
