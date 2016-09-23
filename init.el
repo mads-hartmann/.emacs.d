@@ -4,30 +4,153 @@
 
 (server-start)
 
-;; Configure package and use-package
+;; Global Variables
+;; ---------------------------------
+(setq
+ inhibit-startup-screen t
+ create-lockfiles nil
+ make-backup-files nil
+ auto-save-default nil
+ column-number-mode t
+ scroll-error-top-bottom t
+ show-paren-delay 0.1
+ use-package-verbose nil
+ use-package-always-ensure t
+ package-enable-at-startup nil
+ sentence-end-double-space nil
+ split-width-threshold nil
+ split-height-threshold nil
+ mac-allow-anti-aliasing t
+ ring-bell-function 'ignore
+ inhibit-startup-echo-area-message t
+ inhibit-startup-message t
+ frame-title-format '((:eval buffer-file-name))
+ enable-local-variables :all
+ mouse-1-click-follows-link nil
+ mouse-1-click-in-non-selected-windows nil
+ select-enable-clipboard t
+ mouse-wheel-scroll-amount '(0.01)
+ column-number-mode t
+ confirm-kill-emacs (quote y-or-n-p)
+ ns-use-native-fullscreen nil
+ ns-pop-up-frames nil
+ mac-option-modifier 'meta
+ mac-command-modifier 'super
+ debug-on-error nil
+ line-move-visual t
+ custom-file "~/.emacs.d/custom.el"
+ explicit-shell-file-name "/bin/bash"
+ shell-file-name "bash")
+
+;; Buffer Local Variables
+;; ---------------------------------
+(setq-default
+ fill-column 70
+ indent-tabs-mode nil
+ truncate-lines t
+ require-final-newline t
+ indicate-empty-lines t
+ fringe-mode '(4 . 2))
+
+;; Aliasess
+;; ---------------------------------
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Enable Protected
+;; ---------------------------------
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+
+;; Modes (that ships with Emacs)
+;; ---------------------------------
+(tool-bar-mode -1)
+(pending-delete-mode t)
+(normal-erase-is-backspace-mode t)
+(delete-selection-mode t)
+(scroll-bar-mode -1)
+(show-paren-mode t)
+(global-auto-revert-mode t)
+(electric-pair-mode -1)
+(electric-indent-mode t)
+(global-hl-line-mode -1)
+(global-hi-lock-mode -1)
+
+;; Environment Variables
+;; ---------------------------------
+(setenv "SHELL" shell-file-name)
+(setenv "PS1" "> ")
+(setenv
+ "PATH"
+ (mapconcat
+  'identity
+  '("/usr/local/sbin"
+    "/usr/local/bin"
+    "/usr/bin"
+    "/bin"
+    "/usr/sbin"
+    "/sbin")
+  ":"))
+
+;; global Keybindings
+;; ---------------------------------
+(global-set-key (kbd "s-a") 'mark-whole-buffer)
+(global-set-key (kbd "s-v") 'yank)
+(global-set-key (kbd "s-c") 'kill-ring-save)
+(global-set-key (kbd "s-z") 'undo)
+(global-set-key (kbd "s-x") 'kill-region)
+(global-set-key (kbd "s-s") 'save-buffer)
+(global-set-key (kbd "s-l") 'goto-line)
+(global-set-key (kbd "s-w") 'delete-frame)
+(global-set-key (kbd "s-n") 'new-frame)
+(global-set-key (kbd "s-+") 'text-scale-increase)
+(global-set-key (kbd "s--") 'text-scale-decrease)
+(global-set-key (kbd "s-`") 'ns-next-frame)
+(global-set-key (kbd "s-¬") 'ns-prev-frame)
+(global-set-key [(super shift return)] 'toggle-maximize-buffer)
+(global-set-key (kbd "C-o") 'open-line)
+(global-set-key (kbd "M-.") 'mhj/find-tag)
+(global-set-key (kbd "s-.") 'mhj/tags-apropos)
+(global-set-key (kbd "M-;") 'comment-dwim)
+(global-set-key (kbd "C-;") 'comment-line-dwim)
+(global-set-key (kbd "s-<return>") 'toggle-fullscreen)
+(global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
+(global-set-key (kbd "s-{") 'prev-window)
+(global-set-key (kbd "s-}") 'other-window)
+(global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
+(global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
+(global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
+(global-set-key (kbd "C-c C-1") 'previous-buffer)
+(global-set-key (kbd "C-c C-2") 'next-buffer)
+(define-key global-map [M-up] '(lambda () (interactive) (shrink-window 1)))
+(define-key global-map [M-down] '(lambda () (interactive) (shrink-window -1)))
+(define-key global-map [C-up] '(lambda () (interactive) (scroll-up -1)))
+(define-key global-map [C-down] '(lambda () (interactive) (scroll-down -1)))
+(global-set-key [f1] (lambda () (interactive) (switch-to-buffer nil)))
+(global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
+(global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
+(global-set-key (kbd "s-0") 'mhj/focus-project-explorer)
+(define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
+
+;; Package Manager
 ;; ---------------------------------
 (require 'package)
+(setq
+ package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                    ("melpa" . "http://melpa.milkbox.net/packages/")
+                    ("melpa-stable" . "http://stable.melpa.org/packages/")))
 
-(setq package-enable-at-startup nil)
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("melpa" . "http://melpa.milkbox.net/packages/")))
-
-;; Load my packages
 (package-initialize)
-
-;; Make sure `use-package' is installed.
-(unless (package-installed-p 'use-package)
+(when (not package-archive-contents)
   (package-refresh-contents)
   (package-install 'use-package))
-
 (require 'use-package)
-(setq use-package-verbose t)
-(setq use-package-always-ensure t)
 
 ;; Load my various elisp files.
 ;; ---------------------------------
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/project-frame.el")
+(load custom-file 'noerror)
 
 ;; window-system specific configuration
 ;; ---------------------------------
@@ -44,120 +167,12 @@
       ;; (load-theme 'basic-light t)
       (set-face-attribute 'default nil :font "Operator Mono-13:antialias=subpixel:weight=thin"))
   (progn
-    (tool-bar-mode -1)
     (menu-bar-mode -1)
     (define-key key-translation-map [?\C-h] [?\C-?])
     (global-set-key (kbd "C-M-d") 'backward-kill-word)))
 
-;; Global configuration
+;; Configuration of modes
 ;; ---------------------------------
-
-;; Put the auto-generated custom changes in another file
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file 'noerror)
-
-;; Always ask for y/n keypress instead of typing out 'yes' or 'no'
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-;; Explicitly state that option should be and command should be super.
-(setq mac-option-modifier 'meta)
-(setq mac-command-modifier 'super)
-
-(global-hi-lock-mode nil)
-(setq-default fill-column 70)
-(setq mouse-wheel-scroll-amount '(0.01))
-(setq column-number-mode t)
-(setq confirm-kill-emacs (quote y-or-n-p))
-(setq x-select-enable-clipboard t)
-(setq require-final-newline t)
-(set-default 'truncate-lines t)
-(setq auto-save-default nil) ; disable auto-save files (#foo#)
-(setq backup-inhibited t)    ; disable backup files (foo~)
-(setq debug-on-error nil)
-(setq line-move-visual t)    ; Pressing down arrow key moves the cursor by a screen line
-(setq-default indent-tabs-mode nil)
-(setq ns-use-native-fullscreen nil)
-(setq mac-allow-anti-aliasing t)
-(setq ring-bell-function 'ignore)
-(setq inhibit-startup-echo-area-message t)
-(setq inhibit-startup-message t)
-(setq ns-pop-up-frames nil)
-(setq frame-title-format '((:eval buffer-file-name)))
-(setq enable-local-variables :all) ; Sort of scary.
-(setq tramp-default-method "ssh")
-(setq mouse-1-click-follows-link nil)
-(setq mouse-1-click-in-non-selected-windows nil)
-
-;; Set the threshold of when to split a window into more windows.
-;; Some interesting readering:
-;;     split-window-sensibly
-;;     window-splittable-p
-;; These values makes sense for me on a 13" rMBP with a high DPI
-;; (setq split-width-threshold 160)
-;; (setq split-height-threshold 30)
-;; These values makes sense on an Apple 30" display
-(setq split-width-threshold 160)
-(setq split-height-threshold 70)
-
-(pending-delete-mode t)
-(normal-erase-is-backspace-mode 1)
-(delete-selection-mode t)
-(scroll-bar-mode -1)
-(show-paren-mode t)
-(tool-bar-mode -1)
-(global-auto-revert-mode 1)  ; pick up changes to files on disk automatically
-(electric-pair-mode -1)
-(global-hl-line-mode -1)
-
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
-
-;; Customize the fringe.
-(customize-set-variable 'indicate-empty-lines t) ; get those cute dashes in the fringe.
-(customize-set-variable 'fringe-mode '(4 . 2)) ; left/right width of fringe
-
-;; OS X like behaviour.
-(global-set-key (kbd "s-a") 'mark-whole-buffer)
-(global-set-key (kbd "s-v") 'yank)
-(global-set-key (kbd "s-c") 'kill-ring-save)
-(global-set-key (kbd "s-z") 'undo)
-(global-set-key (kbd "s-x") 'kill-region)
-(global-set-key (kbd "s-s") 'save-buffer)
-(global-set-key (kbd "s-l") 'goto-line)
-(global-set-key (kbd "s-w") 'delete-frame)
-(global-set-key (kbd "s-n") 'new-frame)
-(global-set-key (kbd "s-+") 'text-scale-increase)
-(global-set-key (kbd "s--") 'text-scale-decrease)
-(global-set-key (kbd "s-`") 'ns-next-frame)
-(global-set-key (kbd "s-¬") 'ns-prev-frame)
-
-;; Other global bindings
-(global-set-key [(super shift return)] 'toggle-maximize-buffer)
-(global-set-key (kbd "C-o") 'open-line)
-(global-set-key (kbd "M-.") 'mhj/find-tag)
-(global-set-key (kbd "s-.") 'mhj/tags-apropos)
-(global-set-key (kbd "M-;") 'comment-dwim)
-(global-set-key (kbd "C-;") 'comment-line-dwim)
-(global-set-key (kbd "s-<return>") 'toggle-fullscreen)
-(global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
-(global-set-key (kbd "s-{") 'prev-window)
-(global-set-key (kbd "s-}") 'other-window)
-(global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
-(global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
-(global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
-(global-set-key (kbd "C-c C-1") 'previous-buffer)
-(global-set-key (kbd "C-c C-2") 'next-buffer)
-
-(define-key global-map [M-up] '(lambda () (interactive) (shrink-window 1)))
-(define-key global-map [M-down] '(lambda () (interactive) (shrink-window -1)))
-(define-key global-map [C-up] '(lambda () (interactive) (scroll-up -1)))
-(define-key global-map [C-down] '(lambda () (interactive) (scroll-down -1)))
-
-(global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
-(global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
-(global-set-key (kbd "s-0") 'mhj/focus-project-explorer)
-
-(define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
 (use-package flycheck
   ;; On the fly linting.
@@ -171,15 +186,7 @@
   (progn
     (setq flycheck-check-syntax-automatically '(save mode-enabled))
     (setq flycheck-highlighting-mode 'symbols)
-    (setq flycheck-indication-mode 'left-fringe)
-
-    (add-to-list 'display-buffer-alist
-                 `(,(rx bos "*Flycheck errors*" eos)
-                   (display-buffer-reuse-window
-                    display-buffer-in-side-window)
-                   (reusable-frames . visible)
-                   (side            . bottom)
-                   (window-height   . 0.3)))))
+    (setq flycheck-indication-mode 'left-fringe)))
 
 (use-package conf-mode
   :init
@@ -222,7 +229,6 @@
   ;; Configuration of the built-in makefile-mode
   :init
   (progn
-
     (add-to-list 'auto-mode-alist '("\\Makefile\\'" . makefile-mode))
     (add-to-list 'auto-mode-alist '("\\.mk\\'" . makefile-mode))
 
@@ -302,27 +308,35 @@
     (defun dired-mode-hook-header-line ()
       (if (projectile-project-p)
           (progn
-            (setq mode-line-format (list ""))
-            (setq header-line-format
+            (setq mode-line-format
                   (list
-                   " > "
+                   " "
                    '(:eval (propertize (projectile-project-name) 'face font-lock-keyword-face))
                    " ["
-                   (vc-working-revision (concat (projectile-project-root) "README.md"))
+                   (let ((branch-name (vc-working-revision (concat (projectile-project-root) "README.md"))))
+                     (cond ((stringp branch-name) (substring branch-name 0 10 ))
+                           (t "no-branch")))
                    "] ")))))
 
     (defun dired-mode-hook-set-faces ()
       (if (projectile-project-p)
           (progn
             (message "color is %s" (car (custom-variable-theme-value 'dired-sidebar-background)))
-            (buffer-face-set '(:background "#343d46")))))
+            ;; (buffer-face-set '(:background "#343d46"))
+            )))
 
     (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
     (setq dired-listing-switches "-lXGh --group-directories-first")
+
     (add-hook 'dired-mode-hook 'dired-omit-mode)
     (add-hook 'dired-mode-hook 'dired-mode-hook-header-line)
     (add-hook 'dired-mode-hook 'dired-mode-hook-set-faces)
     (add-hook 'dired-mode-hook 'dired-hide-details-mode)))
+
+(use-package git-dired
+  ;; Teachs dired to respect git-ignored files.
+  :ensure nil
+  :load-path "git-dired.el")
 
 (use-package dired-narrow
   ;; Make it possible to filter/search in a dired buffer. After a
@@ -435,10 +449,11 @@
   :init
   (progn
     (setq helm-follow-mode t)
-    (setq helm-samewindow nil)
+    (setq helm-full-frame nil)
     ;; (setq helm-split-window-in-side-p nil)
     (setq helm-split-window-in-side-p t)
     (setq helm-split-window-default-side 'below)
+    (setq-default helm-buffer-max-length nil)
 
     (setq helm-buffers-fuzzy-matching t)
     (setq helm-M-x-always-save-history nil)
@@ -462,8 +477,7 @@
                  `(,(rx bos "*helm" (+ anything) "*" eos)
                    (display-buffer-in-side-window)
                    (side            . bottom)
-                   (window-height   . 0.3)))
-))
+                   (window-height   . 0.3)))))
 
 (use-package helm-c-yasnippet
   :demand
@@ -489,6 +503,7 @@
 
 (use-package helm-ag
   ;; Interactive ag queries using helm.
+  :disabled
   :bind (("s-F" . helm-projectile-ag)))
 
 (use-package helm-ls-git
@@ -563,15 +578,7 @@
   (progn
     (setq undo-tree-visualizer-relative-timestamps t)
     (setq undo-tree-visualizer-timestamps t)
-    (setq undo-tree-visualizer-diff t)
-
-    (add-to-list
-     'display-buffer-alist
-     `(,(rx bos " *undo-tree*" eos)
-       (display-buffer-in-side-window)
-       (side . right)
-       (window-width . 0.3)))
-))
+    (setq undo-tree-visualizer-diff t)))
 
 (use-package yasnippet
   :diminish (yas-minor-mode)
@@ -675,6 +682,11 @@
         ad-do-it
         (setq buffer-file-name file-name)))))
 
+(use-package css-mode
+  :config
+  (progn
+    (add-hook 'css-mode-hook 'linum-mode)))
+
 (use-package scss-mode
   :commands scss-mode
   :config
@@ -683,14 +695,16 @@
     (add-hook 'scss-mode-hook 'linum-mode)))
 
 (use-package company-web)
+
 (use-package web-mode
   :commands web-mode
   :mode
   (("\\.js[x]?\\'" . web-mode)
+   ("\\.tsx\\'" . web-mode)
    ("\\.html$" . web-mode))
   :bind
   (:map web-mode-map
-        ("M-<tab>" . mhj/web-mode-company-complete)
+        ("M-<tab>" . company-complete)
         ("C-c C-c" . flycheck-list-errors))
   :config
   (progn
@@ -700,7 +714,10 @@
     ;; Force web-mode to consider all js files as potential react
     ;; files. See more here:
     ;; http://cha1tanya.com/2015/06/20/configuring-web-mode-with-jsx.html
-    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
+    ;; (setq web-mode-content-types-alist
+    ;;       '(("jsx" . "\\.js[x]?\\'")
+    ;;         ("tsx" . "\\.ts[x]?\\'")))
+
     (setq web-mode-enable-auto-quoting nil)
 
     ;; Disable jshint making eslint the selected linter
@@ -709,12 +726,17 @@
     ;; TBH not entirely sure how this magic works. If I don't have it
     ;; syntax highlighting for jsx parts of javascript files won't
     ;; work.
-    (defadvice web-mode-highlight-part (around tweak-jsx activate)
-      (if (equal web-mode-content-type "jsx")
-          (let ((web-mode-enable-part-face nil))
-            ad-do-it)
-        ad-do-it))
+    ;; (defadvice web-mode-highlight-part (around tweak-jsx activate)
+    ;;   (if (equal web-mode-content-type "jsx")
+    ;;       (let ((web-mode-enable-part-face nil))
+    ;;         ad-do-it)
+    ;;     ad-do-it))
 
+    (defun consider-tsx ()
+      (when (string-equal "tsx" (file-name-extension buffer-file-name))
+              (setup-tide-mode)))
+
+    (add-hook 'web-mode-hook 'consider-tsx)
     (add-hook 'web-mode-hook 'flycheck-mode)
     (add-hook 'web-mode-hook 'company-mode)
     (add-hook 'web-mode-hook 'tern-mode)
@@ -726,7 +748,6 @@
 ;; company backend for tern
 (use-package company-tern)
 
-
 (use-package tern
   ;; Code-completion etc. for javascript.
   ;; currently requires npm install -g tern
@@ -735,7 +756,52 @@
         ;; ("M-." . mhj/find-tag)
         ("M-." . tern-find-definition)
         ("M-*" . tern-pop-find-definition)
-        ("M-?" . tern-get-docs)))
+        ("M-?" . tern-get-docs))
+  :config
+  (progn
+    (setq tern-command '("/usr/local/bin/tern"))))
+
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (eldoc-mode +1)
+  (company-mode +1)
+  (flycheck-mode +1)
+  (linum-mode +1)
+  (add-to-list 'compilation-error-regexp-alist '("^\\([_[:alnum:]-/]*.tsx?\\)\\[\\([[:digit:]]+\\), \\([[:digit:]]+\\)\\]:.*$" 1 2 3))
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (setq
+   flycheck-checker
+   (if (string-equal major-mode "web-mode")
+       (cond ((string-equal "tsx" (file-name-extension buffer-file-name)) 'jsx-tide)
+             ((string-equal "ts" (file-name-extension buffer-file-name)) 'tide)))))
+
+(use-package tide
+  ;; Typescript
+  :bind
+  (:map typescript-mode-map
+        ("M-<tab>" . company-complete)
+        ("M-." . tide-jump-to-definition)
+        ("M-*" . tide-jump-back)
+        ("<s-mouse-1>" . jump-to-definition-mouse-click)
+        ("M-?" . tide-documentation-at-point))
+  :config
+  (progn
+
+    (defun jump-to-definition-mouse-click (event)
+      (interactive "e")
+      (goto-char (posn-point (event-end event)))
+      (tide-jump-to-definition))
+
+    (font-lock-add-keywords
+     'typescript-mode
+     '(("yield" . font-lock-keyword-face)
+       ("yield*" . font-lock-keyword-face)
+       ("function*" . font-lock-keyword-face)
+       ))
+
+    (setq company-tooltip-align-annotations t)
+    (add-hook 'typescript-mode-hook 'setup-tide-mode)))
 
 (use-package markdown-mode
   :commands markdown-mode
@@ -795,6 +861,7 @@
                     (font-lock-mode 1))))))
 
 (use-package erlang
+  :disabled
   :commands erlang-mode
   :bind
   (:map erlang-mode-map
@@ -805,12 +872,12 @@
         ("<return>" . newline-and-indent))
   :config
   (progn
-    (add-to-list 'load-path "/Users/hartmann/dev/distel/elisp") ; Not in melpa yet
-    (require 'distel)
-    (distel-setup)
-    ;; http://parijatmishra.wordpress.com/2008/08/15/up-and-running-with-emacs-erlang-and-distel/
-    ;; http://alexott.net/en/writings/emacs-devenv/EmacsErlang.html#sec8
-    (setq inferior-erlang-machine-options '("-sname" "emacs"))
+    ;; (add-to-list 'load-path "/Users/hartmann/dev/distel/elisp") ; Not in melpa yet
+    ;; (require 'distel)
+    ;; (distel-setup)
+    ;; ;; http://parijatmishra.wordpress.com/2008/08/15/up-and-running-with-emacs-erlang-and-distel/
+    ;; ;; http://alexott.net/en/writings/emacs-devenv/EmacsErlang.html#sec8
+    ;; (setq inferior-erlang-machine-options '("-sname" "emacs"))
     (add-hook 'erlang-mode-hook 'flycheck-mode)))
 
 (use-package tuareg
@@ -864,38 +931,6 @@
                 (utop-minor-mode)
                 (define-key utop-minor-mode-map (kbd "C-c C-z") 'utop)
                 (setq indent-line-function 'ocp-indent-line)))))
-
-(use-package elpy
-  :commands elpy-enable
-  :bind
-  (:map python-mode-map
-        ("M-." . elpy-goto-definition)
-        ("M-*" . pop-tag-mark)
-        ("M-?" . elpy-doc)
-        ("C-c r" . hydra-elpy-refactor/body)
-        ("C-c C-z" . elpy-shell-switch-to-shell)
-   :map elpy-mode-map
-        ("C-c C-c" . nil))
-  :config
-  (progn
-
-    (defun disable-flymake ()
-      (flymake-mode-off))
-
-    (defhydra hydra-elpy-refactor (:color blue)
-      "elpy refactor"
-      ("r" elpy-refactor "Refactor")
-      ("e" elpy-multiedit-python-symbol-at-point "Edit symbol")
-      ("f" elpy-format-code "Format Code")
-      ("o" elpy-importmagic-fixup "Organize imports")
-      ("i" elpy-importmagic-add-import "Add missing import"))
-
-    (setq elpy-rpc-backend "jedi")
-    (setq elpy-modules
-          '(elpy-module-sane-defaults
-            elpy-module-company
-            elpy-module-eldoc
-            elpy-module-pyvenv))))
 
 (use-package python
   :commands python-mode
@@ -989,24 +1024,45 @@
     (add-hook 'alchemist-mode-hook 'company-mode)
     (add-hook 'alchemist-iex-mode-hook 'company-mode)))
 
+;;
+;; Scala
+;;
+
 (use-package scala-mode
   :commands scala-mode
+  :interpreter ("scala" . scala-mode)
   :config
   (progn
+    (add-hook 'scala-mode-hook 'company-mode)
     (add-hook 'scala-mode-hook 'ensime-mode)
     (add-hook 'scala-mode-hook 'linum-mode)))
 
+(use-package sbt-mode
+  :commands sbt-start sbt-command
+  :config
+  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+  ;; allows using SPACE when in the minibuffer
+  (substitute-key-definition
+   'minibuffer-complete-word
+   'self-insert-command
+   minibuffer-local-completion-map))
+
 (use-package ensime
+  :pin melpa-stable
   :commands ensime ensime-mode
   :bind
   (:map ensime-mode-map
         ("<tab>" .  nil)
-        ("M-<tab>" . company-complete)
+        ("M-<tab>" . ensime-company)
         ("M-?" . ensime-show-doc-for-symbol-at-point)
+        ("M-*" . ensime-pop-find-definition-stack)
+        ("M-," . ensime-pop-find-definition-stack)
+        ("M-." . ensime-edit-definition)
         ("C-c C-t" . ensime-print-type-at-point))
   :config
   (progn
     (setq ensime-sem-high-enabled-p nil)
+    (setq ensime-use-helm t)
     (setq ensime-completion-style 'company)))
 
 (use-package sql
@@ -1178,16 +1234,15 @@
 
 (use-package osx-dictionary
   ;; Look up a string in the dictionary used by Dictionary.app
-  :bind ("M-?" . osx-dictionary-search-pointer))
+  :bind ("M-?" . osx-dictionary-search-global))
 
 (use-package tabs
   ;; My own small package for report specifications for one of our
   ;; internal analytics systems at issuu
-  :disabled
   :ensure nil
   :load-path "tabs/"
   :commands tabs-mode
-  ;; :diminish tabs-mode
+  :diminish tabs-mode
   :bind
   (("s-T" . tabs-toggle-display)
    ("s-t" . tabs-new-tab)
