@@ -127,6 +127,7 @@
 (define-key global-map [C-up] '(lambda () (interactive) (scroll-up -1)))
 (define-key global-map [C-down] '(lambda () (interactive) (scroll-down -1)))
 (global-set-key [f1] (lambda () (interactive) (switch-to-buffer nil)))
+(global-set-key (kbd "<f3>") 'highlight-symbol)
 (global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
 (global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
 (global-set-key (kbd "s-0") 'mhj/focus-project-explorer)
@@ -328,6 +329,7 @@
     (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
     (setq dired-listing-switches "-lXGh --group-directories-first")
 
+    (add-hook 'dired-mode-hook 'hl-line-mode)
     (add-hook 'dired-mode-hook 'dired-omit-mode)
     (add-hook 'dired-mode-hook 'dired-mode-hook-header-line)
     (add-hook 'dired-mode-hook 'dired-mode-hook-set-faces)
@@ -446,7 +448,7 @@
          ("C-x b" . helm-buffers-list)
          ("M-y" . helm-show-kill-ring)
          ("M-s" . helm-occur))
-  :init
+  :config
   (progn
     (setq helm-follow-mode t)
     (setq helm-full-frame nil)
@@ -683,9 +685,13 @@
         (setq buffer-file-name file-name)))))
 
 (use-package css-mode
+  :bind
+  (:map css-mode-map
+        ("M-<tab>" . company-complete))
   :config
   (progn
-    (add-hook 'css-mode-hook 'linum-mode)))
+    (add-hook 'css-mode-hook 'linum-mode)
+    (add-hook 'css-mode-hook 'company-mode)))
 
 (use-package scss-mode
   :commands scss-mode
@@ -1005,12 +1011,14 @@
 
 (use-package elixir-mode
   :commands elixir-mode
+  :disabled
   :config
   (progn
     (add-hook 'elixir-mode-hook 'alchemist-mode)))
 
 (use-package alchemist
   :commands alchemist-mode
+  :disabled
   :bind
   (:map alchemist-mode-map
         ("M-<tab>" . company-complete)

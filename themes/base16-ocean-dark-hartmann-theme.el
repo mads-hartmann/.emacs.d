@@ -34,7 +34,7 @@
    `(border-glyph ((t (nil))))
    `(cursor ((t (:background ,base0E))))
    `(default ((t (:background ,base00 :foreground ,base05))))
-   `(fringe ((t (:background ,base01 :foreground ,base01))))
+   `(fringe ((t (:background ,base01 :foreground ,base01 :distant-foreground ,base01))))
    `(vertical-border ((t (:foreground ,base01))))
    `(gui-element ((t (:background ,base03 :foreground ,base06))))
    `(highlight ((t (:background ,base01))))
@@ -56,7 +56,7 @@
 
    ;; Font-lock stuff
    `(font-lock-builtin-face ((t (:foreground ,base0C))))
-   `(font-lock-comment-delimiter-face ((t (:foreground ,base02 :distant-foreground ,base02))))
+   `(font-lock-comment-delimiter-face ((t (:foreground ,base03 :distant-foreground ,base03))))
    `(font-lock-comment-face ((t (:foreground ,base03 :distant-foreground ,base03))))
    `(font-lock-constant-face ((t (:foreground ,base09))))
    `(font-lock-doc-face ((t (:foreground ,base04))))
@@ -242,7 +242,7 @@
    `(font-latex-warning-face ((t (:foreground ,base08))))
 
    ;; dired
-   `(dired-header ((t (:foreground ,base0E :background nil :slant italic :weight bold))))
+   `(dired-header ((t (:foreground ,base02 :background nil :slant italic :weight bold))))
    `(dired-directory ((t (:foreground ,base0C :underline nil :weight medium))))
 
    ;; term and ansi-term
@@ -517,14 +517,14 @@
    `(tabs-active-tab
      ((t (:background ,base01
           :foreground ,base0E
-          :height 110
+          :height 150
           :slant italic
           :box (:line-width 4 :color ,base01 :style nil)))))
 
    `(tabs-inactive-tab
      ((t (:background ,base01
           :foreground ,base03
-          :height 110
+          :height 150
           :box (:line-width 4 :color ,base01 :style nil)))))
 
    ;; helm
