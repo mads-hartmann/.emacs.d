@@ -64,11 +64,10 @@
 
 ;; Modes (that ships with Emacs)
 ;; ---------------------------------
-(tool-bar-mode -1)
+
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode t)
 (delete-selection-mode 1)
-(scroll-bar-mode -1)
 (show-paren-mode t)
 (global-auto-revert-mode t)
 (electric-pair-mode 1)
@@ -163,6 +162,8 @@
 ;; ---------------------------------
 (if window-system
     (progn
+      (tool-bar-mode -1)
+      (scroll-bar-mode -1)
       ;; Default width/height for initial window and subsequent windows
       ;; (set-face-attribute 'default nil :font "Hack-11:antialias=subpixel")
       (add-to-list 'initial-frame-alist '(width . 150))
