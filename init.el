@@ -341,11 +341,6 @@
     (add-hook 'dired-mode-hook 'dired-mode-hook-set-faces)
     (add-hook 'dired-mode-hook 'dired-hide-details-mode)))
 
-(use-package git-dired
-  ;; Teachs dired to respect git-ignored files.
-  :ensure nil
-  :load-path "git-dired.el")
-
 (use-package dired-narrow
   ;; Make it possible to filter/search in a dired buffer. After a
   ;; filter has been applied it can be removed by refreshing the
