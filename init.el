@@ -67,17 +67,20 @@
 (tool-bar-mode -1)
 (pending-delete-mode t)
 (normal-erase-is-backspace-mode t)
-(delete-selection-mode t)
+(delete-selection-mode 1)
 (scroll-bar-mode -1)
 (show-paren-mode t)
 (global-auto-revert-mode t)
-(electric-pair-mode -1)
-(electric-indent-mode t)
+(electric-pair-mode 1)
+(electric-indent-mode -1)
 (global-hl-line-mode -1)
 (global-hi-lock-mode -1)
 
 ;; Environment Variables
 ;; ---------------------------------
+;; I prefer to set up my env manually here. I don't use the shell often
+;; from within Emacs so it's no so important for me that it inherits my
+;; normal shell config.
 (setenv "SHELL" shell-file-name)
 (setenv "PS1" "> ")
 (setenv
@@ -112,11 +115,12 @@
 (global-set-key (kbd "M-.") 'mhj/find-tag)
 (global-set-key (kbd "s-.") 'mhj/tags-apropos)
 (global-set-key (kbd "M-;") 'comment-dwim)
+(global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
 (global-set-key (kbd "C-;") 'comment-line-dwim)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
-(global-set-key (kbd "s-{") 'prev-window)
-(global-set-key (kbd "s-}") 'other-window)
+(global-set-key (kbd "s-[") 'prev-window)
+(global-set-key (kbd "s-]") 'other-window)
 (global-set-key (kbd "M-a") 'insert-aa) ; For when I want to
 (global-set-key (kbd "M-o") 'insert-oe) ; write danish with my
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
@@ -128,6 +132,8 @@
 (define-key global-map [C-down] '(lambda () (interactive) (scroll-down -1)))
 (global-set-key [f1] (lambda () (interactive) (switch-to-buffer nil)))
 (global-set-key (kbd "<f3>") 'highlight-symbol)
+(global-set-key (kbd "<f4>") 'pop-tag-mark)
+(global-set-key (kbd "<f5>") 'xref-find-definitions)
 (global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
 (global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
 (global-set-key (kbd "s-0") 'mhj/focus-project-explorer)
@@ -274,7 +280,7 @@
 (use-package ibuffer
   ;; A different buffer view.
   :bind ("C-x C-b" . ibuffer)
-  :config
+  :init
   (progn
     (require 'ibuf-ext)
 
@@ -282,7 +288,6 @@
     (setq ibuffer-show-empty-filter-groups nil)
     (add-to-list 'ibuffer-never-show-predicates "^\\*")
 
-    (add-hook 'ibuffer-mode-hooks 'ibuffer-filter-by-mode)
     (add-hook 'ibuffer-mode-hooks 'ibuffer-auto-mode)
 
     (setq ibuffer-formats
@@ -1181,8 +1186,8 @@
   ;; TODO: Make it work with side windows.
   ;; TODO: Hook it up with find-file functions etc.?
   ;; TODO: Bind s-W to close the tab (or window if it's the last tab?)
-  :commands elscreen-start
   :disabled
+  :commands elscreen-start
   :bind
   (("s-T" . elscreen-create)
    ("s-{" . elscreen-previous)
