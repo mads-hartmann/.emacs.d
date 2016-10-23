@@ -585,7 +585,14 @@
   (progn
     (setq undo-tree-visualizer-relative-timestamps t)
     (setq undo-tree-visualizer-timestamps t)
-    (setq undo-tree-visualizer-diff t)))
+    (setq undo-tree-visualizer-diff nil)
+
+    (add-to-list
+     'display-buffer-alist
+     `(,(rx bos " *undo-tree*" eos)
+       (display-buffer-in-side-window)
+       (side . bottom)
+       (window-height . 0.4)))))
 
 (use-package yasnippet
   :diminish (yas-minor-mode)
