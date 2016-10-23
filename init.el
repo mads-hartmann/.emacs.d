@@ -176,7 +176,7 @@
       (set-face-attribute 'default nil :font "Operator Mono-13:antialias=subpixel:weight=thin"))
   (progn
     (menu-bar-mode -1)
-    (define-key key-translation-map [?\C-h] [?\C-?])
+    (xterm-mouse-mode t)
     (global-set-key (kbd "C-M-d") 'backward-kill-word)))
 
 ;; Configuration of modes
