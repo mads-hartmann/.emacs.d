@@ -2,8 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-(server-start)
-
 ;; Global Variables
 ;; ---------------------------------
 (setq
@@ -153,7 +151,7 @@
 ;; Load my various elisp files.
 ;; ---------------------------------
 (load "~/.emacs.d/functions.el")
-(load "~/.emacs.d/project-frame.el")
+(load "~/.emacs.d/my-pkgs/project-frame/project-frame.el")
 (load custom-file 'noerror)
 
 ;; window-system specific configuration
@@ -162,16 +160,13 @@
     (progn
       (tool-bar-mode -1)
       (scroll-bar-mode -1)
-      ;; Default width/height for initial window and subsequent windows
-      ;; (set-face-attribute 'default nil :font "Hack-11:antialias=subpixel")
       (add-to-list 'initial-frame-alist '(width . 150))
       (add-to-list 'initial-frame-alist '(height . 50))
       (add-to-list 'default-frame-alist '(width . 150))
       (add-to-list 'default-frame-alist '(height . 50))
       (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
       (load-theme 'base16-ocean-dark-hartmann t)
-      ;; (load-theme 'basic-light t)
-      (set-face-attribute 'default nil :font "Operator Mono-13:antialias=subpixel:weight=thin"))
+      (set-face-attribute 'default nil :font "Operator Mono-16:antialias=subpixel:weight=thin"))
   (progn
     (menu-bar-mode -1)
     (xterm-mouse-mode t)
@@ -230,7 +225,7 @@
 
 (use-package linum
   ;; Configuration of the built-in linum-mode.
-  :init
+  :config
   (progn
     (global-linum-mode -1)
     (setq linum-format "%4d ")))
@@ -276,13 +271,13 @@
   ;; My own small package for report specifications for one of our
   ;; internal analytics systems at issuu
   :ensure nil
-  :load-path "dev-pkgs/"
+  :load-path "my-pkgs/"
   :defer)
 
 (use-package hdl-mode
   ;; My own small package for hdl files.
   :ensure nil
-  :load-path "dev-pkgs/"
+  :load-path "my-pkgs/"
   :mode "\\.hdl\\'"
   :defer)
 
@@ -332,11 +327,11 @@
                    "] ")))))
 
     (defun dired-mode-hook-set-faces ()
+      (interactive)
       (if (projectile-project-p)
           (progn
             (message "color is %s" (car (custom-variable-theme-value 'dired-sidebar-background)))
-            ;; (buffer-face-set '(:background "#343d46"))
-            )))
+            (buffer-face-set '(:background "#343d46")))))
 
     (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
     (setq dired-listing-switches "-lXGh --group-directories-first")

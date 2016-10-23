@@ -242,7 +242,7 @@
    `(font-latex-warning-face ((t (:foreground ,base08))))
 
    ;; dired
-   `(dired-header ((t (:foreground ,base02 :background nil :slant italic :weight bold))))
+   `(dired-header ((t (:foreground ,base0E :background nil :slant italic :weight bold))))
    `(dired-directory ((t (:foreground ,base0C :underline nil :weight medium))))
 
    ;; term and ansi-term
