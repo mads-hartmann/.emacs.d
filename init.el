@@ -284,7 +284,6 @@
   :mode "\\.hdl\\'"
   :defer)
 
-(use-package ibuffer-git)
 (use-package ibuffer-projectile)
 (use-package ibuffer
   ;; A different buffer view.
@@ -301,8 +300,7 @@
 
     (setq ibuffer-formats
           '((mark modified read-only " " (name 18 18 :left :elide) " " (size 9 -1 :right) " " (mode 16 16 :left :elide) " " filename-and-process)
-            (mark " " (name 16 -1) " " filename)
-            (mark modified read-only " " (filename 18 -1 :left :elide) " " (git-status 8 8 :left))))))
+            (mark " " (name 16 -1) " " filename)))))
 
 
 (use-package ace-jump-mode
