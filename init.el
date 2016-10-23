@@ -447,6 +447,7 @@
   :init
   (progn
     (projectile-global-mode)
+    (setq projectile-switch-project-action 'helm-projectile-find-file)
     (setq projectile-completion-system 'helm) ;; alternatively, 'ido
     (setq projectile-use-git-grep t)))
 
@@ -492,7 +493,8 @@
   :bind ("C-c y" . helm-yas-complete))
 
 (use-package helm-projectile
-  :bind (("C-," . helm-projectile))
+  :bind (("s-t" . helm-projectile-find-file)
+         ("C-," . helm-projectile))
   :config
   (progn
     ;; Removes 'helm-source-projectile-projects' from C-c p h as it is
