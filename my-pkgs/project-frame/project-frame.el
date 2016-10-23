@@ -185,4 +185,38 @@ buffer without dislpaying it."
           (message "Commands: m, u, t, RET, g, k, S, D, Q; q to quit; h for help")))
       buf)))
 
+
+
+;; -----------------------------------
+;; TODO: It would be nice if it was possible to
+;; avoid the implementation overhead of creating
+;; versions of functions that return the buffers
+;; rather than display them.
+;;
+;; The buffer-display-alist seems like a nice fit
+;; but I'm not sure it will do the trick. It seems
+;; that it will sometimes create sidebars to sidebar
+;; also it doesn't mark them as dedicated.
+
+;; (add-to-list 'display-buffer-alist
+;;              `(,(rx bos "*Flycheck errors*" eos)
+;;                (display-buffer-in-side-window)
+;;                (side . right)
+;;                (window-width . 0.2)
+;;                (slot . -1)))
+
+;; (add-to-list 'display-buffer-alist
+;;              `(,"\*magit:.*"
+;;                (display-buffer-in-side-window)
+;;                (side . right)
+;;                (window-width . 0.2)
+;;                (slot . 0)))
+
+;; (add-to-list 'display-buffer-alist
+;;              `(,"\*\.emacs\.d Buffers\*"
+;;                (display-buffer-in-side-window)
+;;                (side . right)
+;;                (window-width . 0.2)
+;;                (slot . -1)))
+
 ;;; project-frame.el ends here

@@ -15,6 +15,7 @@
 ;; elscreen.el
 ;;     This package (as the name suggests) adds the concept of tabbar
 ;;     and screens.  A tab thus stores the whole frame configuration.
+;;     This is not what I needed as.
 ;;
 ;; tabbar.el
 ;;     With a good amount of configuration it might actually be
@@ -56,17 +57,14 @@
 ;;   unfortunate as I'd prefer the tab bar to only be associated with
 ;;   a given window (and not the buffer).  However, Emacs doens't have
 ;;   support for window-local variables.  They can be emulated by
-;;   using indirect buffers, but that then I would need to have two
+;;   using indirect buffers, but then I would need to have two
 ;;   copies of every buffer in the tab bar -- the base buffer and the
 ;;   indirect buffer.
 ;;
-;;   TODO: Write to the Emacs mailing list about this.  It seems to me
-;;         that the header-line and mode-line should actually be
-;;         window-specific variables.
-;;
 ;;; Code:
 ;;
-;; - TODO: Hook into creation of buffer.  It should always set the header-mode-lin
+;; - TODO: Hook into the changing of buffer -- it should change the name of the tab
+;; - TODO: Hook into creation of buffer.  It should always set the header-mode-line
 ;; - TODO: Change the tab face if it has git-changes, isn't saved etc.?
 ;; - TODO: Use a namespace?
 
@@ -99,7 +97,7 @@
 ;;; Key bindings:
 
 (defvar tabs-keymap (make-sparse-keymap)
-  "Keymap for ElScreen.")
+  "Keymap for tabs.")
 
 ;;; View:
 
@@ -140,7 +138,7 @@ order to not have tabs in the fringe."
   (setq header-line-format
         (list
          (header-line-format-left-fringe)
-         (header-line-format-tabs))))
+         '(:eval (header-line-format-tabs)))))
 
 ;;; Convenience
 
@@ -221,6 +219,14 @@ order to not have tabs in the fringe."
   (tabs-close-tab (tabs-get-current-index))
   (tabs-render))
 
+(defun tabs-close-tab-for-buffer (&optional buffer)
+  "Close the tab associated with the buffer."
+  (interactive)
+  ;; TODO: Finish this. The buffer being killed is the
+  ;; current bufsfer
+  (message "not implemented yet")
+  (tabs-render))
+
 (defun tabs-next-tab ()
   "Select the next (right) tab in the window."
   (interactive)
@@ -249,12 +255,18 @@ The index starts at 0"
 (defun tabs-enable ()
   "Show tabs for the current window."
   (interactive)
+
+  (add-hook 'kill-buffer-hook 'tabs-close-tab-for-buffer)
+
   (tabs-initialize-window)
   (tabs-render))
 
 (defun tabs-disable ()
   "Don't show tabs for the current window."
   (interactive)
+
+  (remove-hook 'kill-buffer-hook 'tabs-close-tab-for-buffer)
+
   ;; Clean-up. reset all windows?
   (setq header-line-format nil))
 
