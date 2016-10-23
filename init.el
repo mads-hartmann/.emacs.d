@@ -56,7 +56,7 @@
 ;; ---------------------------------
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;; Enable Protected
+;; Enable Protected Features
 ;; ---------------------------------
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
@@ -114,8 +114,8 @@
 (global-set-key (kbd "M-.") 'mhj/find-tag)
 (global-set-key (kbd "s-.") 'mhj/tags-apropos)
 (global-set-key (kbd "M-;") 'comment-dwim)
+(global-set-key (kbd "s-/") 'comment-line-dwim)
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
-(global-set-key (kbd "C-;") 'comment-line-dwim)
 (global-set-key (kbd "s-<return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-x C-SPC") 'pop-to-mark-command)
 (global-set-key (kbd "s-[") 'prev-window)
@@ -125,11 +125,9 @@
 (global-set-key (kbd "M-'") 'insert-ae) ; uk layout keyboard.
 (global-set-key (kbd "C-c C-1") 'previous-buffer)
 (global-set-key (kbd "C-c C-2") 'next-buffer)
-(define-key global-map [M-up] '(lambda () (interactive) (shrink-window 1)))
-(define-key global-map [M-down] '(lambda () (interactive) (shrink-window -1)))
-(define-key global-map [C-up] '(lambda () (interactive) (scroll-up -1)))
-(define-key global-map [C-down] '(lambda () (interactive) (scroll-down -1)))
-(global-set-key [f1] (lambda () (interactive) (switch-to-buffer nil)))
+(global-set-key (kbd "C-<up>") (lambda () (interactive) (scroll-up -1)))
+(global-set-key (kbd "C-<down>") (lambda () (interactive) (scroll-down -1)))
+(global-set-key (kbd "<f1>") (lambda () (interactive) (switch-to-buffer nil)))
 (global-set-key (kbd "<f3>") 'highlight-symbol)
 (global-set-key (kbd "<f4>") 'pop-tag-mark)
 (global-set-key (kbd "<f5>") 'xref-find-definitions)
@@ -315,9 +313,7 @@
         ("<s-up>" . diredp-up-directory))
   :init
   (progn
-
     ;; TODO: Don't show the root folder
-    ;; TODO: This is only nice for the sidebar?
     (defun dired-mode-hook-header-line ()
       (if (projectile-project-p)
           (progn
@@ -481,7 +477,6 @@
             ("View file" . view-file)
             ("Zgrep File(s)" . helm-ff-zgrep)))
 
-
     (add-to-list 'display-buffer-alist
                  `(,(rx bos "*helm" (+ anything) "*" eos)
                    (display-buffer-in-side-window)
@@ -544,8 +539,6 @@
             (ac-config-default)
             (setq ac-auto-start nil)
             (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")))
-
-(use-package hydra)
 
 (use-package multiple-cursors
   :bind (("C-M->" . mc/unmark-next-like-this)
@@ -755,7 +748,6 @@
     (add-hook 'web-mode-hook 'tern-mode)
     (add-hook 'web-mode-hook 'linum-mode)
 
-    ;; Requires `npm install -g eslint`
     (flycheck-add-mode 'javascript-eslint 'web-mode)))
 
 ;; company backend for tern
@@ -1254,6 +1246,7 @@
 (use-package tabs
   ;; My own small package for report specifications for one of our
   ;; internal analytics systems at issuu
+  :disabled t
   :ensure nil
   :load-path "tabs/"
   :commands tabs-mode
