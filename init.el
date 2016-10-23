@@ -182,7 +182,6 @@
 
 (use-package flycheck
   ;; On the fly linting.
-  ;; TODO: Configure where it stores its temporary files.
   :diminish ""
   :bind
   (:map flycheck-mode-map
@@ -498,8 +497,7 @@
     ;;    helm-source-projectile-files-list
     ;;    helm-source-projectile-recentf-list
     (setq helm-projectile-sources-list
-          '(helm-source-projectile-buffers-list
-            helm-source-ls-git-status)))) ;; requires helm-ls-git
+          '(helm-source-projectile-buffers-list))))
 
 (use-package helm-git-grep
   ;; Interactive git-grep using helm
