@@ -233,6 +233,14 @@
     (global-linum-mode -1)
     (setq linum-format "%4d ")))
 
+(use-package sh-script
+  ;; Configuration of the built-in sh-mode
+  :config
+  (progn
+    (add-hook 'sh-mode-hook 'flycheck-mode)
+    (add-hook 'sh-mode-hook 'linum-mode)
+    (add-hook 'sh-mode-hook 'company-mode)))
+
 (use-package make-mode
   ;; Configuration of the built-in makefile-mode
   :init
