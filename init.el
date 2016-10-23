@@ -187,8 +187,13 @@
   (:map flycheck-mode-map
         ("C-c ! ?" . flycheck-display-error-at-point))
   :commands flycheck-mode
+  :config
+  (progn
+    (flycheck-set-checker-executable 'javascript-eslint "/usr/local/bin/eslint"))
   :init
   (progn
+    ;; Disable jshint making eslint the selected linter
+    (setq-default flycheck-disabled-checkers '(javascript-jshint))
     (setq flycheck-check-syntax-automatically '(save mode-enabled))
     (setq flycheck-highlighting-mode 'symbols)
     (setq flycheck-indication-mode 'left-fringe)))
@@ -712,30 +717,19 @@
         ("C-c C-c" . flycheck-list-errors))
   :config
   (progn
-    ;; I used this for some of it:
-    ;; https://truongtx.me/2014/03/10/emacs-setup-jsx-mode-and-jsx-syntax-checking/
-
-    ;; Force web-mode to consider all js files as potential react
-    ;; files. See more here:
-    ;; http://cha1tanya.com/2015/06/20/configuring-web-mode-with-jsx.html
-    ;; (setq web-mode-content-types-alist
-    ;;       '(("jsx" . "\\.js[x]?\\'")
-    ;;         ("tsx" . "\\.ts[x]?\\'")))
-
+    (setq web-mode-enable-part-face nil)
     (setq web-mode-enable-auto-quoting nil)
+    (setq web-mode-markup-indent-offset 4)
+    (setq web-mode-css-indent-offset 2)
+    (setq web-mode-code-indent-offset 4)
 
-    ;; Disable jshint making eslint the selected linter
-    (setq-default flycheck-disabled-checkers '(javascript-jshint))
+    ;; Sometimes you'll find JSX syntax in .js files. This alist makes
+    ;; sure that js files have their `web-mode-content-type' set to
+    ;; `jsx' instead of `javascript'.
+    (setq web-mode-content-types-alist
+          '(("jsx" . "\\.js[x]?\\'")))
 
-    ;; TBH not entirely sure how this magic works. If I don't have it
-    ;; syntax highlighting for jsx parts of javascript files won't
-    ;; work.
-    ;; (defadvice web-mode-highlight-part (around tweak-jsx activate)
-    ;;   (if (equal web-mode-content-type "jsx")
-    ;;       (let ((web-mode-enable-part-face nil))
-    ;;         ad-do-it)
-    ;;     ad-do-it))
-
+    ;; For typescript I want to start tilde as well.
     (defun consider-tsx ()
       (when (string-equal "tsx" (file-name-extension buffer-file-name))
               (setup-tide-mode)))
