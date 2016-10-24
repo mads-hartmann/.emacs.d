@@ -241,6 +241,10 @@
    `(font-latex-verbatim-face ((t (:foreground ,base09))))
    `(font-latex-warning-face ((t (:foreground ,base08))))
 
+   ;; Neotree
+   `(neo-dir-link-face ((t (:foreground ,base0C :underline nil :weight medium))))
+   `(neo-root-dir-face ((t (:foreground ,base0E :background nil :slant italic :weight bold)))))
+
    ;; dired
    `(dired-header ((t (:foreground ,base0E :background nil :slant italic :weight bold))))
    `(dired-directory ((t (:foreground ,base0C :underline nil :weight medium))))

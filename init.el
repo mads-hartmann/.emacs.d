@@ -130,7 +130,8 @@
 (global-set-key (kbd "<f4>") 'pop-tag-mark)
 (global-set-key (kbd "<f5>") 'xref-find-definitions)
 (global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
-(global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
+;; Using neo-tree for a bit. So won't need this for the duration.
+;; (global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
 (global-set-key (kbd "s-0") 'mhj/focus-project-explorer)
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
@@ -1255,5 +1256,37 @@
    ("s-{" . tabs-previous-tab)
    ("s-w" . tabs-close-current-tab))
   :config (tabs-mode))
+
+(use-package all-the-icons
+  :config
+  (progn
+    (setq
+     all-the-icons-default-adjust 0
+     all-the-icons-scale-factor 1)))
+
+(use-package neotree
+  :bind (("<f12>" . neotree-projectile))
+  :load-path "~/dev/personal/emacs-neotree"
+  :config
+  (progn
+    (defun neotree-projectile ()
+      (interactive)
+      (neotree-dir (projectile-project-root)))
+
+    (defun neotree-mode-hook ()
+      (interactive)
+      (if (projectile-project-p)
+          (progn
+            (message "color is %s" (car (custom-variable-theme-value 'dired-sidebar-background)))
+            (buffer-face-set '(:background "#343d46")))))
+
+    (add-hook 'neotree-mode-hook 'neotree-mode-hook)
+
+    (setq
+     neo-theme 'icons
+     neo-mode-line-type 'none
+     neo-show-updir-line nil
+     neo-smart-open t
+     neo-window-width 30)))
 
 ;;; init.el ends here
