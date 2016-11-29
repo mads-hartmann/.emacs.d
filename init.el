@@ -24,8 +24,8 @@
  inhibit-startup-message t
  frame-title-format '((:eval buffer-file-name))
  enable-local-variables :all
- mouse-1-click-follows-link nil
- mouse-1-click-in-non-selected-windows nil
+ mouse-1-click-follows-link t
+ mouse-1-click-in-non-selected-windows t
  select-enable-clipboard t
  mouse-wheel-scroll-amount '(0.01)
  column-number-mode t
@@ -111,6 +111,7 @@
 (global-set-key (kbd "C-o") 'open-line)
 (global-set-key (kbd "M-.") 'mhj/find-tag)
 (global-set-key (kbd "s-.") 'mhj/tags-apropos)
+(global-set-key (kbd "<s-mouse-1>") 'xref-find-definitions)
 (global-set-key (kbd "M-;") 'comment-dwim)
 (global-set-key (kbd "s-/") 'comment-line-dwim)
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
@@ -131,7 +132,7 @@
 (global-set-key (kbd "<f5>") 'xref-find-definitions)
 (global-set-key (kbd "<f11>") 'mhj/show-info-sidebar)
 ;; Using neo-tree for a bit. So won't need this for the duration.
-;; (global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
+(global-set-key (kbd "<f12>") 'mhj/toggle-project-explorer)
 (global-set-key (kbd "s-0") 'mhj/focus-project-explorer)
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-delete-char)
 
@@ -167,7 +168,7 @@
       (add-to-list 'default-frame-alist '(height . 50))
       (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
       (load-theme 'base16-ocean-dark-hartmann t)
-      (set-face-attribute 'default nil :font "Operator Mono-16:antialias=subpixel:weight=thin"))
+      (set-face-attribute 'default nil :font "Go Mono-15:antialias=subpixel"))
   (progn
     (menu-bar-mode -1)
     (xterm-mouse-mode t)
@@ -343,6 +344,11 @@
     (add-hook 'dired-mode-hook 'dired-mode-hook-set-faces)
     (add-hook 'dired-mode-hook 'dired-hide-details-mode)))
 
+(use-package all-the-icons-dired
+  :init
+  (progn
+    (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)))
+
 (use-package dired-narrow
   ;; Make it possible to filter/search in a dired buffer. After a
   ;; filter has been applied it can be removed by refreshing the
@@ -370,6 +376,8 @@
 (use-package exec-path-from-shell
   ;; Make sure that emacs inherit environment variables from ~/.zshenv
   ;; and files like that.
+  ;; TODO: I'd rather not use this I think. But somehow, it seems that flycheck doesn't
+  ;;       look in the PATH environment, so this function must be settion some other things.
   :init
   (progn
     (exec-path-from-shell-initialize)))
@@ -452,14 +460,14 @@
          ("C-x b" . helm-buffers-list)
          ("M-y" . helm-show-kill-ring)
          ("M-s" . helm-occur))
-  :config
+  :init
   (progn
     (setq helm-follow-mode t)
     (setq helm-full-frame nil)
     ;; (setq helm-split-window-in-side-p nil)
     (setq helm-split-window-in-side-p t)
     (setq helm-split-window-default-side 'below)
-    (setq-default helm-buffer-max-length nil)
+    (setq helm-buffer-max-length nil)
 
     (setq helm-buffers-fuzzy-matching t)
     (setq helm-M-x-always-save-history nil)
@@ -1249,6 +1257,7 @@
      all-the-icons-scale-factor 1)))
 
 (use-package neotree
+  :disabled t
   :bind (("<f12>" . neotree-projectile))
   :load-path "~/dev/personal/emacs-neotree"
   :config
