@@ -243,7 +243,7 @@
 
    ;; Neotree
    `(neo-dir-link-face ((t (:foreground ,base0C :underline nil :weight medium))))
-   `(neo-root-dir-face ((t (:foreground ,base0E :background nil :slant italic :weight bold)))))
+   `(neo-root-dir-face ((t (:foreground ,base0E :background nil :slant italic :weight bold))))
 
    ;; dired
    `(dired-header ((t (:foreground ,base0E :background nil :slant italic :weight bold))))
@@ -532,7 +532,7 @@
           :box (:line-width 4 :color ,base01 :style nil)))))
 
    ;; helm
-   `(helm-source-header ((t (:foreground ,base0E :weight medium))))
+   `(helm-source-header ((t (:foreground ,base0E :background ,base00 :weight medium))))
    `(helm-header ((t (:foreground ,base0A :background ,base01 :underline nil))))
    `(helm-M-x-key ((t (:foreground ,base0C))))
    `(helm-action ((t (:foreground ,base05))))
@@ -557,7 +557,7 @@
    `(helm-grep-running ((t (:foreground ,base09))))
    `(helm-match ((t (:foreground ,base0A))))
    `(helm-moccur-buffer ((t (:foreground ,base0C))))
-   `(helm-selection ((t (:foreground nil :background ,base02 :underline nil))))
+   `(helm-selection ((t (:underline t :weight medium))))
    `(helm-selection-line ((t (:foreground nil :background ,base02))))
    `(helm-separator ((t (:foreground ,base02))))
    `(helm-visible-mark ((t (:foreground ,base00 :background ,base0B))))
@@ -568,6 +568,7 @@
 
   (custom-theme-set-variables
    'base16-ocean-dark-hartmann
+
    `(dired-sidebar-background ,base01)
 
    ;; Window-number
