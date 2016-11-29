@@ -545,17 +545,7 @@
   :bind (("C-M->" . mc/unmark-next-like-this)
          ("C-M-<" . mc/unmark-previous-like-this)
          ("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this))
-  :init
-  (progn
-    (defhydra hydra-multiple-cursors (:color blue)
-      "Multiple cursors"
-      ("i" mc/insert-numbers "Insert numbers")
-      ("h" mc-hide-unmatched-lines-mode "Hide Unmatched Lines")
-      ("a" mc/mark-all-like-this "Mark All Like This")
-      ("r" mc/reverse-regions "Reverse Regions")
-      ("s" mc/sort-regions "Sort Regions")
-      ("l" mc/edit-lines "Edit Lines"))))
+         ("C-<" . mc/mark-previous-like-this)))
 
 (use-package bookmark+
   :bind (("s-<f2>" . bmkp-toggle-autonamed-bookmark-set/delete)
@@ -986,13 +976,7 @@
   :bind (("C-x w ." . highlight-symbol-at-point)
          ("C-x w %" . highlight-symbol-query-replace)
          ("C-x w o" . highlight-symbol-occur)
-         ("C-x w c" . highlight-symbol-remove-all))
-  :init
-  (progn
-    (defhydra hydra-navigate-symbol (global-map"C-x w")
-      "navigate-symbol"
-      ("n" highlight-symbol-next)
-      ("p" highlight-symbol-prev))))
+         ("C-x w c" . highlight-symbol-remove-all)))
 
 (use-package company
   :commands company-mode
