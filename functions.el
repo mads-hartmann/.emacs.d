@@ -2,6 +2,16 @@
 ;;; Commentary:
 ;;; Code:
 
+(defun open-file-in-vscode ()
+  "Open the current buffer in vscode."
+  (interactive)
+  (shell-command (concat  "code " (buffer-file-name))))
+
+(defun open-project-in-vscode ()
+  "Open the current project in vscode."
+  (interactive)
+  (shell-command (concat  "code " (projectile-project-root))))
+
 (defun re-read-init-file ()
   "Reread ~/.emacs.d/init.el."
   (interactive)
