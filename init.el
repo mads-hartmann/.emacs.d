@@ -152,8 +152,8 @@
 
 ;; Load my various elisp files.
 ;; ---------------------------------
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 (load "~/.emacs.d/functions.el")
-(load "~/.emacs.d/my-pkgs/project-frame/project-frame.el")
 (load custom-file 'noerror)
 
 ;; window-system specific configuration
@@ -166,10 +166,10 @@
       (add-to-list 'initial-frame-alist '(height . 50))
       (add-to-list 'default-frame-alist '(width . 150))
       (add-to-list 'default-frame-alist '(height . 50))
-      (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
       (load-theme 'base16-ocean-dark-hartmann t)
-      (set-face-attribute 'default nil :font "Go Mono-15:antialias=subpixel"))
+      (set-face-attribute 'default nil :font "Menlo-12:antialias=subpixel"))
   (progn
+    (load-theme 'basic-light t)
     (menu-bar-mode -1)
     (xterm-mouse-mode t)
     (global-set-key (kbd "C-M-d") 'backward-kill-word)))
@@ -269,13 +269,6 @@
   ;; what is going on im my use-package declarations.
   :bind ("C-c e m" . macrostep-expand))
 
-(use-package report-spec-mode
-  ;; My own small package for report specifications for one of our
-  ;; internal analytics systems at issuu
-  :ensure nil
-  :load-path "my-pkgs/"
-  :defer)
-
 (use-package hdl-mode
   ;; My own small package for hdl files.
   :ensure nil
@@ -314,40 +307,14 @@
         ("<s-up>" . diredp-up-directory))
   :init
   (progn
-    ;; TODO: Don't show the root folder
-    (defun dired-mode-hook-header-line ()
-      (if (projectile-project-p)
-          (progn
-            (setq mode-line-format
-                  (list
-                   " "
-                   '(:eval (propertize (projectile-project-name) 'face font-lock-keyword-face))
-                   " ["
-                   (let ((branch-name (vc-working-revision (concat (projectile-project-root) "README.md"))))
-                     (cond ((stringp branch-name) (substring branch-name 0 10 ))
-                           (t "no-branch")))
-                   "] ")))))
 
-    (defun dired-mode-hook-set-faces ()
-      (interactive)
-      (if (projectile-project-p)
-          (progn
-            (message "color is %s" (car (custom-variable-theme-value 'dired-sidebar-background)))
-            (buffer-face-set '(:background "#343d46")))))
-
-    (setq insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls")
-    (setq dired-listing-switches "-lXGh --group-directories-first")
+    (setq
+     insert-directory-program "/usr/local/opt/coreutils/libexec/gnubin/ls"
+     dired-listing-switches "-lXGh --group-directories-first")
 
     (add-hook 'dired-mode-hook 'hl-line-mode)
     (add-hook 'dired-mode-hook 'dired-omit-mode)
-    (add-hook 'dired-mode-hook 'dired-mode-hook-header-line)
-    (add-hook 'dired-mode-hook 'dired-mode-hook-set-faces)
     (add-hook 'dired-mode-hook 'dired-hide-details-mode)))
-
-(use-package all-the-icons-dired
-  :init
-  (progn
-    (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)))
 
 (use-package dired-narrow
   ;; Make it possible to filter/search in a dired buffer. After a
@@ -403,7 +370,11 @@
   (:map flyspell-mode-map
         ("C-;" . nil)
         ("C-," . nil)
-        ("C-." . nil)))
+        ("C-." . nil))
+  :init
+  (progn
+    (add-hook 'git-commit-mode-hook 'flyspell-mode)
+    (add-hook 'markdown-mode-hook 'flyspell-mode)))
 
 (use-package ido
   ;; interactively-do-things. Improved find-file and M-x.
@@ -471,10 +442,6 @@
 
     (setq helm-buffers-fuzzy-matching t)
     (setq helm-M-x-always-save-history nil)
-
-    ;; (helm-autoresize-mode 1)
-    ;; (setq helm-autoresize-max-height 20)
-    ;; (setq helm-autoresize-min-height 20)
 
     (setq helm-find-files-actions '
           (("Find File" . helm-find-file-or-marked)
@@ -620,47 +587,25 @@
     (define-key org-mode-map (kbd "C-c C-a") 'org-agenda)
     (define-key org-mode-map (kbd "C-<tab>") nil)
 
-    (setq org-html-htmlize-output-type 'css)
-    (setq org-src-fontify-natively t)   ;trying it out
-    (setq org-startup-folded nil)
-    (setq org-confirm-babel-evaluate nil) ;; Living on the edge
-    (setq org-startup-indented nil)
-    (setq org-export-babel-evaluate nil) ;; Don't evaluate on export by default.
+    (setq
+     org-html-htmlize-output-type 'css
+     ;trying it out
+     org-src-fontify-natively t
+     org-startup-folded nil
+     ;; Living on the edge
+     org-confirm-babel-evaluate nil
+     org-startup-indented nil
+     ;; Don't evaluate on export by default.
+     org-export-babel-evaluate nil
+     ;; This is important, otherwise I can't tangle source blocks
+     ;; written in makefile mode.
+     org-src-preserve-indentation t
+     org-goto-interface 'outline-path-completion org-goto-max-level 10
+     ;; Even if sh-mode source-blocks fail I still want the output.
+     org-babel-default-header-args:sh
+     '((:prologue . "exec 2>&1") (:epilogue . ":"))
 
-    ;; This is important, otherwise I can't tangle source blocks
-    ;; written in makefile mode.
-    (setq org-src-preserve-indentation t)
-
-    ;; Even if sh-mode source-blocks fail I still want the output.
-    (setq org-babel-default-header-args:sh
-          '((:prologue . "exec 2>&1") (:epilogue . ":")))
-
-    ;; Blogging
-    (setq org-publish-project-alist
-          '(
-            ;;
-            ;; Notes
-            ;;
-            ("notes-org"
-             :base-directory "/Users/hartmann/Dropbox/org/"
-             :base-extension "org"
-             :publishing-directory "/Users/hartmann/Sites/notes"
-             :recursive t
-             :publishing-function org-html-publish-to-html
-             :headline-levels 4
-             :auto-preamble t
-             :html-extension "html"
-             :body-only nil)
-            ("notes-static"
-             :base-directory "/Users/hartmann/Dropbox/org/"
-             :base-extension "css\\|js\\|png\\|jpg\\|gif\\|eot\\|svg\\|ttf\\|woff\\|woff2"
-             :publishing-directory "/Users/hartmann/Sites/notes"
-             :recursive t
-             :publishing-function org-publish-attachment)
-            ("notes" :components ("notes-org" "notes-static")) ))
-
-
-    (setq org-babel-load-languages
+     org-babel-load-languages
           '((ocaml . t)
             (emacs-lisp . t)
             (sh . t)
@@ -670,19 +615,9 @@
             (js . t)
             (r . R)))
 
-    (setq org-agenda-files
-          '("~/Dropbox/org"
-            "~/Dropbox/org/issuu"
-            "~/Dropbox/org/projects"
-            "~/Dropbox/org/notes"))
-
     (add-hook 'org-mode-hook 'linum-mode)
     (add-hook 'org-mode-hook 'flyspell-mode)
-
-    (setq org-goto-interface 'outline-path-completion org-goto-max-level 10)
-
-    (add-hook 'org-mode-hook
-                    (lambda () (imenu-add-to-menubar "Imenu")))
+    (add-hook 'org-mode-hook (lambda () (imenu-add-to-menubar "Imenu")))
 
     ;; http://www.wisdomandwonder.com/link/9573/how-to-correctly-enable-flycheck-in-babel-source-blocks
     (defadvice org-edit-src-code (around set-buffer-file-name activate compile)
@@ -705,103 +640,6 @@
   (progn
     (setq scss-compile-at-save nil)
     (add-hook 'scss-mode-hook 'linum-mode)))
-
-(use-package company-web)
-
-(use-package web-mode
-  :commands web-mode
-  :mode
-  (("\\.js[x]?\\'" . web-mode)
-   ("\\.tsx\\'" . web-mode)
-   ("\\.html$" . web-mode))
-  :bind
-  (:map web-mode-map
-        ("M-<tab>" . company-complete)
-        ("C-c C-c" . flycheck-list-errors))
-  :config
-  (progn
-    (setq web-mode-enable-part-face nil)
-    (setq web-mode-enable-auto-quoting nil)
-    (setq web-mode-markup-indent-offset 4)
-    (setq web-mode-css-indent-offset 2)
-    (setq web-mode-code-indent-offset 4)
-
-    ;; Sometimes you'll find JSX syntax in .js files. This alist makes
-    ;; sure that js files have their `web-mode-content-type' set to
-    ;; `jsx' instead of `javascript'.
-    (setq web-mode-content-types-alist
-          '(("jsx" . "\\.js[x]?\\'")))
-
-    ;; For typescript I want to start tilde as well.
-    (defun consider-tsx ()
-      (when (string-equal "tsx" (file-name-extension buffer-file-name))
-              (setup-tide-mode)))
-
-    (add-hook 'web-mode-hook 'consider-tsx)
-    (add-hook 'web-mode-hook 'flycheck-mode)
-    (add-hook 'web-mode-hook 'company-mode)
-    (add-hook 'web-mode-hook 'tern-mode)
-    (add-hook 'web-mode-hook 'linum-mode)
-
-    (flycheck-add-mode 'javascript-eslint 'web-mode)))
-
-;; company backend for tern
-(use-package company-tern)
-
-(use-package tern
-  ;; Code-completion etc. for javascript.
-  ;; currently requires npm install -g tern
-  :bind
-  (:map tern-mode-keymap
-        ;; ("M-." . mhj/find-tag)
-        ("M-." . tern-find-definition)
-        ("M-*" . tern-pop-find-definition)
-        ("M-?" . tern-get-docs))
-  :config
-  (progn
-    (setq tern-command '("/usr/local/bin/tern"))))
-
-(defun setup-tide-mode ()
-  (interactive)
-  (tide-setup)
-  (eldoc-mode +1)
-  (company-mode +1)
-  (flycheck-mode +1)
-  (linum-mode +1)
-  (add-to-list 'compilation-error-regexp-alist '("^\\([_[:alnum:]-/]*.tsx?\\)\\[\\([[:digit:]]+\\), \\([[:digit:]]+\\)\\]:.*$" 1 2 3))
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (setq
-   flycheck-checker
-   (if (string-equal major-mode "web-mode")
-       (cond ((string-equal "tsx" (file-name-extension buffer-file-name)) 'jsx-tide)
-             ((string-equal "ts" (file-name-extension buffer-file-name)) 'tide)))))
-
-(use-package tide
-  ;; Typescript
-  :bind
-  (:map typescript-mode-map
-        ("M-<tab>" . company-complete)
-        ("M-." . tide-jump-to-definition)
-        ("M-*" . tide-jump-back)
-        ("<s-mouse-1>" . jump-to-definition-mouse-click)
-        ("M-?" . tide-documentation-at-point))
-  :config
-  (progn
-
-    (defun jump-to-definition-mouse-click (event)
-      (interactive "e")
-      (goto-char (posn-point (event-end event)))
-      (tide-jump-to-definition))
-
-    (font-lock-add-keywords
-     'typescript-mode
-     '(("yield" . font-lock-keyword-face)
-       ("yield*" . font-lock-keyword-face)
-       ("function*" . font-lock-keyword-face)
-       ))
-
-    (setq company-tooltip-align-annotations t)
-    (add-hook 'typescript-mode-hook 'setup-tide-mode)))
 
 (use-package markdown-mode
   :commands markdown-mode
@@ -1139,68 +977,6 @@
     (setq whitespace-style '(trailing tabs tab-mark face))
     (global-whitespace-mode)))
 
-(use-package tabbar
-  :disabled
-  :bind
-  (("C-c C-1" . tabbar-backward-tab)
-   ("C-c C-2" . tabbar-forward-tab))
-  :config
-  (progn
-    (defun projectile-buffer-groups-function ()
-      (list
-       (cond
-        ((string-equal "*" (substring (buffer-name) 0 1)) "Emacs")
-         ((string-equal "dired" major-mode) "Dired")
-         (t (if (projectile-project-p) (projectile-project-name) "Common")))))
-
-    (custom-set-variables
-     '(tabbar-home-button (quote (("[o]") "[x]")))
-     '(tabbar-mode t nil (tabbar))
-     '(tabbar-mwheel-mode nil nil (tabbar))
-     '(tabbar-scroll-left-button (quote ((" <") " <")))
-     '(tabbar-scroll-right-button (quote ((" >") " >")))
-     '(tabbar-separator (quote (0.5)))
-     '(tabbar-use-images nil))
-
-    (setq tabbar-buffer-groups-function 'projectile-buffer-groups-function)))
-
-(use-package elscreen
-  ;; TODO: I still want to be able to have a split-screen.
-  ;; TODO: Make it work with side windows.
-  ;; TODO: Hook it up with find-file functions etc.?
-  ;; TODO: Bind s-W to close the tab (or window if it's the last tab?)
-  :disabled
-  :commands elscreen-start
-  :bind
-  (("s-T" . elscreen-create)
-   ("s-{" . elscreen-previous)
-   ("s-}" . elscreen-next)
-   ("s-1" . mhj/elscreen-goto-0)
-   ("s-2" . mhj/elscreen-goto-1)
-   ("s-3" . mhj/elscreen-goto-2)
-   ("s-4" . mhj/elscreen-goto-3)
-   ("s-5" . mhj/elscreen-goto-4)
-   ("s-6" . mhj/elscreen-goto-5)
-   ("s-7" . mhj/elscreen-goto-6)
-   ("s-8" . mhj/elscreen-goto-7)
-   ("s-9" . mhj/elscreen-goto-8))
-  :config
-  (progn
-    ;; No support for lambda's in :bind right now.
-    (defun mhj/elscreen-goto-0 () (interactive)(elscreen-goto 0))
-    (defun mhj/elscreen-goto-1 () (interactive)(elscreen-goto 1))
-    (defun mhj/elscreen-goto-2 () (interactive)(elscreen-goto 2))
-    (defun mhj/elscreen-goto-3 () (interactive)(elscreen-goto 3))
-    (defun mhj/elscreen-goto-4 () (interactive)(elscreen-goto 4))
-    (defun mhj/elscreen-goto-5 () (interactive)(elscreen-goto 5))
-    (defun mhj/elscreen-goto-6 () (interactive)(elscreen-goto 6))
-    (defun mhj/elscreen-goto-7 () (interactive)(elscreen-goto 7))
-    (defun mhj/elscreen-goto-8 () (interactive)(elscreen-goto 8))
-
-    (setq elscreen-tab-display-kill-screen nil)
-    (setq elscreen-tab-display-control nil)
-    (setq elscreen-display-screen-number nil)))
-
 (use-package suggest)
 
 (use-package groovy-mode
@@ -1231,30 +1007,6 @@
 (use-package osx-dictionary
   ;; Look up a string in the dictionary used by Dictionary.app
   :bind ("M-?" . osx-dictionary-search-global))
-
-(use-package tabs
-  ;; My own small package for report specifications for one of our
-  ;; internal analytics systems at issuu
-  :disabled t
-  :ensure nil
-  :load-path "tabs/"
-  :commands tabs-mode
-  :diminish tabs-mode
-  :bind
-  (("s-T" . tabs-toggle-display)
-   ("s-t" . tabs-new-tab)
-   :map tabs-keymap
-   ("s-}" . tabs-next-tab)
-   ("s-{" . tabs-previous-tab)
-   ("s-w" . tabs-close-current-tab))
-  :config (tabs-mode))
-
-(use-package all-the-icons
-  :config
-  (progn
-    (setq
-     all-the-icons-default-adjust 0
-     all-the-icons-scale-factor 1)))
 
 (use-package neotree
   :disabled t

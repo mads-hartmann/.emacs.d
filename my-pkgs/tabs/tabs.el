@@ -68,6 +68,25 @@
 ;; - TODO: Change the tab face if it has git-changes, isn't saved etc.?
 ;; - TODO: Use a namespace?
 
+;;; To use it
+
+;; (use-package tabs
+;;   ;; My own small package for report specifications for one of our
+;;   ;; internal analytics systems at issuu
+;;   :ensure nil
+;;   :load-path "tabs/"
+;;   :commands tabs-mode
+;;   :diminish tabs-mode
+;;   :bind
+;;   (("s-T" . tabs-toggle-display)
+;;    ("s-t" . tabs-new-tab)
+;;    :map tabs-keymap
+;;    ("s-}" . tabs-next-tab)
+;;    ("s-{" . tabs-previous-tab)
+;;    ("s-w" . tabs-close-current-tab))
+;;   :config (tabs-mode))
+
+
 ;;; User Customizable Variables:
 
 (defconst tabs-version "2016-07-12")

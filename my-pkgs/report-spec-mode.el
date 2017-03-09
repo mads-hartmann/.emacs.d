@@ -1,5 +1,12 @@
 ;;; report-spec-mode.el --- Support for writing issuu internal anyltics report specs
 
+;; To enable this package, use the following snippet.
+;; (use-package report-spec-mode
+;;   ;; My own small package for report specifications for one of our
+;;   ;; internal analytics systems at issuu
+;;   :ensure nil
+;;   :load-path "my-pkgs/"
+;;   :defer)
 
 (setq report-spec-mode-keywords
       '("where" "by" "monthly" "weekly" "daily" "over" "days"))
