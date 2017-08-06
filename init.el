@@ -103,6 +103,7 @@
 (global-set-key (kbd "s-l") 'goto-line)
 (global-set-key (kbd "s-w") 'delete-frame)
 (global-set-key (kbd "s-n") 'new-frame)
+(global-set-key (kbd "s-d") 'duplicate-line)
 (global-set-key (kbd "s-+") 'text-scale-increase)
 (global-set-key (kbd "s--") 'text-scale-decrease)
 (global-set-key (kbd "s-`") 'ns-next-frame)
@@ -169,7 +170,7 @@
       (load-theme 'base16-ocean-dark-hartmann t)
       (set-face-attribute 'default nil :font "Menlo-12:antialias=subpixel"))
   (progn
-    (load-theme 'basic-light t)
+    ;; (load-theme 'basic-light t)
     (menu-bar-mode -1)
     (xterm-mouse-mode t)
     (global-set-key (kbd "C-M-d") 'backward-kill-word)))
@@ -863,6 +864,7 @@
 ;;
 
 (use-package scala-mode
+  :pin melpa
   :commands scala-mode
   :interpreter ("scala" . scala-mode)
   :config
@@ -872,6 +874,7 @@
     (add-hook 'scala-mode-hook 'linum-mode)))
 
 (use-package sbt-mode
+  :pin melpa
   :commands sbt-start sbt-command
   :config
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
@@ -881,9 +884,15 @@
    'self-insert-command
    minibuffer-local-completion-map))
 
+(add-to-list 'exec-path "/usr/local/bin")
+
 (use-package ensime
-  :pin melpa-stable
+  :ensure t
+  :pin melpa
   :commands ensime ensime-mode
+  :config
+  (setq ensime-startup-notification nil
+        ensime-startup-snapshot-notification nil)
   :bind
   (:map ensime-mode-map
         ("<tab>" .  nil)
